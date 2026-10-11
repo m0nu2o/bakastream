@@ -42,6 +42,7 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     params: {
       with_original_language: 'hi',
       with_origin_country: 'IN',
+      'vote_count.lte': 40,
       sort_by: 'popularity.desc',
     },
   },
@@ -54,8 +55,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '🇮🇳',
     params: {
       with_original_language: 'hi',
-      first_air_date_gte: '2018-01-01',
-      vote_count_gte: 15,
+      without_genres: 10766,
+      'vote_count.gte': 15,
       sort_by: 'vote_count.desc',
     },
   },

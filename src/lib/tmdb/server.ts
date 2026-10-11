@@ -438,7 +438,9 @@ export async function getHindiTV(page = 1) {
     params: {
       page,
       with_original_language: 'hi',
-      sort_by: 'popularity.desc',
+      without_genres: 10766,
+      'vote_count.gte': 15,
+      sort_by: 'vote_count.desc',
     },
   });
   return data.results.map(mapSummary);
@@ -450,6 +452,7 @@ export async function getHindiSerials(page = 1) {
       page,
       with_original_language: 'hi',
       with_origin_country: 'IN',
+      'vote_count.lte': 40,
       sort_by: 'popularity.desc',
     },
   });
