@@ -39,3 +39,6 @@ public/sw.js
 .idea
 .DS_Store
 *.sw?
+
+.vercel
+.env*
