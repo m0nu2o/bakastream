@@ -1,0 +1,16 @@
+# Keep the build context small — the builder stage copies the whole repo.
+.git
+.github
+.worktrees
+node_modules
+.next
+dist
+coverage
+*.log
+
+# Never bake real secrets into an image layer.
+.env
+.env.local
+.env.*.local
+
+*.md

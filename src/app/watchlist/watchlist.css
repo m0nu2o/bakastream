@@ -1,0 +1,120 @@
+.watchlist-page {
+  padding: calc(68px + 2rem) clamp(1rem, 4vw, 3.5rem) 3rem;
+  min-height: 100vh;
+}
+.watchlist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.watchlist-head__title {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+}
+.watchlist-tabs {
+  display: flex;
+  gap: 0.4rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.25rem;
+}
+.watchlist-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+.watchlist-tab--active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.1rem;
+}
+@media (min-width: 640px) {
+  .watchlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 760px;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.9rem;
+}
+.history-item__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(244, 59, 76, 0.14);
+  color: var(--accent);
+  transition: all 0.2s ease;
+}
+.history-item__play:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.history-item__body {
+  flex: 1;
+  min-width: 0;
+}
+.history-item__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-item__meta {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-top: 0.15rem;
+}
+.history-item__bar {
+  height: 3px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  margin-top: 0.45rem;
+  overflow: hidden;
+}
+.history-item__bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+.history-item__remove {
+  color: var(--text-tertiary);
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+.history-item__remove:hover {
+  color: var(--danger);
+  background: rgba(248, 113, 113, 0.1);
+}

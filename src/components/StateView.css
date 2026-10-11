@@ -1,0 +1,42 @@
+.state-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  text-align: center;
+  padding: 4.5rem 1.5rem;
+  min-height: 45vh;
+  animation: fade-in 0.3s ease;
+}
+.state-view__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  margin-bottom: 0.4rem;
+}
+.state-view--error .state-view__icon,
+.state-view--network .state-view__icon {
+  color: var(--accent);
+  background: rgba(244, 59, 76, 0.1);
+}
+.state-view__title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.state-view__message {
+  color: var(--text-secondary);
+  max-width: 460px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.state-view__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}

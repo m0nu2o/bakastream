@@ -1,0 +1,25 @@
+networks:
+  skystream:
+
+services:
+  skystream:
+    image: ${SKYSTREAM_IMAGE:-ghcr.io/yashiels/skystream:main}
+    restart: always
+    mem_limit: 1g
+    environment:
+      # Runtime variables — the server holds the credentials; the browser
+      # bundle contains none of them.
+      TMDB_ACCESS_TOKEN: ${TMDB_ACCESS_TOKEN:-}
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+      NOVA_API_URL: ${NOVA_API_URL:-}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://skystream.yashiel.dev}
+    networks: [skystream]
+
+  skystream-cloudflared:
+    image: "cloudflare/cloudflared:2025.8.1"
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${SKYSTREAM_TUNNEL_TOKEN}
+    depends_on: [skystream]
+    networks: [skystream]

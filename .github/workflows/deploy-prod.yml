@@ -1,0 +1,71 @@
+# Deploys skystream to launchpad (Hetzner, tailnet-only). The runner joins the
+# tailnet with an ephemeral tag-scoped auth key, then SSHes to launchpad and
+# builds the image on the box and (re)starts the compose stack. A cloudflared
+# sidecar (see deploy/compose.yml) serves https://skystream.yashiel.dev.
+#
+# Manual deploy / rollback: Actions -> "Deploy: Web (prod)" -> Run workflow.
+#
+# Required config:
+#   secret  TS_AUTHKEY_CI               — Tailscale ephemeral auth key, tag:ci
+#   secret  LAUNCHPAD_SSH_KEY           — ed25519 private key for yashiel@launchpad
+#   secret  TMDB_ACCESS_TOKEN           — TMDB v4 token (runtime variable, op://Agents/skystream/tmdb-token)
+#   var     LAUNCHPAD_HOST              — launchpad tailnet IP
+name: "Deploy: Web (prod)"
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - ".github/**"
+      - "LICENSE"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-skystream-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy → production (launchpad)
+    runs-on: ${{ vars.RUNNER }}
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY_CI }}
+          version: latest
+
+      - name: SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.LAUNCHPAD_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      # Credentials are RUNTIME variables (the server holds them) — the image
+      # builds without any secret baked in.
+      - name: Sync stack + build & deploy on launchpad
+        env:
+          TMDB_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+        run: |
+          ssh_opts=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new)
+          host="yashiel@${{ vars.LAUNCHPAD_HOST }}"
+          scp "${ssh_opts[@]}" deploy/compose.yml "${host}:~/apps/skystream/compose.yml"
+          ssh "${ssh_opts[@]}" "$host" TMDB_TOKEN="$TMDB_TOKEN" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          cd ~/apps/skystream/src/skystream
+          git fetch -q origin main && git reset -q --hard origin/main
+          DOCKER_BUILDKIT=1 docker build -t skystream:local .
+          cd ~/apps/skystream
+          TMDB_ACCESS_TOKEN="$TMDB_TOKEN" docker compose -p skystream --env-file .env -f compose.yml up -d
+          docker image prune -f >/dev/null 2>&1 || true
+          docker compose -p skystream -f compose.yml ps
+          REMOTE

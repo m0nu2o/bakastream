@@ -1,0 +1,123 @@
+.wrap {
+  padding-bottom: 2rem;
+}
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0 1rem 1rem;
+}
+@media (min-width: 640px) {
+  .controls {
+    padding: 0 clamp(1rem, 4vw, 3.5rem) 1rem;
+  }
+}
+.searchForm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+}
+.searchIcon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+.filterToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+.filterToggle:hover {
+  color: var(--text-primary);
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0 1rem 1.25rem;
+  animation: fade-in 0.2s ease;
+}
+@media (min-width: 640px) {
+  .filters {
+    padding: 0 clamp(1rem, 4vw, 3.5rem) 1.25rem;
+  }
+}
+.filterGroup {
+  display: flex;
+  gap: 0.4rem;
+}
+.chip {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s ease;
+}
+.chip:hover {
+  color: var(--text-primary);
+}
+.chipActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.select {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.1rem;
+  padding: 0.5rem 1rem 2rem;
+  transition: opacity 0.2s ease;
+}
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    padding: 0.5rem clamp(1rem, 4vw, 3.5rem) 2rem;
+  }
+}
+.gridPending {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 1rem 0 3rem;
+}
+.pageLabel {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
