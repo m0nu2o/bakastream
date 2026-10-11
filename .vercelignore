@@ -1,0 +1,7 @@
+.env
+.env.*
+.env.local
+.git
+.github
+deploy-docker
+scripts

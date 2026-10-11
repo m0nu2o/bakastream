@@ -3,8 +3,8 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig = {
   // Self-hosted container runtime: emit `.next/standalone/server.js` with only
-  // the traced runtime deps. See Dockerfile.
-  output: 'standalone',
+  // the traced runtime deps (when not deploying to Vercel).
+  output: process.env.VERCEL ? undefined : 'standalone',
   images: {
     remotePatterns: [
       {
