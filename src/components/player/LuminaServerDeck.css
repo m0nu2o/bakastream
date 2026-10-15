@@ -1,13 +1,15 @@
-/* Watch-Lumina Server Deck Styles */
+/* ─────────────────────────────────────────────────────────────
+   WATCH-LUMINA SERVER DECK (ZERO-SCROLL RESPONSIVE WRAP DESIGN)
+   ───────────────────────────────────────────────────────────── */
 
 .lumina-deck {
   width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  margin-top: 0.85rem;
-  padding: 0.85rem 1rem;
-  background: var(--card-bg, rgba(20, 20, 31, 0.7));
+  margin-top: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--card-bg, rgba(20, 20, 31, 0.75));
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
   border-radius: var(--radius-md, 14px);
   backdrop-filter: blur(16px);
@@ -15,17 +17,17 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  overflow: hidden;
+  gap: 0.65rem;
   user-select: none;
 }
 
 :root[data-theme="light"] .lumina-deck {
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   border-color: rgba(0, 0, 0, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
+/* ── Top Bar ── */
 .lumina-deck__top {
   display: flex;
   align-items: center;
@@ -62,18 +64,22 @@
 }
 
 .lumina-deck__category-title {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-primary, #ffffff);
 }
 
+:root[data-theme="light"] .lumina-deck__category-title {
+  color: #12121c;
+}
+
 .lumina-deck__online-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 700;
@@ -90,11 +96,12 @@
   box-shadow: 0 0 6px #10b981;
 }
 
+/* Audio Selector Tabs */
 .lumina-deck__audio-pills {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.28);
   padding: 0.2rem;
   border-radius: 8px;
   border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
@@ -109,9 +116,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border-radius: 6px;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   border: none;
   background: transparent;
@@ -136,222 +143,173 @@
   box-shadow: 0 2px 8px rgba(244, 59, 76, 0.35);
 }
 
-/* ── Carousel Track ── */
-.lumina-deck__carousel-wrap {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-
-.lumina-deck__track {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 0.2rem 0;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-.lumina-deck__track::-webkit-scrollbar {
-  display: none;
-}
-
-.lumina-deck__chevron {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(18, 18, 28, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-:root[data-theme="light"] .lumina-deck__chevron {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.15);
-  color: #12121c;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.lumina-deck__chevron:hover {
-  background: var(--brand-red, #f43b4c);
-  border-color: var(--brand-red, #f43b4c);
-  color: #ffffff;
-}
-
-.lumina-deck__chevron--left {
-  left: -6px;
-}
-
-.lumina-deck__chevron--right {
-  right: -6px;
-}
-
-/* ── Individual Server Card Pill ── */
-.lumina-deck__server-card {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-primary, #ffffff);
-  cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  text-align: left;
-  white-space: nowrap;
-  scroll-snap-align: start;
-  min-height: 44px;
-}
-
-:root[data-theme="light"] .lumina-deck__server-card {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.09);
-  color: #12121c;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-}
-
-.lumina-deck__server-card:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-:root[data-theme="light"] .lumina-deck__server-card:hover {
-  background: #f8f9fd;
-  border-color: rgba(0, 0, 0, 0.18);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.lumina-deck__server-card--active {
-  background: rgba(244, 59, 76, 0.15) !important;
-  border-color: var(--brand-red, #f43b4c) !important;
-  box-shadow: 0 0 14px rgba(244, 59, 76, 0.28) !important;
-}
-
-:root[data-theme="light"] .lumina-deck__server-card--active {
-  background: rgba(244, 59, 76, 0.08) !important;
-  border-color: var(--brand-red, #f43b4c) !important;
-}
-
-.lumina-deck__card-header {
+/* Sub-notice */
+.lumina-deck__sub-notice {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-tertiary, #94a3b8);
+  padding-bottom: 0.1rem;
 }
 
-.lumina-deck__badge-emoji {
+.lumina-deck__sub-icon {
+  color: var(--brand-red, #f43b4c);
+  flex-shrink: 0;
+}
+
+/* ── 2. Flex Wrap Pill Deck (Zero Scroll, All Visible) ── */
+.lumina-deck__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  width: 100%;
+}
+
+.lumina-server-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0.38rem 0.8rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #f1f5f9);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+:root[data-theme="light"] .lumina-server-btn {
+  background: #f8f9fd;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+}
+
+.lumina-server-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+:root[data-theme="light"] .lumina-server-btn:hover {
+  background: #f1f3f9;
+  border-color: rgba(0, 0, 0, 0.22);
+  color: #0f172a;
+}
+
+.lumina-server-btn--active {
+  background: linear-gradient(135deg, #e50914 0%, #b80610 100%) !important;
+  border-color: #ff4d5e !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45) !important;
+  font-weight: 700;
+}
+
+:root[data-theme="light"] .lumina-server-btn--active {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  border-color: #f43f5e !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4) !important;
+}
+
+.lumina-server-btn__badge {
   font-size: 0.85rem;
   line-height: 1;
 }
 
-.lumina-deck__server-name {
-  font-size: 0.78rem;
+.lumina-server-btn__name {
+  font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
 }
 
-.lumina-deck__card-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.lumina-deck__tag {
-  font-size: 0.62rem;
+.lumina-server-btn__quality {
+  font-size: 0.6rem;
   font-weight: 700;
-  padding: 0.12rem 0.35rem;
+  padding: 0.12rem 0.4rem;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-secondary, #94a3b8);
 }
 
-:root[data-theme="light"] .lumina-deck__tag {
+:root[data-theme="light"] .lumina-server-btn__quality {
   background: rgba(0, 0, 0, 0.06);
   color: #475569;
 }
 
-.lumina-deck__tag--live {
-  background: var(--brand-red, #f43b4c);
+.lumina-server-btn--active .lumina-server-btn__quality {
+  background: rgba(255, 255, 255, 0.22);
   color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
 }
 
-.lumina-deck__tag--hindi {
-  background: rgba(245, 158, 11, 0.2);
-  border: 1px solid rgba(245, 158, 11, 0.35);
+.lumina-server-btn__tag--hindi {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.12rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.45);
   color: #f59e0b;
 }
 
-.lumina-deck__tag--eng {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  color: #3b82f6;
+.lumina-server-btn--active .lumina-server-btn__tag--hindi {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #b80610;
 }
 
-.lumina-deck__latency {
+.lumina-server-btn__active-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.65rem;
-  font-family: monospace;
-  color: var(--text-muted, #64748b);
-  margin-left: 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
 }
 
-.lumina-deck__latency-dot {
+.lumina-server-btn__latency {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.62rem;
+  font-family: monospace;
+  color: var(--text-muted, #94a3b8);
+}
+
+.lumina-server-btn__dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: #10b981;
 }
 
-.lumina-deck__latency-dot--cooldown {
+.lumina-server-btn__dot--cooldown {
   background: #ef4444;
 }
 
+/* ── Responsive Mobile Rules ── */
 @media (max-width: 640px) {
   .lumina-deck {
-    padding: 0.75rem 0.85rem;
-    gap: 0.6rem;
+    padding: 0.7rem 0.8rem;
+    gap: 0.5rem;
   }
-  .lumina-deck__chevron {
-    display: none;
+  .lumina-deck__grid {
+    gap: 5px;
   }
-  .lumina-deck__top {
-    gap: 0.4rem;
+  .lumina-server-btn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+  }
+  .lumina-server-btn__name {
+    font-size: 0.72rem;
   }
   .lumina-deck__audio-pills {
     margin-left: auto;
-  }
-  .lumina-deck__server-card {
-    padding: 0.45rem 0.65rem;
-  }
-  .lumina-deck__server-name {
-    font-size: 0.75rem;
   }
 }

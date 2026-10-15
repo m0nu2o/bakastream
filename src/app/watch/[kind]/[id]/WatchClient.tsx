@@ -241,6 +241,7 @@ function EmbedStage({
   onLanguageChange: (lang: string) => void;
 }) {
   const [failed, setFailed] = useState(false);
+  const activeServerObj = compatibleServers.find(s => s.id === activeServer);
 
   // Parent-level Ad Shield: Blocks frame-busting, top window hijack, and popups WITHOUT sandbox attribute
   useEffect(() => {
@@ -373,20 +374,10 @@ function EmbedStage({
         )}
 
         <div className="watch__toolbar-right">
-          <label className="watch__server-select">
-            <Server size={14} /> Server:
-            <select
-              value={activeServer}
-              onChange={e => onServerChange(e.target.value)}
-              aria-label="Streaming Server"
-            >
-              {compatibleServers.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.badge} {s.name} ({s.quality.split('/')[0].trim()})
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="watch__active-server-pill">
+            <span className="watch__server-dot" />
+            <span>Server: <strong>{activeServerObj?.name ?? activeServer}</strong></span>
+          </div>
 
           <div
             className="watch__shield-badge"

@@ -2,6 +2,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
+  max-height: min(58vh, 560px);
   background: #000;
   border-radius: var(--radius-lg);
   overflow: hidden;
