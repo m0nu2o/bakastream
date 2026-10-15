@@ -57,7 +57,7 @@ export default async function WatchEpisodePage({ params }: PageProps) {
     overview: current ? `${current.name} — ${show.overview}` : show.overview,
     releaseDate: show.releaseDate,
     rating: show.rating,
-    genreIds: show.genreIds,
+    genreIds: show.genres ? show.genres.map(g => g.id) : [],
     originalLanguage: show.originalLanguage,
     spokenLanguages: show.spokenLanguages,
     imdbId: show.imdbId,

@@ -60,6 +60,7 @@
   flex: 1;
 }
 .navbar__link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -74,7 +75,25 @@
 }
 .navbar__link--active {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
+}
+.navbar__link--active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 2px;
+  right: 2px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 9999px;
+}
+.navbar__link:focus-visible,
+.navbar__search-btn:focus-visible,
+.navbar__logo:focus-visible,
+.navbar__burger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .navbar__dropdown {

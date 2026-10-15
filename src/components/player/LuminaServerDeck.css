@@ -1,0 +1,323 @@
+/* Watch-Lumina Server Deck Styles */
+
+.lumina-deck {
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: var(--card-bg, rgba(20, 20, 31, 0.7));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-md, 14px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  user-select: none;
+}
+
+:root[data-theme="light"] .lumina-deck {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.lumina-deck__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.lumina-deck__label-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lumina-deck__icon-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(244, 59, 76, 0.15);
+  border: 1px solid rgba(244, 59, 76, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-red, #f43b4c);
+}
+
+.lumina-deck__pulse-icon {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.92); }
+}
+
+.lumina-deck__category-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary, #ffffff);
+}
+
+.lumina-deck__online-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.lumina-deck__live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.lumina-deck__audio-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.2rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+}
+
+:root[data-theme="light"] .lumina-deck__audio-pills {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.lumina-deck__audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lumina-deck__audio-btn:hover {
+  color: var(--text-primary, #ffffff);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="light"] .lumina-deck__audio-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #12121c;
+}
+
+.lumina-deck__audio-btn--active {
+  background: var(--brand-red, #f43b4c) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(244, 59, 76, 0.35);
+}
+
+/* ── Carousel Track ── */
+.lumina-deck__carousel-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.lumina-deck__track {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.2rem 0;
+  width: 100%;
+}
+
+.lumina-deck__track::-webkit-scrollbar {
+  display: none;
+}
+
+.lumina-deck__chevron {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(18, 18, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="light"] .lumina-deck__chevron {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #12121c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lumina-deck__chevron:hover {
+  background: var(--brand-red, #f43b4c);
+  border-color: var(--brand-red, #f43b4c);
+  color: #ffffff;
+}
+
+.lumina-deck__chevron--left {
+  left: -6px;
+}
+
+.lumina-deck__chevron--right {
+  right: -6px;
+}
+
+/* ── Individual Server Card Pill ── */
+.lumina-deck__server-card {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary, #ffffff);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  white-space: nowrap;
+}
+
+:root[data-theme="light"] .lumina-deck__server-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.09);
+  color: #12121c;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.lumina-deck__server-card:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+:root[data-theme="light"] .lumina-deck__server-card:hover {
+  background: #f8f9fd;
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.lumina-deck__server-card--active {
+  background: rgba(244, 59, 76, 0.15) !important;
+  border-color: var(--brand-red, #f43b4c) !important;
+  box-shadow: 0 0 14px rgba(244, 59, 76, 0.28) !important;
+}
+
+:root[data-theme="light"] .lumina-deck__server-card--active {
+  background: rgba(244, 59, 76, 0.08) !important;
+  border-color: var(--brand-red, #f43b4c) !important;
+}
+
+.lumina-deck__card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lumina-deck__badge-emoji {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.lumina-deck__server-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.lumina-deck__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.lumina-deck__tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.12rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary, #94a3b8);
+}
+
+:root[data-theme="light"] .lumina-deck__tag {
+  background: rgba(0, 0, 0, 0.06);
+  color: #475569;
+}
+
+.lumina-deck__tag--live {
+  background: var(--brand-red, #f43b4c);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.lumina-deck__tag--hindi {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+.lumina-deck__tag--eng {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #3b82f6;
+}
+
+.lumina-deck__latency {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-family: monospace;
+  color: var(--text-muted, #64748b);
+  margin-left: 0.2rem;
+}
+
+.lumina-deck__latency-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.lumina-deck__latency-dot--cooldown {
+  background: #ef4444;
+}

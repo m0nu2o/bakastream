@@ -42,7 +42,7 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     params: {
       with_original_language: 'hi',
       with_origin_country: 'IN',
-      'vote_count.lte': 40,
+      with_genres: 10766,
       sort_by: 'popularity.desc',
     },
   },

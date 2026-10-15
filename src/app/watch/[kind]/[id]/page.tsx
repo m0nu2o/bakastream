@@ -52,7 +52,7 @@ export default async function WatchPage({ params }: PageProps) {
     overview: details.overview,
     releaseDate: details.releaseDate,
     rating: details.rating,
-    genreIds: details.genreIds,
+    genreIds: details.genres ? details.genres.map(g => g.id) : [],
     originalLanguage: details.originalLanguage,
     spokenLanguages: details.spokenLanguages,
     imdbId: details.imdbId,

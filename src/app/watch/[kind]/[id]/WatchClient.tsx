@@ -1,10 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, Loader2, Server, ShieldCheck, Volume2 } from 'lucide-react';
 import VideoPlayer from '@/components/player/VideoPlayer';
+import LuminaServerDeck from '@/components/player/LuminaServerDeck';
 import StateView from '@/components/StateView';
 import { resolveStream } from '@/lib/tmdb/client';
+import { getLuminaServers, type LuminaServerConfig } from '@/lib/providers/lumina';
 import type { PlaybackInfo } from '@/lib/providers/types';
 import type { MediaSummary } from '@/types';
 import './watch.css';
@@ -26,6 +28,11 @@ export default function WatchClient({ content, season, episode }: Props) {
 
   const requestedLang = useRef<string | undefined>(undefined);
   const isAnime = Boolean(content.genreIds?.includes(16) || info?.isAnime);
+  const mediaCategory = isAnime ? 'anime' : (content.type as 'movie' | 'tv');
+
+  const compatibleServers = useMemo(() => {
+    return getLuminaServers(mediaCategory);
+  }, [mediaCategory]);
 
   const load = useCallback(
     async (options?: { language?: string; subOrDub?: 'sub' | 'dub'; server?: string }) => {
@@ -120,9 +127,25 @@ export default function WatchClient({ content, season, episode }: Props) {
           title="No stream available"
           message={
             info.message ??
-            'No configured provider could supply playback for this title. This is expected until a stream provider is configured — see the README.'
+            'No configured provider could supply playback for this title. Please try another streaming server.'
           }
-          actionLabel="Back to home"
+          actionLabel="Try another server"
+          onRetry={() => handleServerChange('vidlink')}
+        />
+        <LuminaServerDeck
+          servers={compatibleServers}
+          activeServerId={server}
+          onSelectServer={handleServerChange}
+          mediaCategory={mediaCategory}
+          selectedAudioTrack={isAnime ? subOrDub : language}
+          onSelectAudioTrack={track => {
+            if (isAnime) {
+              handleSubOrDubChange(track as 'sub' | 'dub');
+            } else {
+              handleLanguageChange(track);
+            }
+          }}
+          hasHindiDub={content.originalLanguage === 'hi' || language === 'hindi'}
         />
       </div>
     );
@@ -142,6 +165,8 @@ export default function WatchClient({ content, season, episode }: Props) {
         activeSubOrDub={subOrDub}
         activeServer={server}
         activeLanguage={language}
+        compatibleServers={compatibleServers}
+        mediaCategory={mediaCategory}
         onSubOrDubChange={handleSubOrDubChange}
         onServerChange={handleServerChange}
         onLanguageChange={handleLanguageChange}
@@ -150,20 +175,37 @@ export default function WatchClient({ content, season, episode }: Props) {
   }
 
   return (
-    <VideoPlayer
-      key={`native-${content.id}-${season ?? 0}-${episode ?? 0}-${info.playback.url}`}
-      playback={info}
-      content={content}
-      season={season}
-      episode={episode}
-      onLanguageChange={lang => load({ language: lang })}
-    />
+    <div className="watch__stage">
+      <VideoPlayer
+        key={`native-${content.id}-${season ?? 0}-${episode ?? 0}-${info.playback.url}`}
+        playback={info}
+        content={content}
+        season={season}
+        episode={episode}
+        onLanguageChange={lang => load({ language: lang })}
+      />
+      <LuminaServerDeck
+        servers={compatibleServers}
+        activeServerId={server}
+        onSelectServer={handleServerChange}
+        mediaCategory={mediaCategory}
+        selectedAudioTrack={isAnime ? subOrDub : language}
+        onSelectAudioTrack={track => {
+          if (isAnime) {
+            handleSubOrDubChange(track as 'sub' | 'dub');
+          } else {
+            handleLanguageChange(track);
+          }
+        }}
+        hasHindiDub={content.originalLanguage === 'hi' || language === 'hindi'}
+      />
+    </div>
   );
 }
 
 /**
  * Provider-iframe playback with Sub/Dub controls, alternate server selection,
- * and parent-level Ad Shield protection (without using iframe sandbox).
+ * Lumina Server Deck, and parent-level Ad Shield protection.
  */
 function EmbedStage({
   embedUrl,
@@ -176,6 +218,8 @@ function EmbedStage({
   activeSubOrDub,
   activeServer,
   activeLanguage,
+  compatibleServers,
+  mediaCategory,
   onSubOrDubChange,
   onServerChange,
   onLanguageChange,
@@ -190,6 +234,8 @@ function EmbedStage({
   activeSubOrDub: 'sub' | 'dub';
   activeServer: string;
   activeLanguage: string;
+  compatibleServers: LuminaServerConfig[];
+  mediaCategory: 'movie' | 'tv' | 'anime';
   onSubOrDubChange: (mode: 'sub' | 'dub') => void;
   onServerChange: (server: string) => void;
   onLanguageChange: (lang: string) => void;
@@ -231,6 +277,21 @@ function EmbedStage({
           message="The third-party player could not be displayed — it may be offline, blocked, or refusing to be embedded."
           actionLabel="Try again"
           onRetry={() => setFailed(false)}
+        />
+        <LuminaServerDeck
+          servers={compatibleServers}
+          activeServerId={activeServer}
+          onSelectServer={onServerChange}
+          mediaCategory={mediaCategory}
+          selectedAudioTrack={isAnime ? activeSubOrDub : activeLanguage}
+          onSelectAudioTrack={track => {
+            if (isAnime) {
+              onSubOrDubChange(track as 'sub' | 'dub');
+            } else {
+              onLanguageChange(track);
+            }
+          }}
+          hasHindiDub={isHindiOriginal || activeLanguage === 'hindi'}
         />
       </div>
     );
@@ -319,11 +380,11 @@ function EmbedStage({
               onChange={e => onServerChange(e.target.value)}
               aria-label="Streaming Server"
             >
-              <option value="nova">NovaAPI (Direct Multi-Audio)</option>
-              <option value="vidlink">VidLink Pro (Default HD)</option>
-              <option value="2embed">2Embed HD (Backup Server)</option>
-              <option value="autoembed">AutoEmbed (Alt Server 1)</option>
-              <option value="smashy">SmashyStream (Alt Server 2)</option>
+              {compatibleServers.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.badge} {s.name} ({s.quality.split('/')[0].trim()})
+                </option>
+              ))}
             </select>
           </label>
 
@@ -346,6 +407,23 @@ function EmbedStage({
         allowFullScreen
         referrerPolicy="origin"
         onError={() => setFailed(true)}
+      />
+
+      {/* ── Watch-Lumina High Performance Server Selection Deck ── */}
+      <LuminaServerDeck
+        servers={compatibleServers}
+        activeServerId={activeServer}
+        onSelectServer={onServerChange}
+        mediaCategory={mediaCategory}
+        selectedAudioTrack={isAnime ? activeSubOrDub : activeLanguage}
+        onSelectAudioTrack={track => {
+          if (isAnime) {
+            onSubOrDubChange(track as 'sub' | 'dub');
+          } else {
+            onLanguageChange(track);
+          }
+        }}
+        hasHindiDub={isHindiOriginal || activeLanguage === 'hindi'}
       />
 
       <div className="watch__under">

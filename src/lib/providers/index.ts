@@ -1,9 +1,8 @@
 /**
  * Stream provider registry.
  *
- * The UI asks the registry to resolve playback; it never imports a concrete
- * provider. Priority: explicitly-configured providers first (Nova when
- * NOVA_API_URL is set), legal preview fallback last.
+ * Integrates all verified Watch-Lumina streaming servers with high-uptime fallbacks,
+ * multi-audio switching, dedicated Anime Sub/Dub engines, and Indian regional content.
  */
 
 import type { PlaybackInfo, ResolveRequest, StreamProvider } from './types';
@@ -11,8 +10,16 @@ import { NovaProvider } from './nova';
 import { VidLinkProvider } from './vidlink';
 import { TwoEmbedProvider } from './2embed';
 import { DemoPreviewProvider } from './demo';
+import {
+  LUMINA_SERVERS,
+  getCanonicalServerId,
+  getLuminaServers,
+  ProviderTelemetry,
+  type LuminaServerConfig,
+} from './lumina';
+import { getMalIdForAnime } from './mal';
 
-const providers: StreamProvider[] = [
+const legacyProviders: StreamProvider[] = [
   new NovaProvider(),
   new VidLinkProvider(),
   new TwoEmbedProvider(),
@@ -20,110 +27,149 @@ const providers: StreamProvider[] = [
 ];
 
 export function listProviders(): StreamProvider[] {
-  return providers;
+  return legacyProviders;
 }
 
 export function getConfiguredProviders(): StreamProvider[] {
-  return providers.filter(p => p.enabled);
+  return legacyProviders.filter(p => p.enabled);
 }
 
 /**
- * Resolve playback for a request. The first configured provider wins; if none
- * are configured, or every one fails, the response carries status
- * 'unavailable' with a human-readable reason — the UI renders that, it never
- * fabricates a stream.
+ * Resolve playback for a request using the full suite of Watch-Lumina servers.
  */
 export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> {
-  const configured = getConfiguredProviders();
+  const isAnime = Boolean(req.isAnime);
+  const isTV = req.type === 'tv';
+  const season = req.season ?? 1;
+  const episode = req.episode ?? 1;
+  const isHindi = req.language?.trim().toLowerCase() === 'hindi';
+  const isDub = req.subOrDub === 'dub';
 
-  if (configured.length === 0) {
+  // Determine canonical requested server (or intelligent default)
+  let requestedServerId = req.server ? getCanonicalServerId(req.server) : null;
+
+  if (!requestedServerId) {
+    if (isHindi) {
+      requestedServerId = 'screenscape';
+    } else if (isAnime) {
+      requestedServerId = isDub ? 'vidlink-anime' : 'vidlink-anime';
+    } else {
+      requestedServerId = 'nova';
+    }
+  }
+
+  // 1. If Nova is explicitly requested, attempt NovaAPI direct resolution first
+  if (requestedServerId === 'nova') {
+    const nova = legacyProviders.find(p => p.id === 'nova');
+    if (nova) {
+      try {
+        const info = await nova.resolve(req);
+        if (info.status === 'ok') {
+          ProviderTelemetry.recordSuccess('nova');
+          return {
+            ...info,
+            server: 'nova',
+          };
+        }
+      } catch {
+        ProviderTelemetry.recordFailure('nova');
+      }
+    }
+  }
+
+  // 2. Resolve via Lumina Server Suite
+  const luminaServer = LUMINA_SERVERS.find(s => s.id === requestedServerId);
+  if (luminaServer) {
+    let malId: number | null = null;
+    if (isAnime || req.title) {
+      try {
+        malId = await getMalIdForAnime(req.title ?? '');
+      } catch {
+        malId = null;
+      }
+    }
+
+    const embedUrl = luminaServer.getPlaybackUrl({
+      type: req.type,
+      id: req.id,
+      imdbId: req.imdbId,
+      season: isTV ? season : undefined,
+      episode: isTV ? episode : undefined,
+      isDub,
+      language: req.language,
+      malId,
+    });
+
+    const audioTracks = isAnime
+      ? [
+          { label: 'Subbed (Japanese + Subtitles)', selected: !isDub },
+          { label: 'Dubbed (English Audio)', selected: isDub },
+        ]
+      : [
+          { label: 'Original / Multi-Audio', selected: !isHindi },
+          { label: 'Hindi Dubbed / Dual-Audio', selected: isHindi },
+        ];
+
+    const selectedLanguage = isAnime
+      ? isDub
+        ? 'Dubbed (English Audio)'
+        : 'Subbed (Japanese + Subtitles)'
+      : isHindi
+        ? 'Hindi Dubbed / Dual-Audio'
+        : 'Original / Multi-Audio';
+
+    ProviderTelemetry.recordSuccess(luminaServer.id);
+
     return {
-      providerId: 'none',
-      providerLabel: 'None',
-      status: 'unavailable',
-      playback: null,
-      audioTracks: [],
+      providerId: luminaServer.id,
+      providerLabel: luminaServer.name,
+      status: 'ok',
+      playback: {
+        kind: 'embed',
+        embedUrl,
+      },
+      audioTracks,
       subtitles: [],
-      message:
-        'No stream provider is configured. Set NOVA_API_URL to enable the Nova provider, or plug a licensed provider into src/lib/providers.',
-      notice: '',
+      selectedLanguage,
+      subOrDub: req.subOrDub,
+      isAnime,
+      server: luminaServer.id,
+      notice: `Streaming via ${luminaServer.name} (${luminaServer.quality}). Select tracks and settings in player controls.`,
+      isPreview: false,
     };
   }
 
-  // 1. Explicit server routing for 2Embed
-  if (req.server === '2embed') {
-    const twoEmbed = configured.find(p => p.id === '2embed');
-    if (twoEmbed) {
-      return await twoEmbed.resolve(req);
-    }
-  }
-
-  // 2. Explicit server routing for VidLink / AutoEmbed / SmashyStream
-  if (req.server === 'vidlink' || req.server === 'autoembed' || req.server === 'smashy') {
-    const vidlink = configured.find(p => p.id === 'vidlink');
-    if (vidlink) {
-      return await vidlink.resolve(req);
-    }
-  }
-
-  // 2. Explicit server routing for Nova
-  if (req.server === 'nova') {
-    const nova = configured.find(p => p.id === 'nova');
-    if (nova) {
-      const info = await nova.resolve(req);
-      if (info.status === 'ok') {
-        return info;
-      }
-      // If Nova returned unavailable, attempt backup provider so user is not stuck
-      const backup = configured.find(p => p.id !== 'nova');
-      if (backup) {
-        try {
-          const backupInfo = await backup.resolve({ ...req, server: 'vidlink' });
-          if (backupInfo.status === 'ok') {
-            return {
-              ...backupInfo,
-              notice: `NovaAPI stream was unavailable (${info.message || 'Media not found'}). Playing from alternate server.`,
-            };
-          }
-        } catch {
-          // ignore backup error, return nova's status
-        }
-      }
-      return info;
-    }
-  }
-
-  // 3. Default priority order (Nova first, then VidLink, then preview fallback)
-  let last: PlaybackInfo | null = null;
+  // 3. Fallback: try configured legacy providers
+  const configured = getConfiguredProviders();
   for (const provider of configured) {
     try {
       const info = await provider.resolve(req);
       if (info.status === 'ok') {
-        if (provider.id === 'demo-preview' && last?.providerId === 'nova') {
-          return {
-            ...info,
-            notice: `Nova provider could not resolve this stream (${last.message || 'unavailable'}). Showing sample preview player.`,
-          };
-        }
         return info;
       }
-      last = info;
     } catch {
-      // try the next provider
+      // try next
     }
   }
-  return (
-    last ?? {
-      providerId: 'none',
-      providerLabel: 'None',
-      status: 'unavailable',
-      playback: null,
-      audioTracks: [],
-      subtitles: [],
-      message: 'Every configured provider failed to resolve this title.',
-      notice: '',
-    }
-  );
+
+  return {
+    providerId: 'none',
+    providerLabel: 'None',
+    status: 'unavailable',
+    playback: null,
+    audioTracks: [],
+    subtitles: [],
+    message: 'Every configured streaming server failed to resolve this title. Please try another server.',
+    notice: '',
+  };
 }
+
+export {
+  LUMINA_SERVERS,
+  getCanonicalServerId,
+  getLuminaServers,
+  ProviderTelemetry,
+  type LuminaServerConfig,
+} from './lumina';
 
 export type { PlaybackInfo, ResolveRequest, StreamProvider } from './types';

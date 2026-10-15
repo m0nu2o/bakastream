@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import './home.css';
 import Hero from '@/components/Hero';
+import TrendingShowcase from '@/components/TrendingShowcase';
+import WatchingBanner from '@/components/WatchingBanner';
+import CatalogSection from '@/components/CatalogSection';
 import MediaRow from '@/components/MediaRow';
 import GenreSpotlight from '@/components/GenreSpotlight';
 import StateView from '@/components/StateView';
@@ -44,19 +48,58 @@ async function HomeContent() {
   const genreName = (id: number): string =>
     data?.genres.find((g: Genre) => g.id === id)?.name ?? 'Browse';
 
+  // Dynamic watching item from real trending titles
+  const watchingItem = data.trending.length > 0 ? data.trending[0] : null;
+
   return (
     <div className="home__body">
+      {/* ── 1. DYNAMIC DATA-DRIVEN HERO SHOWCASE ── */}
       {data.featured.length > 0 ? (
-        <Hero items={data.featured} />
+        <Hero items={data.featured} genres={data.genres} />
       ) : (
         <div style={{ height: '68px' }} />
       )}
 
-      <MediaRow
-        title="Trending now"
-        items={data.trending}
-        seeAllHref={{ href: '/search?type=all' }}
+      {/* ── 2. TRENDING SHOWCASE & INTERACTIVE GENRE CHIPS ── */}
+      <TrendingShowcase
+        trendingItems={data.trending}
+        popularItems={data.popularMovies}
+        recentItems={data.recentlyAdded}
+        genres={data.genres}
       />
+
+      {/* ── 3. DYNAMIC "WATCHING" SPOTLIGHT BANNER ── */}
+      {watchingItem && <WatchingBanner item={watchingItem} />}
+
+      {/* ── 4. MOVIES CATALOG (Interactive Sort: Latest, A-Z, Year, Rate) ── */}
+      <CatalogSection
+        title="Movies"
+        type="movie"
+        items={data.popularMovies}
+        viewAllHref="/movies"
+      />
+
+      {/* ── 5. SERIES CATALOG (Interactive Sort: Latest, A-Z, Year, Rate) ── */}
+      <CatalogSection
+        title="Series"
+        type="tv"
+        items={data.popularTV}
+        viewAllHref="/tv"
+      />
+
+      {/* ── 6. CENTRAL DISCOVERY "+" EXPLORE BUTTON ── */}
+      <div className="home-explore-more">
+        <Link
+          href="/search"
+          className="home-explore-more__btn"
+          aria-label="Explore more titles"
+          title="Explore more"
+        >
+          <span>+</span>
+        </Link>
+      </div>
+
+      {/* ── 7. PRESERVED RICH MULTILINGUAL & SPECIALIZED CATEGORIES ── */}
       <MediaRow
         title="Bollywood & Hindi Movies"
         items={data.hindiMovies}
@@ -78,14 +121,9 @@ async function HomeContent() {
         seeAllHref={{ href: '/category/kdrama' }}
       />
       <MediaRow
-        title="Popular movies"
-        items={data.popularMovies}
-        seeAllHref={{ href: '/movies' }}
-      />
-      <MediaRow
-        title="Popular TV & web series"
-        items={data.popularTV}
-        seeAllHref={{ href: '/tv' }}
+        title="Anime"
+        items={data.anime}
+        seeAllHref={{ href: '/category/anime' }}
       />
       <MediaRow
         title="Top rated movies"
@@ -93,18 +131,12 @@ async function HomeContent() {
         seeAllHref={{ href: '/movies?sort=vote' }}
       />
       <MediaRow
-        title="Recently added"
-        items={data.recentlyAdded}
-        seeAllHref={{ href: '/search' }}
-      />
-      <MediaRow
         title="Top rated series"
         items={data.topRatedTV}
         seeAllHref={{ href: '/tv?sort=vote' }}
       />
-      <MediaRow title="Anime" items={data.anime} seeAllHref={{ href: '/category/anime' }} />
 
-      {GENRE_SPOTLIGHT.map(id => (
+      {GENRE_SPOTLIGHT.map((id) => (
         <GenreSpotlight key={id} genreId={id} name={genreName(id)} />
       ))}
     </div>
