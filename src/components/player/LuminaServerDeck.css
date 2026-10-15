@@ -1,526 +1,297 @@
 /* ─────────────────────────────────────────────────────────────
-   WATCH-LUMINA SERVER DECK — Premium Categorized Stream Selector
-   Zero-Scroll · Responsive Grid · Light & Dark Mode
+   MINIMALIST LUMINA SERVER BAR
+   Ultra-clean single bar · Zero scroll · High contrast
    ───────────────────────────────────────────────────────────── */
 
-.lumina-deck {
+.lumina-bar {
   width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  margin-top: 0.75rem;
-  padding: 0.8rem 0.95rem;
-  background: var(--card-bg, rgba(14, 14, 22, 0.88));
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.07));
-  border-radius: 12px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  user-select: none;
-}
-
-:root[data-theme="light"] .lumina-deck {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.09);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
-}
-
-/* ── 1. Top Bar ── */
-.lumina-deck__top {
+  margin-top: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--card-bg, rgba(14, 14, 22, 0.85));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.65rem;
+  user-select: none;
 }
 
-.lumina-deck__heading {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-shrink: 0;
+:root[data-theme="light"] .lumina-bar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-.lumina-deck__icon-badge {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: rgba(244, 59, 76, 0.15);
-  border: 1px solid rgba(244, 59, 76, 0.3);
+/* ── Left Section: Label + Server Chips ── */
+.lumina-bar__left {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.lumina-bar__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text-tertiary, #94a3b8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lumina-bar__pulse {
   color: var(--brand-red, #f43b4c);
-}
-
-.lumina-deck__pulse-icon {
   animation: luminaPulse 2s infinite ease-in-out;
 }
 
 @keyframes luminaPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.88); }
+  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
-.lumina-deck__title {
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-primary, #f1f5f9);
-}
-
-:root[data-theme="light"] .lumina-deck__title {
-  color: #0f172a;
-}
-
-.lumina-deck__count-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #10b981;
-}
-
-.lumina-deck__live-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 5px #10b981;
-}
-
-/* Controls right: audio pills + auto-switch toggle */
-.lumina-deck__controls-right {
+.lumina-bar__servers {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
-/* Auto-switch toggle (inline in header) */
-.lumina-deck__autoswitch {
+/* ── Individual Server Chip ── */
+.lumina-server-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: 7px;
-  font-size: 0.68rem;
-  font-weight: 700;
+  gap: 0.35rem;
+  padding: 0.32rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-secondary, #cbd5e1);
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1px solid;
+  white-space: nowrap;
 }
 
-.lumina-deck__autoswitch--on {
-  background: rgba(16, 185, 129, 0.14);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #10b981;
-}
-
-.lumina-deck__autoswitch--off {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: var(--text-secondary, #94a3b8);
-}
-
-.lumina-deck__autoswitch--on:hover {
-  background: rgba(16, 185, 129, 0.24);
-}
-
-.lumina-deck__autoswitch--off:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-:root[data-theme="light"] .lumina-deck__autoswitch--on {
-  background: #d1fae5;
-  border-color: #34d399;
-  color: #065f46;
-}
-
-:root[data-theme="light"] .lumina-deck__autoswitch--off {
-  background: #f1f5f9;
+:root[data-theme="light"] .lumina-server-chip {
+  background: #f8fafc;
   border-color: rgba(0, 0, 0, 0.08);
   color: #475569;
 }
 
-/* Audio Pills */
-.lumina-deck__audio-pills {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 0.18rem;
-  border-radius: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-:root[data-theme="light"] .lumina-deck__audio-pills {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.07);
-}
-
-.lumina-deck__audio-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: 5px;
-  font-size: 0.67rem;
-  font-weight: 700;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary, #94a3b8);
-  cursor: pointer;
-  transition: all 0.14s ease;
-}
-
-.lumina-deck__audio-btn:hover {
-  color: var(--text-primary, #ffffff);
+.lumina-server-chip:hover {
   background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
-:root[data-theme="light"] .lumina-deck__audio-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #0f172a;
-}
-
-.lumina-deck__audio-btn--active {
-  background: var(--brand-red, #f43b4c) !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(244, 59, 76, 0.3);
-}
-
-/* ── 2. Category Filter Tabs ── */
-.lumina-deck__category-tabs {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
-}
-
-.lumina-deck__cat-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0.27rem 0.6rem;
-  border-radius: 7px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: var(--text-secondary, #94a3b8);
-  transition: all 0.14s ease;
-}
-
-:root[data-theme="light"] .lumina-deck__cat-tab {
+:root[data-theme="light"] .lumina-server-chip:hover {
   background: #f1f5f9;
-  border-color: rgba(0, 0, 0, 0.07);
-  color: #475569;
-}
-
-.lumina-deck__cat-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: var(--text-primary, #f1f5f9);
-}
-
-:root[data-theme="light"] .lumina-deck__cat-tab:hover {
-  background: #e2e8f0;
-  border-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.15);
   color: #0f172a;
 }
 
-.lumina-deck__cat-tab--active {
-  background: rgba(244, 59, 76, 0.15) !important;
-  border-color: rgba(244, 59, 76, 0.5) !important;
-  color: #ff6b7a !important;
+.lumina-server-chip--active {
+  background: linear-gradient(135deg, rgba(244, 59, 76, 0.22), rgba(229, 9, 20, 0.12)) !important;
+  border-color: var(--brand-red, #f43b4c) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(244, 59, 76, 0.32);
 }
 
-:root[data-theme="light"] .lumina-deck__cat-tab--active {
-  background: rgba(244, 59, 76, 0.1) !important;
-  border-color: #f43b4c !important;
-  color: #be123c !important;
+:root[data-theme="light"] .lumina-server-chip--active {
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #b91c1c !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.18);
 }
 
-.lumina-deck__tab-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.06rem 0.32rem;
-  border-radius: 999px;
-  font-size: 0.6rem;
-  font-weight: 800;
-  background: rgba(0, 0, 0, 0.35);
-  color: inherit;
-}
-
-:root[data-theme="light"] .lumina-deck__tab-count {
-  background: rgba(0, 0, 0, 0.07);
-}
-
-/* ── 3. Server Cards Grid ── */
-.lumina-deck__cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-  gap: 7px;
-  width: 100%;
-}
-
-.lumina-server-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.55rem 0.7rem;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.065);
-  color: var(--text-primary, #f1f5f9);
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.17s cubic-bezier(0.16, 1, 0.3, 1);
-  box-sizing: border-box;
-}
-
-:root[data-theme="light"] .lumina-server-card {
-  background: #f8fafc;
-  border-color: rgba(0, 0, 0, 0.07);
-  color: #0f172a;
-}
-
-.lumina-server-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.18);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
-}
-
-:root[data-theme="light"] .lumina-server-card:hover {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.16);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-}
-
-/* Active server card */
-.lumina-server-card--active {
-  background: linear-gradient(135deg, rgba(244, 59, 76, 0.14) 0%, rgba(180, 6, 16, 0.05) 100%) !important;
-  border-color: rgba(244, 59, 76, 0.7) !important;
-  box-shadow: 0 0 18px rgba(244, 59, 76, 0.22), inset 0 0 12px rgba(244, 59, 76, 0.06) !important;
-  transform: none !important;
-}
-
-:root[data-theme="light"] .lumina-server-card--active {
-  background: #fff5f5 !important;
-  border-color: #e11d48 !important;
-  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.15) !important;
-}
-
-/* Cooldown (failed) server card */
-.lumina-server-card--cooldown {
-  opacity: 0.55;
-  border-style: dashed;
-}
-
-/* Card Header */
-.lumina-server-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.lumina-server-card__index-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.62rem;
-  font-weight: 800;
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text-secondary, #94a3b8);
-  letter-spacing: 0.02em;
-}
-
-:root[data-theme="light"] .lumina-server-card__index-pill {
-  background: rgba(0, 0, 0, 0.06);
-  color: #475569;
-}
-
-.lumina-server-card--active .lumina-server-card__index-pill {
-  background: var(--brand-red, #f43b4c);
-  color: #ffffff;
-}
-
-.lumina-server-card__play-icon {
-  fill: currentColor;
-}
-
-.lumina-server-card__active-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.6rem;
-  font-weight: 800;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  background: rgba(244, 59, 76, 0.22);
-  border: 1px solid rgba(244, 59, 76, 0.45);
-  color: #ff6b7a;
-}
-
-:root[data-theme="light"] .lumina-server-card__active-tag {
-  background: #f43f5e;
-  color: #ffffff;
-  border-color: transparent;
-}
-
-.lumina-server-card__ping {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.6rem;
-  font-family: monospace;
-  color: var(--text-muted, #94a3b8);
-}
-
-.lumina-server-card__dot {
+.lumina-server-chip__dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: #10b981;
-}
-
-.lumina-server-card__dot--cooldown {
-  background: #ef4444;
-}
-
-/* Card Body: Emoji badge + name + quality stacked */
-.lumina-server-card__body {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
-}
-
-.lumina-server-card__badge {
-  font-size: 1rem;
-  line-height: 1.2;
+  box-shadow: 0 0 6px #10b981;
   flex-shrink: 0;
 }
 
-.lumina-server-card__text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.lumina-server-card__name {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-primary, #f1f5f9);
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-:root[data-theme="light"] .lumina-server-card__name {
-  color: #0f172a;
-}
-
-.lumina-server-card__quality {
+.lumina-server-chip__idx {
   font-size: 0.65rem;
-  color: var(--text-tertiary, #64748b);
-  line-height: 1.2;
+  font-weight: 800;
+  color: var(--brand-red, #f43b4c);
+  opacity: 0.95;
 }
 
-:root[data-theme="light"] .lumina-server-card__quality {
-  color: #64748b;
+.lumina-server-chip--active .lumina-server-chip__idx {
+  color: #ffffff;
 }
 
-/* Card Footer: Feature pills */
-.lumina-server-card__footer {
+:root[data-theme="light"] .lumina-server-chip--active .lumina-server-chip__idx {
+  color: #b91c1c;
+}
+
+.lumina-server-chip__name {
+  font-weight: 600;
+}
+
+.lumina-server-chip__quality {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.lumina-server-chip--active .lumina-server-chip__quality {
+  background: rgba(244, 59, 76, 0.3);
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .lumina-server-chip--active .lumina-server-chip__quality {
+  background: rgba(239, 68, 68, 0.15);
+  color: #991b1b;
+}
+
+/* ── Right Section: Auto-Switch + Audio ── */
+.lumina-bar__right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.lumina-server-card__pill {
-  font-size: 0.58rem;
-  font-weight: 700;
-  padding: 0.08rem 0.32rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-secondary, #94a3b8);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-:root[data-theme="light"] .lumina-server-card__pill {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.06);
-  color: #475569;
-}
-
-.lumina-server-card__pill--hindi {
-  background: rgba(245, 158, 11, 0.15) !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
-  color: #f59e0b !important;
-}
-
-:root[data-theme="light"] .lumina-server-card__pill--hindi {
-  background: #fef3c7 !important;
-  border-color: #f59e0b !important;
-  color: #b45309 !important;
-}
-
-/* ── 4. Footer Notice ── */
-.lumina-deck__sub-notice {
-  display: flex;
+/* Auto-switch chip */
+.lumina-action-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 0.38rem;
-  font-size: 0.67rem;
-  color: var(--text-tertiary, #64748b);
+  gap: 0.3rem;
+  padding: 0.32rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-tertiary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.lumina-deck__sub-icon {
-  color: var(--brand-red, #f43b4c);
-  flex-shrink: 0;
+:root[data-theme="light"] .lumina-action-chip {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #64748b;
 }
 
-/* ── Responsive Mobile ── */
+.lumina-action-chip--active {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+:root[data-theme="light"] .lumina-action-chip--active {
+  color: #059669;
+  background: #ecfdf5;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.lumina-action-chip__zap--on {
+  color: #10b981;
+}
+
+.lumina-action-chip__badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.05rem 0.28rem;
+  border-radius: 3px;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+/* Audio Group */
+.lumina-audio-selector {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+:root[data-theme="light"] .lumina-audio-selector {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.lumina-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+:root[data-theme="light"] .lumina-audio-btn {
+  color: #64748b;
+}
+
+.lumina-audio-btn--active {
+  background: var(--brand-red, #f43b4c);
+  color: #ffffff;
+  box-shadow: 0 1px 8px rgba(244, 59, 76, 0.35);
+}
+
+:root[data-theme="light"] .lumina-audio-btn--active {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Mobile responsive */
 @media (max-width: 640px) {
-  .lumina-deck {
-    padding: 0.65rem 0.7rem;
+  .lumina-bar {
+    padding: 0.45rem 0.55rem;
     gap: 0.5rem;
   }
-  .lumina-deck__category-tabs {
-    gap: 4px;
+  .lumina-bar__left {
+    width: 100%;
+    justify-content: flex-start;
   }
-  .lumina-deck__cat-tab {
-    padding: 0.22rem 0.45rem;
-    font-size: 0.66rem;
+  .lumina-bar__servers {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 2px;
   }
-  .lumina-deck__cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 5px;
+  .lumina-bar__servers::-webkit-scrollbar {
+    display: none;
   }
-  .lumina-server-card {
-    padding: 0.48rem 0.55rem;
+  .lumina-server-chip {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+    flex-shrink: 0;
   }
-  .lumina-server-card__name {
-    font-size: 0.74rem;
-  }
-  .lumina-deck__controls-right {
-    gap: 0.3rem;
+  .lumina-bar__right {
+    width: 100%;
+    justify-content: space-between;
   }
 }

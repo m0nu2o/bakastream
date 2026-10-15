@@ -180,7 +180,7 @@ export default function SeasonEpisodeSelector({
         </div>
 
         <div className="season-selector__movie-grid">
-          {relatedMovies.slice(0, 12).map(movie => {
+          {relatedMovies.slice(0, 14).map(movie => {
             const poster = posterUrl(movie.posterPath, 'w342');
             const year = movie.releaseDate ? movie.releaseDate.slice(0, 4) : '';
 
@@ -189,14 +189,15 @@ export default function SeasonEpisodeSelector({
                 key={movie.id}
                 href={`/watch/movie/${movie.id}`}
                 className="season-movie-card"
-                title={`Watch ${movie.title}`}
+                title={`${movie.title} ${year ? `(${year})` : ''}`}
               >
                 <div className="season-movie-card__poster-box">
                   {poster ? (
-                    <img src={poster} alt={movie.title} className="season-movie-card__img" />
+                    <img src={poster} alt={movie.title} className="season-movie-card__img" loading="lazy" />
                   ) : (
                     <div className="season-movie-card__fallback">
-                      <Film size={24} />
+                      <Film size={28} />
+                      <span className="season-movie-card__fallback-text">{movie.title}</span>
                     </div>
                   )}
                   {movie.rating ? (
@@ -211,8 +212,13 @@ export default function SeasonEpisodeSelector({
                   </div>
                 </div>
                 <div className="season-movie-card__info">
-                  <span className="season-movie-card__title">{movie.title}</span>
-                  <span className="season-movie-card__year">{year}</span>
+                  <h3 className="season-movie-card__title" title={movie.title}>
+                    {movie.title}
+                  </h3>
+                  <div className="season-movie-card__meta">
+                    {year && <span className="season-movie-card__year">{year}</span>}
+                    <span className="season-movie-card__type">Movie</span>
+                  </div>
                 </div>
               </Link>
             );

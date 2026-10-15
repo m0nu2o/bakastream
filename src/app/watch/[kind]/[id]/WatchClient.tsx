@@ -403,109 +403,18 @@ function EmbedStage({
         </div>
       )}
 
-      {/* ── Top Controls Toolbar ── */}
+      {/* ── Top Bar: Active Server Pill + Ad Shield (Compact) ── */}
       <div className="watch__toolbar">
+        <div className="watch__active-server-pill">
+          <span className="watch__server-dot" />
+          <span>Streaming on: <strong>{activeServerObj?.name ?? activeServer}</strong></span>
+        </div>
 
-        {/* Left: Audio / Sub-Dub selector */}
-        {isAnime ? (
-          <div className="watch__audio-toggle" role="group" aria-label="Anime Audio Selection">
-            <span className="watch__toggle-label">
-              <Volume2 size={15} /> Audio:
-            </span>
-            <button
-              type="button"
-              className={`watch__toggle-btn ${activeSubOrDub === 'sub' ? 'watch__toggle-btn--active' : ''}`}
-              onClick={() => onSubOrDubChange('sub')}
-              aria-pressed={activeSubOrDub === 'sub'}
-            >
-              🇯🇵 SUB
-            </button>
-            <button
-              type="button"
-              className={`watch__toggle-btn ${activeSubOrDub === 'dub' ? 'watch__toggle-btn--active' : ''}`}
-              onClick={() => onSubOrDubChange('dub')}
-              aria-pressed={activeSubOrDub === 'dub'}
-            >
-              🎙️ DUB
-            </button>
-          </div>
-        ) : (
-          <div className="watch__audio-toggle" role="group" aria-label="Audio Language Selection">
-            <span className="watch__toggle-label">
-              <Volume2 size={15} /> Audio:
-            </span>
-            {isHindiOriginal ? (
-              <>
-                <button
-                  type="button"
-                  className={`watch__toggle-btn ${activeLanguage === 'hindi' ? 'watch__toggle-btn--active' : ''}`}
-                  onClick={() => onLanguageChange('hindi')}
-                  aria-pressed={activeLanguage === 'hindi'}
-                >
-                  🇮🇳 Hindi (Original)
-                </button>
-                <button
-                  type="button"
-                  className={`watch__toggle-btn ${activeLanguage !== 'hindi' ? 'watch__toggle-btn--active' : ''}`}
-                  onClick={() => onLanguageChange('english')}
-                  aria-pressed={activeLanguage !== 'hindi'}
-                >
-                  🌐 Multi-Audio
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className={`watch__toggle-btn ${activeLanguage !== 'hindi' ? 'watch__toggle-btn--active' : ''}`}
-                  onClick={() => onLanguageChange('english')}
-                  aria-pressed={activeLanguage !== 'hindi'}
-                >
-                  🌐 Original / Multi
-                </button>
-                <button
-                  type="button"
-                  className={`watch__toggle-btn ${activeLanguage === 'hindi' ? 'watch__toggle-btn--active' : ''}`}
-                  onClick={() => onLanguageChange('hindi')}
-                  aria-pressed={activeLanguage === 'hindi'}
-                >
-                  🇮🇳 Hindi Dubbed
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Right: Active server pill + Auto-switch toggle + Ad Shield */}
-        <div className="watch__toolbar-right">
-
-          {/* Auto-switch on/off toggle */}
-          <button
-            type="button"
-            onClick={onToggleAutoSwitch}
-            className={`watch__autoswitch-btn ${autoSwitch ? 'watch__autoswitch-btn--on' : 'watch__autoswitch-btn--off'}`}
-            title={autoSwitch ? 'Auto-Switch: ON — Will auto-try next server if current fails' : 'Auto-Switch: OFF — Manual server selection only'}
-            aria-pressed={autoSwitch}
-          >
-            {autoSwitch
-              ? <ToggleRight size={17} className="watch__autoswitch-toggle-icon" />
-              : <ToggleLeft size={17} className="watch__autoswitch-toggle-icon" />}
-            <span>Auto-Switch</span>
-          </button>
-
-          <div className="watch__active-server-pill">
-            <span className="watch__server-dot" />
-            <span>
-              {activeServerObj?.name ?? activeServer}
-            </span>
-          </div>
-
-          <div
-            className="watch__shield-badge"
-            title="BakaStream Ad Shield active — popups and navigation hijacks are blocked."
-          >
-            <ShieldCheck size={14} className="watch__shield-icon" /> Ad Shield
-          </div>
+        <div
+          className="watch__shield-badge"
+          title="BakaStream Ad Shield active — popups and navigation hijacks are blocked."
+        >
+          <ShieldCheck size={13} className="watch__shield-icon" /> Ad Shield Active
         </div>
       </div>
 

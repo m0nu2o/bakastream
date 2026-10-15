@@ -153,31 +153,10 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
       return `https://vidsrc.pm/embed/movie/${id}`;
     },
   },
-  {
-    id: '2embed-skin',
-    name: '2Embed Direct',
-    category: 'backup',
-    serverIndex: 5,
-    quality: '1080p Direct',
-    badge: '📦',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: false,
-    description: 'Rock-solid backup streaming server with comprehensive media catalog.',
-    features: ['Direct Stream', 'High Uptime', 'Stable'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `https://2embed.skin/embedtv/${id}&s=${season || 1}&e=${episode || 1}`;
-      }
-      return `https://2embed.skin/embed/${id}`;
-    },
-  },
 
   // ──────────────────────────────────────────────────────────────
-  // ANIME — CATEGORY 1: ULTRA FAST (100% Live & Verified)
-  // Server 1: NextGen Anime (VidLink Ultra Engine — 100% Fixed & Working)
+  // ANIME — 100% DISTINCT, LIVE & VERIFIED ENGINES
+  // Server 1: NextGen Anime (Dedicated Anime Player, Sub/Dub, 0 Ads)
   // ──────────────────────────────────────────────────────────────
   {
     id: 'nextgen-anime',
@@ -191,76 +170,29 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: false,
-    description: 'Primary ultra-fast NextGen anime engine with instant playback, 0 ads, and multi-subtitles.',
-    features: ['0 Ads', 'Sub+Dub', 'Auto-Play'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      // Robust routing using verified TMDB endpoint to avoid localhost:8080 bundle error
+    description: 'Dedicated NextGen anime player with Japanese audio, English Subtitles, English Dub, and zero ads.',
+    features: ['Sub/Dub Switch', '0 Ads', '1080p Ultra'],
+    getPlaybackUrl: ({ type, id, season, episode, isDub }) => {
       if (type === 'movie') {
-        return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=f43b4c`;
+        return `https://vidsrc.su/embed/movie/${id}${isDub ? '?dub=1' : ''}`;
       }
-      return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=f43b4c`;
+      return `https://vidsrc.su/embed/tv/${id}/${season || 1}/${episode || 1}${isDub ? '?dub=1' : ''}`;
     },
   },
   {
-    id: 'vidfast-anime',
-    name: 'VidFast Anime',
+    id: 'vidsrc-pm-anime',
+    name: 'VidSpark Anime',
     category: 'fast',
     serverIndex: 2,
     quality: '1080p Fast',
-    badge: '🚀',
-    supportsMovie: false,
-    supportsTV: false,
-    supportsAnime: true,
-    supportsEnglishDub: false,
-    supportsHindiDub: false,
-    description: 'High-speed anime caching server for smooth episode binge-watching sessions.',
-    features: ['Fast Binge', '1080p', 'Low Latency'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'movie') {
-        return `https://vidfast.vc/movie/${id}?autoPlay=1`;
-      }
-      return `https://vidfast.vc/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
-    },
-  },
-  {
-    id: 'vidsrc-su-anime',
-    name: 'VidSrc Anime HD',
-    category: 'fast',
-    serverIndex: 3,
-    quality: '1080p Multi-Sub',
-    badge: '🎬',
-    supportsMovie: false,
-    supportsTV: false,
-    supportsAnime: true,
-    supportsEnglishDub: true,
-    supportsHindiDub: false,
-    description: 'Clean anime player with built-in multi-language subtitles and crisp 1080p quality.',
-    features: ['Multi-Sub', '0 Ads', '1080p'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'movie') {
-        return `https://vidsrc.su/embed/movie/${id}`;
-      }
-      return `https://vidsrc.su/embed/tv/${id}/${season || 1}/${episode || 1}`;
-    },
-  },
-
-  // ──────────────────────────────────────────────────────────────
-  // ANIME — CATEGORY 2: BACKUP RELAYS (100% Live & Verified)
-  // ──────────────────────────────────────────────────────────────
-  {
-    id: 'vidsrc-pm-anime',
-    name: 'VidSrc Anime Mirror',
-    category: 'backup',
-    serverIndex: 4,
-    quality: '1080p Global',
     badge: '🔥',
     supportsMovie: false,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: false,
     supportsHindiDub: false,
-    description: 'Global anime mirror for high-bitrate playback and continuous uptime.',
-    features: ['Global Mirror', '1080p', 'VidSpark'],
+    description: 'High-speed VidSpark anime mirror with clean custom video controls and low ping.',
+    features: ['VidSpark Core', '1080p', 'Low Latency'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
         return `https://vidsrc.pm/embed/movie/${id}`;
@@ -269,24 +201,45 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     },
   },
   {
-    id: '2embed-skin-anime',
-    name: '2Embed Anime Relay',
-    category: 'backup',
-    serverIndex: 5,
-    quality: '1080p Backup',
-    badge: '📦',
+    id: 'vidfast-anime',
+    name: 'VidFast Anime',
+    category: 'fast',
+    serverIndex: 3,
+    quality: '1080p Fast',
+    badge: '🚀',
     supportsMovie: false,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: false,
     supportsHindiDub: false,
-    description: 'Anime backup engine covering all classic and currently airing seasons.',
-    features: ['Complete Seasons', 'High Uptime', 'Stable'],
+    description: 'Pre-buffered streaming engine optimized for fast binge-watching without buffering.',
+    features: ['Fast Binge', '1080p', 'Clean'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
-        return `https://2embed.skin/embed/${id}`;
+        return `https://vidfast.vc/movie/${id}?autoPlay=1`;
       }
-      return `https://2embed.skin/embedtv/${id}&s=${season || 1}&e=${episode || 1}`;
+      return `https://vidfast.vc/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
+    },
+  },
+  {
+    id: 'vidlink-anime',
+    name: 'VidLink Anime HD',
+    category: 'backup',
+    serverIndex: 4,
+    quality: '4K-1080p',
+    badge: '🎬',
+    supportsMovie: false,
+    supportsTV: false,
+    supportsAnime: true,
+    supportsEnglishDub: true,
+    supportsHindiDub: false,
+    description: 'Flagship 4K VidLink relay with instant start and multi-subtitle tracks in player settings.',
+    features: ['4K Ready', 'Multi-Subs', 'High Uptime'],
+    getPlaybackUrl: ({ type, id, season, episode }) => {
+      if (type === 'movie') {
+        return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=f43b4c`;
+      }
+      return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=f43b4c`;
     },
   },
 ];
@@ -297,18 +250,16 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
  */
 export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
   // Movie/TV fallback order
-  vidlink:       ['vidfast', 'vidsrc-su', 'vidsrc-pm', '2embed-skin'],
-  vidfast:       ['vidlink', 'vidsrc-su', 'vidsrc-pm', '2embed-skin'],
-  'vidsrc-su':   ['vidlink', 'vidfast', 'vidsrc-pm', '2embed-skin'],
-  'vidsrc-pm':   ['vidlink', 'vidfast', 'vidsrc-su', '2embed-skin'],
-  '2embed-skin': ['vidlink', 'vidfast', 'vidsrc-su', 'vidsrc-pm'],
+  vidlink:       ['vidsrc-pm', 'vidsrc-su', 'vidfast'],
+  'vidsrc-pm':   ['vidlink', 'vidsrc-su', 'vidfast'],
+  'vidsrc-su':   ['vidlink', 'vidsrc-pm', 'vidfast'],
+  vidfast:       ['vidlink', 'vidsrc-pm', 'vidsrc-su'],
 
   // Anime fallback order
-  'nextgen-anime':    ['vidfast-anime', 'vidsrc-su-anime', 'vidsrc-pm-anime', '2embed-skin-anime'],
-  'vidfast-anime':    ['nextgen-anime', 'vidsrc-su-anime', 'vidsrc-pm-anime', '2embed-skin-anime'],
-  'vidsrc-su-anime':  ['nextgen-anime', 'vidfast-anime', 'vidsrc-pm-anime', '2embed-skin-anime'],
-  'vidsrc-pm-anime':  ['nextgen-anime', 'vidfast-anime', 'vidsrc-su-anime', '2embed-skin-anime'],
-  '2embed-skin-anime': ['nextgen-anime', 'vidfast-anime', 'vidsrc-su-anime', 'vidsrc-pm-anime'],
+  'nextgen-anime':    ['vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
+  'vidsrc-pm-anime':  ['nextgen-anime', 'vidfast-anime', 'vidlink-anime'],
+  'vidfast-anime':    ['nextgen-anime', 'vidsrc-pm-anime', 'vidlink-anime'],
+  'vidlink-anime':    ['nextgen-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
 };
 
 /**
@@ -322,33 +273,33 @@ export const LUMINA_ALIASES: Record<string, string> = {
   'direct-hls':    'nextgen-anime',
   'hikari':        'nextgen-anime',
   'reanime':       'nextgen-anime',
-  'vidlink-anime': 'nextgen-anime',
+  'vidsrc-su-anime': 'nextgen-anime',
+  'vidlink-anime': 'vidlink-anime',
 
   // Movies/TV Primary
   vidlink:         'vidlink',
   vidfast:         'vidfast',
   'vidsrc-su':     'vidsrc-su',
   'vidsrc-pm':     'vidsrc-pm',
-  '2embed-skin':   '2embed-skin',
-  '2embed':        '2embed-skin',
 
   // Dead servers → Clean working fallbacks
   screenscape:         'vidlink',
   'screenscape-anime': 'nextgen-anime',
   autoembed:           'vidfast',
   'autoembed-co':      'vidfast',
-  'autoembed-anime':   'vidfast-anime',
-  'autoembed-co-anime':'vidfast-anime',
+  'autoembed-anime':   'nextgen-anime',
+  'autoembed-co-anime':'nextgen-anime',
   nova:                'vidlink',
   'nova-anime':        'nextgen-anime',
   'vidfast-anime':     'vidfast-anime',
-  'vidsrc-su-anime':   'vidsrc-su-anime',
   'vidsrc-pm-anime':   'vidsrc-pm-anime',
   'vidsrc-dev':        'vidsrc-pm',
   'vidsrc-net':        'vidsrc-su',
   'vidsrc-me':         'vidsrc-su',
-  '2embed-anime':      '2embed-skin-anime',
-  '2embed-skin-anime': '2embed-skin-anime',
+  '2embed':            'vidlink',
+  '2embed-skin':       'vidlink',
+  '2embed-anime':      'nextgen-anime',
+  '2embed-skin-anime': 'nextgen-anime',
   videasy:             'vidlink',
   smashy:              'vidfast',
 };
