@@ -8,6 +8,7 @@
   margin: 0 auto;
   padding: 24px clamp(1rem, 3.5vw, 32px) 32px;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 .catalog-section__inner {
@@ -120,6 +121,9 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .catalog-section__edge-btn {
@@ -166,11 +170,15 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 6px 4px 16px;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .catalog-section__carousel::-webkit-scrollbar {
@@ -190,6 +198,7 @@
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   border: 1px solid rgba(255, 255, 255, 0.07);
+  scroll-snap-align: start;
 }
 
 .catalog-card:hover {
@@ -391,5 +400,15 @@
     width: 100%;
     overflow-x: auto;
     padding-bottom: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalog-card {
+    flex: 0 0 calc((100% - 14px) / 2.18);
+    min-width: 135px;
+  }
+  .catalog-section__title {
+    font-size: 19px;
   }
 }

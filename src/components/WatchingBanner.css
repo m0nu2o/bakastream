@@ -8,6 +8,7 @@
   margin: 0 auto;
   padding: 16px clamp(1rem, 3.5vw, 32px) 32px;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 .watching-section__inner {
@@ -62,6 +63,9 @@
 .watching-banner {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -288,5 +292,19 @@
   }
   .watching-banner__meta-right {
     gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .watching-banner__title {
+    font-size: 15px;
+  }
+  .watching-banner__bottom-bar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .watching-banner__stat {
+    font-size: 11.5px;
+    gap: 4px;
   }
 }

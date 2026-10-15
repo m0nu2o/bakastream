@@ -2,6 +2,9 @@
 
 .lumina-deck {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   margin-top: 0.85rem;
   padding: 0.85rem 1rem;
   background: var(--card-bg, rgba(20, 20, 31, 0.7));
@@ -13,6 +16,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  overflow: hidden;
   user-select: none;
 }
 
@@ -136,6 +140,8 @@
 .lumina-deck__carousel-wrap {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   display: flex;
   align-items: center;
 }
@@ -145,11 +151,15 @@
   align-items: center;
   gap: 0.55rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 0.2rem 0;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .lumina-deck__track::-webkit-scrollbar {
@@ -212,6 +222,8 @@
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   white-space: nowrap;
+  scroll-snap-align: start;
+  min-height: 44px;
 }
 
 :root[data-theme="light"] .lumina-deck__server-card {
@@ -320,4 +332,26 @@
 
 .lumina-deck__latency-dot--cooldown {
   background: #ef4444;
+}
+
+@media (max-width: 640px) {
+  .lumina-deck {
+    padding: 0.75rem 0.85rem;
+    gap: 0.6rem;
+  }
+  .lumina-deck__chevron {
+    display: none;
+  }
+  .lumina-deck__top {
+    gap: 0.4rem;
+  }
+  .lumina-deck__audio-pills {
+    margin-left: auto;
+  }
+  .lumina-deck__server-card {
+    padding: 0.45rem 0.65rem;
+  }
+  .lumina-deck__server-name {
+    font-size: 0.75rem;
+  }
 }

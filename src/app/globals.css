@@ -7,6 +7,7 @@
   --accent: #f43b4c;
   --accent-strong: #d22f3d;
   --accent-hover: #ff4d5e;
+  --brand-red: #f43b4c;
 
   --bg-primary: #0b0b12;
   --bg-secondary: #12121c;
@@ -70,6 +71,7 @@
   --accent: #e11d48;
   --accent-strong: #be123c;
   --accent-hover: #f43f5e;
+  --brand-red: #e11d48;
 
   --bg-primary: #f6f6f9;
   --bg-secondary: #ffffff;
@@ -105,6 +107,7 @@
 }
 
 html {
+  overflow-x: clip;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -114,7 +117,7 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   overscroll-behavior-y: none;
   transition:
     background-color 0.3s ease,

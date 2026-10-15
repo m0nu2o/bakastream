@@ -157,7 +157,11 @@
   display: none;
   color: var(--text-primary);
   padding: 0.35rem;
-  border-radius: 6px;
+  border-radius: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ── Mobile drawer ─────────────────────────────────────────────── */
@@ -169,10 +173,11 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1.5rem;
+  padding: 1.25rem 1.25rem max(1.75rem, env(safe-area-inset-bottom, 1.75rem));
   background: var(--bg-primary);
   animation: fade-in 0.2s ease;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .mobile-nav__links {
   display: flex;
@@ -183,12 +188,13 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.9rem 0.75rem;
+  padding: 0.85rem 0.75rem;
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text-secondary);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
+  min-height: 48px;
 }
 .mobile-nav__link:hover,
 .mobile-nav__link--active {

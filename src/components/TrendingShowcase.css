@@ -9,6 +9,7 @@
   padding: 36px clamp(1rem, 3.5vw, 36px) 28px;
   position: relative;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 /* ── 1. Metallic Pill Navigation Strip ── */
@@ -17,6 +18,8 @@
   justify-content: center;
   align-items: center;
   margin-bottom: 22px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .trending-showcase__nav {
@@ -28,6 +31,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   gap: 4px;
+  max-width: 100%;
   transition: all 0.3s ease;
 }
 
@@ -69,8 +73,12 @@
 
 /* ── 2. Scrollable Genre Filter Pills ── */
 .trending-showcase__genres-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   margin-bottom: 24px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 4px 0 6px;
@@ -125,6 +133,9 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .trending-showcase__edge-btn {
@@ -171,11 +182,15 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 6px 4px 16px;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .trending-showcase__scroller::-webkit-scrollbar {
@@ -196,6 +211,7 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
   cursor: pointer;
   text-decoration: none;
+  scroll-snap-align: start;
 }
 
 .trending-showcase__card:hover {
@@ -426,7 +442,7 @@
 
 @media (max-width: 768px) {
   .trending-showcase {
-    padding: 24px 16px 16px;
+    padding: 20px 16px 16px;
   }
   .trending-showcase__genres-container {
     mask-image: none;
@@ -442,5 +458,38 @@
   }
   .trending-showcase__edge-btn {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .trending-showcase__nav {
+    width: 100%;
+    max-width: 360px;
+    justify-content: space-between;
+    padding: 3px;
+    gap: 3px;
+  }
+  .trending-showcase__tab {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 7px 8px;
+    font-size: 11.5px;
+    gap: 5px;
+    min-height: 38px;
+  }
+  .trending-showcase__tab-icon {
+    width: 14px;
+    height: 14px;
+  }
+  .trending-showcase__genre-chip {
+    padding: 5px 12px;
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .trending-showcase__card {
+    flex: 0 0 calc((100% - 14px) / 2.18);
+    min-width: 135px;
   }
 }
