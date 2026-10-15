@@ -79,15 +79,34 @@ export default function BrowseClient({ results, genres, page }: Props) {
               </button>
             ))}
           </div>
-          <div className={styles.filterGroup} style={{ flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}>
-            <a href="/category/bollywood" className={styles.chip}>🍿 Bollywood</a>
-            <a href="/category/hindi-serials" className={styles.chip}>📺 Hindi Serials</a>
-            <a href="/category/hindi-web-series" className={styles.chip}>🇮🇳 Web Series</a>
-            <a href="/category/kdrama" className={styles.chip}>🇰🇷 K-Dramas</a>
-            <a href="/category/cdrama" className={styles.chip}>🇨🇳 C-Dramas</a>
-            <a href="/category/anime" className={styles.chip}>⚔️ Anime</a>
-            <a href="/category/cartoons" className={styles.chip}>🎨 Cartoons</a>
-            <a href="/category/hollywood" className={styles.chip}>🎬 Hollywood</a>
+          <div
+            className={styles.filterGroup}
+            style={{ flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}
+          >
+            <a href="/category/bollywood" className={styles.chip}>
+              🍿 Bollywood
+            </a>
+            <a href="/category/hindi-serials" className={styles.chip}>
+              📺 Hindi Serials
+            </a>
+            <a href="/category/hindi-web-series" className={styles.chip}>
+              🇮🇳 Web Series
+            </a>
+            <a href="/category/kdrama" className={styles.chip}>
+              🇰🇷 K-Dramas
+            </a>
+            <a href="/category/cdrama" className={styles.chip}>
+              🇨🇳 C-Dramas
+            </a>
+            <a href="/category/anime" className={styles.chip}>
+              ⚔️ Anime
+            </a>
+            <a href="/category/cartoons" className={styles.chip}>
+              🎨 Cartoons
+            </a>
+            <a href="/category/hollywood" className={styles.chip}>
+              🎬 Hollywood
+            </a>
           </div>
           <select
             className={styles.select}

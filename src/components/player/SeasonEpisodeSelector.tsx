@@ -78,24 +78,26 @@ export default function SeasonEpisodeSelector({
       const res = await fetch(`/api/tmdb/tv/${mediaId}/season/${seasonNum}`);
       if (res.ok) {
         const data = await res.json();
-        const eps: EpisodeInfo[] = (data.episodes ?? []).map((e: {
-          id: number;
-          episode_number: number;
-          name: string;
-          overview: string;
-          still_path: string | null;
-          air_date: string | null;
-          runtime: number | null;
-        }) => ({
-          id: e.id,
-          seasonNumber: seasonNum,
-          episodeNumber: e.episode_number,
-          name: e.name,
-          overview: e.overview,
-          stillPath: e.still_path ?? null,
-          airDate: e.air_date ?? null,
-          runtime: e.runtime ?? null,
-        }));
+        const eps: EpisodeInfo[] = (data.episodes ?? []).map(
+          (e: {
+            id: number;
+            episode_number: number;
+            name: string;
+            overview: string;
+            still_path: string | null;
+            air_date: string | null;
+            runtime: number | null;
+          }) => ({
+            id: e.id,
+            seasonNumber: seasonNum,
+            episodeNumber: e.episode_number,
+            name: e.name,
+            overview: e.overview,
+            stillPath: e.still_path ?? null,
+            airDate: e.air_date ?? null,
+            runtime: e.runtime ?? null,
+          })
+        );
         seasonCache.current[seasonNum] = eps;
         setEpisodes(eps);
       }
@@ -125,9 +127,7 @@ export default function SeasonEpisodeSelector({
 
   useEffect(() => {
     if (chunkRanges.length > 0) {
-      const idx = chunkRanges.findIndex(
-        r => currentEpisode >= r.start && currentEpisode <= r.end
-      );
+      const idx = chunkRanges.findIndex(r => currentEpisode >= r.start && currentEpisode <= r.end);
       setActiveChunkIndex(idx >= 0 ? idx : 0);
     } else {
       setActiveChunkIndex(0);
@@ -140,9 +140,7 @@ export default function SeasonEpisodeSelector({
     if (q) {
       // Search matches episode number or title
       return episodes.filter(
-        ep =>
-          String(ep.episodeNumber).includes(q) ||
-          ep.name.toLowerCase().includes(q)
+        ep => String(ep.episodeNumber).includes(q) || ep.name.toLowerCase().includes(q)
       );
     }
 
@@ -174,9 +172,7 @@ export default function SeasonEpisodeSelector({
               </p>
             </div>
           </div>
-          <span className="season-selector__count-badge">
-            {relatedMovies.length} Titles
-          </span>
+          <span className="season-selector__count-badge">{relatedMovies.length} Titles</span>
         </div>
 
         <div className="season-selector__movie-grid">
@@ -193,7 +189,12 @@ export default function SeasonEpisodeSelector({
               >
                 <div className="season-movie-card__poster-box">
                   {poster ? (
-                    <img src={poster} alt={movie.title} className="season-movie-card__img" loading="lazy" />
+                    <img
+                      src={poster}
+                      alt={movie.title}
+                      className="season-movie-card__img"
+                      loading="lazy"
+                    />
                   ) : (
                     <div className="season-movie-card__fallback">
                       <Film size={28} />
@@ -201,9 +202,7 @@ export default function SeasonEpisodeSelector({
                     </div>
                   )}
                   {movie.rating ? (
-                    <span className="season-movie-card__rating">
-                      ★ {movie.rating.toFixed(1)}
-                    </span>
+                    <span className="season-movie-card__rating">★ {movie.rating.toFixed(1)}</span>
                   ) : null}
                   <div className="season-movie-card__play-overlay">
                     <div className="season-movie-card__play-btn">
@@ -315,9 +314,7 @@ export default function SeasonEpisodeSelector({
                 className={`season-selector__season-tab ${isSelected ? 'season-selector__season-tab--active' : ''}`}
               >
                 <span className="season-selector__season-name">{s.name}</span>
-                <span className="season-selector__season-eps">
-                  {s.episodeCount} Eps
-                </span>
+                <span className="season-selector__season-eps">{s.episodeCount} Eps</span>
                 {isPlayingThisSeason && (
                   <span className="season-selector__playing-dot" title="Currently playing season" />
                 )}
@@ -329,7 +326,11 @@ export default function SeasonEpisodeSelector({
 
       {/* ── Episode Chunk Range Tabs (For seasons with 100+ episodes like One Piece, Naruto) ── */}
       {chunkRanges.length > 0 && !searchQuery && (
-        <div className="season-selector__ranges-bar" role="tablist" aria-label="Episode Range Chunks">
+        <div
+          className="season-selector__ranges-bar"
+          role="tablist"
+          aria-label="Episode Range Chunks"
+        >
           <span className="season-selector__ranges-label">
             <Layers size={11} /> Episode Range:
           </span>
@@ -337,7 +338,9 @@ export default function SeasonEpisodeSelector({
             {chunkRanges.map((range, idx) => {
               const isSelected = idx === activeChunkIndex;
               const hasCurrentEp =
-                currentEpisode >= range.start && currentEpisode <= range.end && currentSeason === activeSeasonNum;
+                currentEpisode >= range.start &&
+                currentEpisode <= range.end &&
+                currentSeason === activeSeasonNum;
 
               return (
                 <button
@@ -452,9 +455,7 @@ export default function SeasonEpisodeSelector({
                     ) : null}
                   </div>
 
-                  {ep.overview ? (
-                    <p className="season-ep-card__overview">{ep.overview}</p>
-                  ) : null}
+                  {ep.overview ? <p className="season-ep-card__overview">{ep.overview}</p> : null}
                 </div>
               </Link>
             );

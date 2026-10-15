@@ -21,7 +21,9 @@ export default function Loading() {
 
         <div className="cinema-loading__brand">
           <div className="cinema-loading__title">
-            <span>Baka<span className="cinema-loading__title-accent">Stream</span></span>
+            <span>
+              Baka<span className="cinema-loading__title-accent">Stream</span>
+            </span>
             <span className="cinema-loading__dot" aria-hidden="true" />
           </div>
           <span className="cinema-loading__caption">Loading cinema experience</span>

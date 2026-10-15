@@ -19,7 +19,7 @@
   transition: color 0.3s ease;
 }
 .media-row__title::after {
-  content: '';
+  content: "";
   display: block;
   width: 36px;
   height: 3px;

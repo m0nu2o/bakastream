@@ -109,9 +109,8 @@ export function extractTracks(
 
   // If flat playlist or movie
   if (!isNested || req.type === 'movie') {
-    const tracks = playlist.filter(
-      (item): item is NovaTrackEntry =>
-        Boolean(item && typeof item === 'object' && 'file' in item && item.file)
+    const tracks = playlist.filter((item): item is NovaTrackEntry =>
+      Boolean(item && typeof item === 'object' && 'file' in item && item.file)
     );
     return { tracks };
   }
@@ -185,9 +184,8 @@ export function extractTracks(
     Array.isArray(matchedEpisode.folder) &&
     matchedEpisode.folder.length > 0
   ) {
-    const tracks = matchedEpisode.folder.filter(
-      (item): item is NovaTrackEntry =>
-        Boolean(item && typeof item === 'object' && 'file' in item && item.file)
+    const tracks = matchedEpisode.folder.filter((item): item is NovaTrackEntry =>
+      Boolean(item && typeof item === 'object' && 'file' in item && item.file)
     );
     return { tracks, resolvedSeason, resolvedEpisode };
   }
@@ -289,7 +287,10 @@ export class NovaProvider implements StreamProvider {
           null;
 
         if (!chosen) {
-          const availableList = tracks.map(t => t.title).filter(Boolean).join(', ');
+          const availableList = tracks
+            .map(t => t.title)
+            .filter(Boolean)
+            .join(', ');
           return unavailable(
             this.id,
             this.label,

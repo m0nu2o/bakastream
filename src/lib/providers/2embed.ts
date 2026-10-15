@@ -38,7 +38,8 @@ export class TwoEmbedProvider implements StreamProvider {
       subtitles: [],
       server: '2embed',
       isPreview: false,
-      notice: 'Streaming via 2Embed HD backup server. Audio tracks and subtitles available in player controls.',
+      notice:
+        'Streaming via 2Embed HD backup server. Audio tracks and subtitles available in player controls.',
     };
   }
 }

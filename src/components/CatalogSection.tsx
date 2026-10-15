@@ -19,13 +19,7 @@ interface Props {
   onPlay?: (item: MediaSummary) => void;
 }
 
-export default function CatalogSection({
-  title,
-  type,
-  items,
-  viewAllHref,
-  onPlay,
-}: Props) {
+export default function CatalogSection({ title, type, items, viewAllHref, onPlay }: Props) {
   const [activeSort, setActiveSort] = useState<SortOption>('latest');
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -147,7 +141,7 @@ export default function CatalogSection({
           </button>
 
           <div className="catalog-section__carousel" ref={scrollerRef}>
-            {sortedItems.map((item) => {
+            {sortedItems.map(item => {
               const itemTitle = item.title || 'Untitled';
               const releaseYear = (item.releaseDate || '').substring(0, 4);
               const rating = item.rating ? item.rating.toFixed(1) : null;
@@ -159,7 +153,7 @@ export default function CatalogSection({
                   key={`${item.type || type}-${item.id}`}
                   href={href}
                   className="catalog-card"
-                  onClick={(e) => {
+                  onClick={e => {
                     if (onPlay) {
                       e.preventDefault();
                       onPlay(item);
@@ -192,7 +186,12 @@ export default function CatalogSection({
                       {releaseYear && <span className="catalog-card__year">{releaseYear}</span>}
                       {rating && (
                         <span className="catalog-card__rating">
-                          <Star size={12} className="catalog-card__star" fill="#eab308" stroke="#eab308" />
+                          <Star
+                            size={12}
+                            className="catalog-card__star"
+                            fill="#eab308"
+                            stroke="#eab308"
+                          />
                           {rating}
                         </span>
                       )}

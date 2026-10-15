@@ -48,7 +48,7 @@ export function setupDnsBypass() {
             if (all) {
               return cb(
                 null,
-                addrs.map((a) => ({ address: a, family: 4 }))
+                addrs.map(a => ({ address: a, family: 4 }))
               );
             }
             return cb(null, addrs[0], 4);

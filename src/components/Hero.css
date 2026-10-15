@@ -262,6 +262,54 @@
   box-shadow: 0 0 12px var(--accent);
 }
 
+/* Hero Slide Navigation Arrows */
+.hero__arrows {
+  position: absolute;
+  bottom: clamp(3.5rem, 8vh, 6rem);
+  right: clamp(1.2rem, 4.5vw, 4rem);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.hero__arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 18, 28, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero__arrow:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.4);
+}
+
+.hero__arrow:active {
+  transform: translateY(0) scale(0.96);
+}
+
+:root[data-theme="light"] .hero__arrow {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #12121c;
+}
+
+:root[data-theme="light"] .hero__arrow:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
 /* ─────────────────────────────────────────────────────────────
    LIGHT MODE OVERRIDES FOR HERO
    ───────────────────────────────────────────────────────────── */

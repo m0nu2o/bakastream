@@ -44,3 +44,4 @@ public/sw.js
 .env*
 
 cloudflared.exe
+*.zip

@@ -24,7 +24,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'Anime',
     shortName: 'Anime',
     type: 'tv',
-    description: 'Browse popular Japanese anime series, from ongoing seasonals to all-time classics.',
+    description:
+      'Browse popular Japanese anime series, from ongoing seasonals to all-time classics.',
     icon: '⚔️',
     params: {
       with_genres: 16,
@@ -37,7 +38,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'Hindi Serials & Indian TV',
     shortName: 'Hindi Serials',
     type: 'tv',
-    description: 'Popular Indian television serials, daily soaps, family dramas, and television shows.',
+    description:
+      'Popular Indian television serials, daily soaps, family dramas, and television shows.',
     icon: '📺',
     params: {
       with_original_language: 'hi',
@@ -51,7 +53,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'Hindi Web Series',
     shortName: 'Web Series',
     type: 'tv',
-    description: 'Top-rated Indian OTT web series, gripping crime thrillers, and acclaimed originals.',
+    description:
+      'Top-rated Indian OTT web series, gripping crime thrillers, and acclaimed originals.',
     icon: '🇮🇳',
     params: {
       with_original_language: 'hi',
@@ -65,7 +68,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'Bollywood & Hindi Movies',
     shortName: 'Bollywood',
     type: 'movie',
-    description: 'Blockbuster Hindi movies, cinematic spectacles, romance classics, and award winners.',
+    description:
+      'Blockbuster Hindi movies, cinematic spectacles, romance classics, and award winners.',
     icon: '🍿',
     params: {
       with_original_language: 'hi',
@@ -78,7 +82,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'Hollywood Movies',
     shortName: 'Hollywood',
     type: 'movie',
-    description: 'Global blockbuster films, studio franchises, and trending English cinematic releases.',
+    description:
+      'Global blockbuster films, studio franchises, and trending English cinematic releases.',
     icon: '🎬',
     params: {
       with_original_language: 'en',
@@ -91,7 +96,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'K-Dramas (Korean Dramas)',
     shortName: 'K-Drama',
     type: 'tv',
-    description: 'Trending Korean television dramas, romance stories, mystery thrillers, and fantasy series.',
+    description:
+      'Trending Korean television dramas, romance stories, mystery thrillers, and fantasy series.',
     icon: '🇰🇷',
     params: {
       with_original_language: 'ko',
@@ -104,7 +110,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'C-Dramas (Chinese Dramas)',
     shortName: 'C-Drama',
     type: 'tv',
-    description: 'Captivating Chinese historical wuxia, fantasy romances, and modern television dramas.',
+    description:
+      'Captivating Chinese historical wuxia, fantasy romances, and modern television dramas.',
     icon: '🇨🇳',
     params: {
       with_original_language: 'zh',
@@ -117,7 +124,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'Cartoons & Western Animation',
     shortName: 'Cartoons',
     type: 'tv',
-    description: 'Beloved animated series, family favorites, comedy animations, and timeless classics.',
+    description:
+      'Beloved animated series, family favorites, comedy animations, and timeless classics.',
     icon: '🎨',
     params: {
       with_genres: 16,
@@ -130,7 +138,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     name: 'International Dramas',
     shortName: 'International',
     type: 'tv',
-    description: 'Critically acclaimed Turkish series, Spanish thrillers, and European television dramas.',
+    description:
+      'Critically acclaimed Turkish series, Spanish thrillers, and European television dramas.',
     icon: '🌍',
     params: {
       with_original_language: 'tr',

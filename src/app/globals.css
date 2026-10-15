@@ -47,12 +47,12 @@
   --header-height: 68px;
 
   /* Typographic scale tokens (6 unified sizes) */
-  --text-xs: 0.75rem;     /* 12px: badges, tags, metadata, footers */
-  --text-sm: 0.875rem;    /* 14px: navigation, card titles, control labels */
-  --text-base: 1rem;      /* 16px: body, inputs, buttons, descriptions */
-  --text-lg: 1.125rem;    /* 18px: featured descriptions, subheadings */
-  --text-xl: 1.375rem;    /* 22px: section headings, rails */
-  --text-2xl: 1.75rem;    /* 28px: branding, dialog headers */
+  --text-xs: 0.75rem; /* 12px: badges, tags, metadata, footers */
+  --text-sm: 0.875rem; /* 14px: navigation, card titles, control labels */
+  --text-base: 1rem; /* 16px: body, inputs, buttons, descriptions */
+  --text-lg: 1.125rem; /* 18px: featured descriptions, subheadings */
+  --text-xl: 1.375rem; /* 22px: section headings, rails */
+  --text-2xl: 1.75rem; /* 28px: branding, dialog headers */
   --text-hero: clamp(2rem, 4.5vw, 3.25rem); /* Hero display */
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;

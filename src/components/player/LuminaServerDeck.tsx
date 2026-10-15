@@ -1,11 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Radio,
-  Zap,
-  Volume2,
-} from 'lucide-react';
+import { Radio, Zap, Volume2 } from 'lucide-react';
 import type { LuminaServerConfig } from '@/lib/providers/lumina';
 import './LuminaServerDeck.css';
 
@@ -47,7 +43,7 @@ export default function LuminaServerDeck({
         </div>
 
         <div className="lumina-bar__servers" role="tablist" aria-label="Servers">
-          {servers.map((server) => {
+          {servers.map(server => {
             const isActive = server.id === activeServerId;
             return (
               <button
@@ -76,7 +72,11 @@ export default function LuminaServerDeck({
             type="button"
             onClick={onToggleAutoSwitch}
             className={`lumina-action-chip ${autoSwitch ? 'lumina-action-chip--active' : ''}`}
-            title={autoSwitch ? 'Auto-Switch ON: automatically tries backup server on failure' : 'Auto-Switch OFF'}
+            title={
+              autoSwitch
+                ? 'Auto-Switch ON: automatically tries backup server on failure'
+                : 'Auto-Switch OFF'
+            }
             aria-pressed={autoSwitch}
           >
             <Zap size={11} className={autoSwitch ? 'lumina-action-chip__zap--on' : ''} />

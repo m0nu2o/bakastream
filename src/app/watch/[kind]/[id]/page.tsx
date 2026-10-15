@@ -4,7 +4,12 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Info, Star, Calendar } from 'lucide-react';
 import WatchClient from './WatchClient';
 import SeasonEpisodeSelector from '@/components/player/SeasonEpisodeSelector';
-import { getMovieDetails, getTVDetails, getSeasonDetails, isTMDBConfigured } from '@/lib/tmdb/server';
+import {
+  getMovieDetails,
+  getTVDetails,
+  getSeasonDetails,
+  isTMDBConfigured,
+} from '@/lib/tmdb/server';
 import { posterUrl } from '@/lib/tmdb/image';
 import { movieUrl, tvUrl } from '@/utils/slug';
 import type { MediaSummary } from '@/types';
@@ -42,12 +47,9 @@ export default async function WatchPage({ params }: PageProps) {
 
   // For TV shows, pre-fetch Season 1 episodes for instant zero-lag rendering
   const initialSeasonNumber =
-    type === 'tv'
-      ? details.seasons.find(s => s.seasonNumber > 0)?.seasonNumber ?? 1
-      : 1;
+    type === 'tv' ? (details.seasons.find(s => s.seasonNumber > 0)?.seasonNumber ?? 1) : 1;
 
-  const seasonData =
-    type === 'tv' ? await getSeasonDetails(numericId, initialSeasonNumber) : null;
+  const seasonData = type === 'tv' ? await getSeasonDetails(numericId, initialSeasonNumber) : null;
 
   const backHref =
     type === 'movie' ? movieUrl(details.id, details.title) : tvUrl(details.id, details.title);
@@ -102,14 +104,10 @@ export default async function WatchPage({ params }: PageProps) {
                 <Star size={11} fill="currentColor" /> {details.rating.toFixed(1)}
               </span>
             ) : null}
-            <span className="watch__chip">
-              {type === 'movie' ? 'Movie' : 'TV Series'}
-            </span>
+            <span className="watch__chip">{type === 'movie' ? 'Movie' : 'TV Series'}</span>
           </div>
 
-          {details.overview && (
-            <p className="watch__overview-snippet">{details.overview}</p>
-          )}
+          {details.overview && <p className="watch__overview-snippet">{details.overview}</p>}
 
           <Link href={backHref} className="btn btn--ghost watch__back">
             <ArrowLeft size={16} /> Back to details
@@ -117,7 +115,8 @@ export default async function WatchPage({ params }: PageProps) {
 
           <p className="watch__disclaimer">
             <Info size={13} />
-            Playback is provided by verified third-party streaming engines. BakaStream hosts no files on its servers.
+            Playback is provided by verified third-party streaming engines. BakaStream hosts no
+            files on its servers.
           </p>
         </div>
       </div>

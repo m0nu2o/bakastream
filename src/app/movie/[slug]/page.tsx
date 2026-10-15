@@ -149,7 +149,9 @@ export default async function MoviePage({ params }: PageProps) {
               </span>
               <div className="detail-hero__languages-list">
                 {languages.hasHindiAudio && (
-                  <span className={`badge ${languages.originalLanguage?.code === 'hi' ? 'badge--accent' : 'badge--hindi'}`}>
+                  <span
+                    className={`badge ${languages.originalLanguage?.code === 'hi' ? 'badge--accent' : 'badge--hindi'}`}
+                  >
                     🇮🇳 Hindi {languages.originalLanguage?.code === 'hi' ? '(Original)' : '(Dubbed)'}
                   </span>
                 )}

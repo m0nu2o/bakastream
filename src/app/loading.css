@@ -34,7 +34,8 @@
 }
 
 @keyframes ambient-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.92);
     opacity: 0.6;
   }
@@ -82,13 +83,21 @@
 }
 
 @keyframes ring-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes ring-spin-reverse {
-  0% { transform: rotate(360deg); }
-  100% { transform: rotate(0deg); }
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .cinema-loading__emblem {
@@ -100,7 +109,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(244, 59, 76, 0.25);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(244, 59, 76, 0.25);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -108,7 +119,9 @@
 :root[data-theme="light"] .cinema-loading__emblem {
   background: #ffffff;
   border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 20px rgba(244, 59, 76, 0.15);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 20px rgba(244, 59, 76, 0.15);
 }
 
 .cinema-loading__logo-img {
@@ -154,8 +167,15 @@
 }
 
 @keyframes dot-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.3); }
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
 }
 
 .cinema-loading__caption {

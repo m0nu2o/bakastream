@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Info, Star, Calendar, ChevronLeft, ChevronRight, Clapperboard, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Play,
+  Info,
+  Star,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clapperboard,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import type { MediaSummary, Genre } from '@/types';
 import { backdropUrl } from '@/lib/tmdb/image';
 import { mediaUrl } from '@/utils/slug';
@@ -23,14 +33,14 @@ export default function Hero({ items, genres = [] }: Props) {
 
   useEffect(() => {
     if (items.length <= 1 || paused) return;
-    timer.current = setInterval(() => setIndex((i) => (i + 1) % items.length), AUTOPLAY_MS);
+    timer.current = setInterval(() => setIndex(i => (i + 1) % items.length), AUTOPLAY_MS);
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
   }, [items.length, paused]);
 
   const go = useCallback(
-    (dir: 1 | -1) => setIndex((i) => (i + dir + items.length) % items.length),
+    (dir: 1 | -1) => setIndex(i => (i + dir + items.length) % items.length),
     [items.length]
   );
 
@@ -42,11 +52,12 @@ export default function Hero({ items, genres = [] }: Props) {
   const rating = item.rating != null && item.rating > 0 ? item.rating.toFixed(1) : null;
   const watchHref = `/watch/${item.type}/${item.id}`;
 
-  const genreList = item.genreIds
-    ?.map((id) => genres.find((g) => g.id === id)?.name)
-    .filter(Boolean)
-    .slice(0, 3)
-    .join(' • ') || (item.type === 'movie' ? 'Feature Film' : 'TV Series');
+  const genreList =
+    item.genreIds
+      ?.map(id => genres.find(g => g.id === id)?.name)
+      .filter(Boolean)
+      .slice(0, 3)
+      .join(' • ') || (item.type === 'movie' ? 'Feature Film' : 'TV Series');
 
   return (
     <section
@@ -105,27 +116,51 @@ export default function Hero({ items, genres = [] }: Props) {
             <span className="hero__watch-icon">▶</span>
             <span>Watch now</span>
           </Link>
-          <Link href={mediaUrl(item)} className="hero__info-btn" aria-label={`Details for ${item.title}`}>
+          <Link
+            href={mediaUrl(item)}
+            className="hero__info-btn"
+            aria-label={`Details for ${item.title}`}
+          >
             <Info size={16} />
             <span>More info</span>
           </Link>
         </div>
       </div>
 
-      {/* ── Vertical Slide Indicators (Right Edge) ── */}
+      {/* ── Slide Controls & Vertical Indicators ── */}
       {items.length > 1 && (
-        <div className="hero__vertical-dots" aria-label="Slide indicators">
-          {items.slice(0, 5).map((slideItem, i) => (
+        <>
+          <div className="hero__arrows" aria-label="Slide controls">
             <button
-              key={slideItem.id || i}
-              className={`hero__vdot ${i === index ? 'hero__vdot--active' : ''}`}
-              onClick={() => setIndex(i)}
-              aria-label={`Switch to slide ${i + 1}: ${slideItem.title}`}
-              title={slideItem.title}
               type="button"
-            />
-          ))}
-        </div>
+              className="hero__arrow hero__arrow--prev"
+              onClick={() => go(-1)}
+              aria-label="Previous featured title"
+            >
+              <ChevronLeft size={22} />
+            </button>
+            <button
+              type="button"
+              className="hero__arrow hero__arrow--next"
+              onClick={() => go(1)}
+              aria-label="Next featured title"
+            >
+              <ChevronRight size={22} />
+            </button>
+          </div>
+          <div className="hero__vertical-dots" aria-label="Slide indicators">
+            {items.slice(0, 5).map((slideItem, i) => (
+              <button
+                key={slideItem.id || i}
+                className={`hero__vdot ${i === index ? 'hero__vdot--active' : ''}`}
+                onClick={() => setIndex(i)}
+                aria-label={`Switch to slide ${i + 1}: ${slideItem.title}`}
+                title={slideItem.title}
+                type="button"
+              />
+            ))}
+          </div>
+        </>
       )}
     </section>
   );

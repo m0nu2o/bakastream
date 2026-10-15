@@ -1,13 +1,15 @@
 'use client';
 
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { AlertTriangle, Loader2, ShieldCheck, ToggleLeft, ToggleRight, Volume2, Zap } from 'lucide-react';
+  AlertTriangle,
+  Loader2,
+  ShieldCheck,
+  ToggleLeft,
+  ToggleRight,
+  Volume2,
+  Zap,
+} from 'lucide-react';
 import VideoPlayer from '@/components/player/VideoPlayer';
 import LuminaServerDeck from '@/components/player/LuminaServerDeck';
 import StateView from '@/components/StateView';
@@ -84,7 +86,18 @@ export default function WatchClient({ content, season, episode }: Props) {
         setLoading(false);
       }
     },
-    [content.type, content.id, content.title, content.genreIds, content.originalLanguage, content.imdbId, season, episode, subOrDub, server]
+    [
+      content.type,
+      content.id,
+      content.title,
+      content.genreIds,
+      content.originalLanguage,
+      content.imdbId,
+      season,
+      episode,
+      subOrDub,
+      server,
+    ]
   );
 
   useEffect(() => {
@@ -334,11 +347,7 @@ function EmbedStage({
       return;
     }
 
-    const nextServer = getNextFallbackServer(
-      activeServer,
-      triedServersRef.current,
-      mediaCategory
-    );
+    const nextServer = getNextFallbackServer(activeServer, triedServersRef.current, mediaCategory);
 
     if (nextServer) {
       triedServersRef.current = [...triedServersRef.current, nextServer];
@@ -372,7 +381,7 @@ function EmbedStage({
         <LuminaServerDeck
           servers={compatibleServers}
           activeServerId={activeServer}
-          onSelectServer={(s) => {
+          onSelectServer={s => {
             triedServersRef.current = [s];
             setFailed(false);
             onServerChange(s);
@@ -407,7 +416,9 @@ function EmbedStage({
       <div className="watch__toolbar">
         <div className="watch__active-server-pill">
           <span className="watch__server-dot" />
-          <span>Streaming on: <strong>{activeServerObj?.name ?? activeServer}</strong></span>
+          <span>
+            Streaming on: <strong>{activeServerObj?.name ?? activeServer}</strong>
+          </span>
         </div>
 
         <div
@@ -434,7 +445,7 @@ function EmbedStage({
       <LuminaServerDeck
         servers={compatibleServers}
         activeServerId={activeServer}
-        onSelectServer={(s) => {
+        onSelectServer={s => {
           triedServersRef.current = [s];
           setFailed(false);
           onServerChange(s);

@@ -13,7 +13,6 @@ import { DemoPreviewProvider } from './demo';
 import {
   LUMINA_SERVERS,
   getCanonicalServerId,
-  getLuminaServers,
   ProviderTelemetry,
   type LuminaServerConfig,
 } from './lumina';
@@ -138,7 +137,8 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
     playback: null,
     audioTracks: [],
     subtitles: [],
-    message: 'Every configured streaming server failed to resolve this title. Please try another server.',
+    message:
+      'Every configured streaming server failed to resolve this title. Please try another server.',
     notice: '',
   };
 }

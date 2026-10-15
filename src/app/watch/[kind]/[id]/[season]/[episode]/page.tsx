@@ -105,7 +105,8 @@ export default async function WatchEpisodePage({ params }: PageProps) {
 
           <p className="watch__disclaimer">
             <Info size={13} />
-            Playback is provided by verified third-party streaming engines. BakaStream hosts no files on its servers.
+            Playback is provided by verified third-party streaming engines. BakaStream hosts no
+            files on its servers.
           </p>
         </div>
       </div>

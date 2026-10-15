@@ -48,8 +48,8 @@ async function HomeContent() {
   const genreName = (id: number): string =>
     data?.genres.find((g: Genre) => g.id === id)?.name ?? 'Browse';
 
-  // Dynamic watching item from real trending titles
-  const watchingItem = data.trending.length > 0 ? data.trending[0] : null;
+  // Dynamic spotlight title from trending catalog
+  const spotlightItem = data.trending.length > 0 ? data.trending[0] : null;
 
   return (
     <div className="home__body">
@@ -68,8 +68,8 @@ async function HomeContent() {
         genres={data.genres}
       />
 
-      {/* ── 3. DYNAMIC "WATCHING" SPOTLIGHT BANNER ── */}
-      {watchingItem && <WatchingBanner item={watchingItem} />}
+      {/* ── 3. DYNAMIC CONTINUE WATCHING / SPOTLIGHT BANNER ── */}
+      {spotlightItem && <WatchingBanner item={spotlightItem} />}
 
       {/* ── 4. MOVIES CATALOG (Interactive Sort: Latest, A-Z, Year, Rate) ── */}
       <CatalogSection
@@ -80,12 +80,7 @@ async function HomeContent() {
       />
 
       {/* ── 5. SERIES CATALOG (Interactive Sort: Latest, A-Z, Year, Rate) ── */}
-      <CatalogSection
-        title="Series"
-        type="tv"
-        items={data.popularTV}
-        viewAllHref="/tv"
-      />
+      <CatalogSection title="Series" type="tv" items={data.popularTV} viewAllHref="/tv" />
 
       {/* ── 6. CENTRAL DISCOVERY "+" EXPLORE BUTTON ── */}
       <div className="home-explore-more">
@@ -120,11 +115,7 @@ async function HomeContent() {
         items={data.kdrama}
         seeAllHref={{ href: '/category/kdrama' }}
       />
-      <MediaRow
-        title="Anime"
-        items={data.anime}
-        seeAllHref={{ href: '/category/anime' }}
-      />
+      <MediaRow title="Anime" items={data.anime} seeAllHref={{ href: '/category/anime' }} />
       <MediaRow
         title="Top rated movies"
         items={data.topRatedMovies}
@@ -136,7 +127,7 @@ async function HomeContent() {
         seeAllHref={{ href: '/tv?sort=vote' }}
       />
 
-      {GENRE_SPOTLIGHT.map((id) => (
+      {GENRE_SPOTLIGHT.map(id => (
         <GenreSpotlight key={id} genreId={id} name={genreName(id)} />
       ))}
     </div>

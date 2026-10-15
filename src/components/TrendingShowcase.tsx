@@ -67,8 +67,8 @@ export default function TrendingShowcase({
     setLoadingGenre(true);
 
     fetch(`/api/tmdb/discover/movie?with_genres=${selectedGenre}&sort_by=popularity.desc`)
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         if (cancelled) return;
         if (Array.isArray(data.results)) {
           interface RawItem {
@@ -97,7 +97,7 @@ export default function TrendingShowcase({
             genreIds: r.genre_ids ?? [],
             popularity: r.popularity,
           }));
-          setGenreData((prev) => ({ ...prev, [selectedGenre]: mapped }));
+          setGenreData(prev => ({ ...prev, [selectedGenre]: mapped }));
         }
       })
       .catch(() => {})
@@ -117,7 +117,7 @@ export default function TrendingShowcase({
       return genreData[selectedGenre];
     }
     // Fallback to local filter while remote genre results arrive
-    const localFiltered = baseList.filter((item) => item.genreIds?.includes(selectedGenre));
+    const localFiltered = baseList.filter(item => item.genreIds?.includes(selectedGenre));
     return localFiltered.length > 0 ? localFiltered : baseList;
   }, [baseList, selectedGenre, genreData]);
 
@@ -144,7 +144,11 @@ export default function TrendingShowcase({
             role="tab"
             aria-selected={activeTab === 'trends'}
           >
-            <Star size={14} className="trending-showcase__tab-icon" fill={activeTab === 'trends' ? 'currentColor' : 'none'} />
+            <Star
+              size={14}
+              className="trending-showcase__tab-icon"
+              fill={activeTab === 'trends' ? 'currentColor' : 'none'}
+            />
             <span>Trends Now</span>
           </button>
           <button
@@ -177,7 +181,7 @@ export default function TrendingShowcase({
       {/* ── 2. SCROLLABLE GENRE FILTER PILLS ── */}
       <div className="trending-showcase__genres-container">
         <div className="trending-showcase__genres-scroll">
-          {GENRE_CHIPS.map((genre) => (
+          {GENRE_CHIPS.map(genre => (
             <button
               key={genre.id}
               className={`trending-showcase__genre-chip ${selectedGenre === genre.id ? 'trending-showcase__genre-chip--active' : ''}`}
@@ -201,77 +205,91 @@ export default function TrendingShowcase({
           <ChevronLeft size={20} />
         </button>
 
-        <div className="trending-showcase__scroller" ref={scrollerRef}>
-          {displayList.map((item) => {
-            const isSelected = item.id === selectedCardId;
-            const poster = posterUrl(item.posterPath, 'w500');
-            const year = item.releaseDate ? item.releaseDate.slice(0, 4) : null;
-            const rating = item.rating && item.rating > 0 ? item.rating.toFixed(1) : null;
-            const href = mediaUrl(item);
+        <div
+          className={`trending-showcase__scroller ${loadingGenre ? 'trending-showcase__scroller--loading' : ''}`}
+          ref={scrollerRef}
+        >
+          {loadingGenre ? (
+            <div className="trending-showcase__loading-state" aria-live="polite">
+              <span className="trending-showcase__spinner" />
+              <span>Loading titles…</span>
+            </div>
+          ) : (
+            displayList.map(item => {
+              const isSelected = item.id === selectedCardId;
+              const poster = posterUrl(item.posterPath, 'w500');
+              const year = item.releaseDate ? item.releaseDate.slice(0, 4) : null;
+              const rating = item.rating && item.rating > 0 ? item.rating.toFixed(1) : null;
+              const href = mediaUrl(item);
 
-            return (
-              <div
-                key={`${item.type}-${item.id}`}
-                className={`trending-showcase__card ${isSelected ? 'trending-showcase__card--selected' : ''}`}
-                onClick={() => setSelectedCardId(item.id)}
-              >
-                <div className="trending-showcase__poster-box">
-                  <Link href={href} className="trending-showcase__poster-link" aria-label={item.title}>
-                    {poster ? (
-                      <Image
-                        src={poster}
-                        alt={item.title}
-                        fill
-                        sizes="(max-width: 640px) 150px, (max-width: 1024px) 180px, 220px"
-                        className="trending-showcase__poster-img"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="trending-showcase__placeholder" />
-                    )}
-                  </Link>
+              return (
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className={`trending-showcase__card ${isSelected ? 'trending-showcase__card--selected' : ''}`}
+                  onClick={() => setSelectedCardId(item.id)}
+                >
+                  <div className="trending-showcase__poster-box">
+                    <Link
+                      href={href}
+                      className="trending-showcase__poster-link"
+                      aria-label={item.title}
+                    >
+                      {poster ? (
+                        <Image
+                          src={poster}
+                          alt={item.title}
+                          fill
+                          sizes="(max-width: 640px) 150px, (max-width: 1024px) 180px, 220px"
+                          className="trending-showcase__poster-img"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="trending-showcase__placeholder" />
+                      )}
+                    </Link>
 
-                  <div className="trending-showcase__play-overlay">
-                    {onPlay ? (
-                      <button
-                        className="trending-showcase__play-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onPlay(item);
-                        }}
-                        aria-label={`Play ${item.title}`}
-                        type="button"
-                      >
-                        <Play size={16} fill="currentColor" />
-                      </button>
-                    ) : (
-                      <Link
-                        href={href}
-                        className="trending-showcase__play-btn"
-                        aria-label={`Open ${item.title}`}
-                      >
-                        <Play size={16} fill="currentColor" />
-                      </Link>
-                    )}
+                    <div className="trending-showcase__play-overlay">
+                      {onPlay ? (
+                        <button
+                          className="trending-showcase__play-btn"
+                          onClick={e => {
+                            e.stopPropagation();
+                            onPlay(item);
+                          }}
+                          aria-label={`Play ${item.title}`}
+                          type="button"
+                        >
+                          <Play size={16} fill="currentColor" />
+                        </button>
+                      ) : (
+                        <Link
+                          href={href}
+                          className="trending-showcase__play-btn"
+                          aria-label={`Open ${item.title}`}
+                        >
+                          <Play size={16} fill="currentColor" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="trending-showcase__info-block">
+                    <Link href={href} className="trending-showcase__title" title={item.title}>
+                      {item.title}
+                    </Link>
+                    <div className="trending-showcase__meta">
+                      {year && <span className="trending-showcase__year">{year}</span>}
+                      {rating && (
+                        <span className="trending-showcase__rating">
+                          <Star size={11} fill="#ffb800" stroke="#ffb800" /> {rating}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                <div className="trending-showcase__info-block">
-                  <Link href={href} className="trending-showcase__title" title={item.title}>
-                    {item.title}
-                  </Link>
-                  <div className="trending-showcase__meta">
-                    {year && <span className="trending-showcase__year">{year}</span>}
-                    {rating && (
-                      <span className="trending-showcase__rating">
-                        <Star size={11} fill="#ffb800" stroke="#ffb800" /> {rating}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         <button

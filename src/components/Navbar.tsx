@@ -78,8 +78,16 @@ export default function Navbar() {
       <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
         <div className="navbar__inner">
           <Link href="/" className="navbar__logo" aria-label="BakaStream home">
-            <img src="/favicon.png" alt="BakaStream" width={28} height={28} className="navbar__logo-img" />
-            <span><span className="navbar__logo-accent">Baka</span>Stream</span>
+            <img
+              src="/favicon.png"
+              alt="BakaStream"
+              width={28}
+              height={28}
+              className="navbar__logo-img"
+            />
+            <span>
+              <span className="navbar__logo-accent">Baka</span>Stream
+            </span>
           </Link>
 
           <nav className="navbar__links" aria-label="Primary">
@@ -107,7 +115,10 @@ export default function Navbar() {
                 Categories <ChevronDown size={14} />
               </button>
               {categoriesOpen && (
-                <div className="navbar__dropdown-menu" onMouseLeave={() => setCategoriesOpen(false)}>
+                <div
+                  className="navbar__dropdown-menu"
+                  onMouseLeave={() => setCategoriesOpen(false)}
+                >
                   {categories.map(c => (
                     <Link
                       key={c.id}

@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Play, Heart, Eye, Star, Clapperboard } from 'lucide-react';
 import type { MediaSummary } from '@/types';
 import { backdropUrl } from '@/lib/tmdb/image';
+import { subscribe, getHistory, EMPTY_HISTORY } from '@/lib/storage';
 import './WatchingBanner.css';
 
 interface Props {
@@ -14,35 +15,54 @@ interface Props {
 }
 
 export default function WatchingBanner({ item, onPlay }: Props) {
-  const title = item.title || 'Featured Title';
-  const mediaType = item.type || 'movie';
-  const watchHref = `/watch/${mediaType}/${item.id}`;
-  const backdrop = backdropUrl(item.backdropPath, 'original') || backdropUrl(item.posterPath, 'w780');
-  const year = item.releaseDate ? item.releaseDate.slice(0, 4) : '2024';
-  const rating = item.rating && item.rating > 0 ? item.rating.toFixed(1) : '7.5';
+  const history = useSyncExternalStore(subscribe, getHistory, () => EMPTY_HISTORY);
+  const isHistory = history.length > 0;
+  const historyItem = isHistory ? history[0] : null;
+  const displayItem: MediaSummary = historyItem || item;
 
-  // Dynamic hashtags generated from real metadata
+  if (!displayItem) return null;
+
+  const title = displayItem.title || 'Featured Title';
+  const mediaType = displayItem.type || 'movie';
+  const watchHref =
+    historyItem && historyItem.type === 'tv' && historyItem.season
+      ? `/watch/tv/${historyItem.id}?season=${historyItem.season}&episode=${historyItem.episode || 1}`
+      : `/watch/${mediaType}/${displayItem.id}`;
+
+  const backdrop =
+    backdropUrl(displayItem.backdropPath, 'original') ||
+    backdropUrl(displayItem.posterPath, 'w780');
+  const year = displayItem.releaseDate ? displayItem.releaseDate.slice(0, 4) : null;
+  const rating =
+    displayItem.rating != null && displayItem.rating > 0 ? displayItem.rating.toFixed(1) : null;
+
+  // Dynamic hashtags generated from honest metadata
   const hashtagTitle = '#' + title.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15);
   const hashtagType = mediaType === 'movie' ? '#Movie' : '#Series';
-  const hashtagYear = `#${year}`;
+  const hashtagYear = year ? `#${year}` : null;
 
   return (
-    <section className="watching-section" aria-label="Featured Watching Showcase">
+    <section
+      className="watching-section"
+      aria-label={isHistory ? 'Continue Watching' : 'Featured Spotlight'}
+    >
       <div className="watching-section__inner">
-        {/* Section Header with Icon and Dynamic Tags */}
+        {/* Section Header with Honest Label and Dynamic Tags */}
         <div className="watching-section__header">
           <div className="watching-section__title-group">
             <span className="watching-section__title-icon">
               <Clapperboard size={20} className="text-red-500" />
             </span>
-            <h2 className="watching-section__title">Watching</h2>
+            <h2 className="watching-section__title">
+              {isHistory ? 'Continue Watching' : 'Featured Spotlight'}
+            </h2>
           </div>
 
           {/* Dynamic Hashtags */}
           <div className="watching-section__tags" aria-hidden="true">
             <span className="watching-section__tag">{hashtagTitle}</span>
             <span className="watching-section__tag">{hashtagType}</span>
-            <span className="watching-section__tag">{hashtagYear}</span>
+            {hashtagYear && <span className="watching-section__tag">{hashtagYear}</span>}
             <span className="watching-section__tag">#HD</span>
           </div>
         </div>
@@ -53,10 +73,10 @@ export default function WatchingBanner({ item, onPlay }: Props) {
             href={watchHref}
             className="watching-banner__link"
             aria-label={`Watch ${title}`}
-            onClick={(e) => {
+            onClick={e => {
               if (onPlay) {
                 e.preventDefault();
-                onPlay(item);
+                onPlay(displayItem);
               }
             }}
           >
@@ -93,25 +113,43 @@ export default function WatchingBanner({ item, onPlay }: Props) {
                   </span>
                   <span className="watching-banner__badge watching-banner__badge--hd">HD</span>
                   {year && <span className="watching-banner__badge">{year}</span>}
+                  {historyItem && historyItem.season && (
+                    <span className="watching-banner__badge watching-banner__badge--ep">
+                      S{historyItem.season} E{historyItem.episode || 1}
+                    </span>
+                  )}
                 </div>
-                {item.overview && (
-                  <p className="watching-banner__overview">{item.overview}</p>
+                {displayItem.overview && (
+                  <p className="watching-banner__overview">{displayItem.overview}</p>
                 )}
               </div>
 
               <div className="watching-banner__meta-right">
-                <div className="watching-banner__stat" title="Trending metric">
-                  <Heart size={16} className="watching-banner__stat-icon text-red-500" fill="currentColor" />
-                  <span>Popular</span>
+                <div
+                  className="watching-banner__stat"
+                  title={isHistory ? 'Resume playback' : 'Trending'}
+                >
+                  <Heart
+                    size={16}
+                    className="watching-banner__stat-icon text-red-500"
+                    fill="currentColor"
+                  />
+                  <span>{isHistory ? 'Resume' : 'Popular'}</span>
                 </div>
                 <div className="watching-banner__stat" title="Streaming availability">
                   <Eye size={16} className="watching-banner__stat-icon text-blue-400" />
                   <span>HD Stream</span>
                 </div>
-                <div className="watching-banner__stat" title="TMDB Rating">
-                  <Star size={16} className="watching-banner__stat-icon text-amber-400" fill="#ffb800" />
-                  <span>{rating}</span>
-                </div>
+                {rating && (
+                  <div className="watching-banner__stat" title="TMDB Rating">
+                    <Star
+                      size={16}
+                      className="watching-banner__stat-icon text-amber-400"
+                      fill="#ffb800"
+                    />
+                    <span>{rating}</span>
+                  </div>
+                )}
               </div>
             </div>
           </Link>

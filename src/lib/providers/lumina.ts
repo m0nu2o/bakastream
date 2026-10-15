@@ -98,7 +98,8 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: false,
     supportsEnglishDub: true,
     supportsHindiDub: false,
-    description: 'Pre-buffered streaming engine designed for zero playback stutter and fast buffering.',
+    description:
+      'Pre-buffered streaming engine designed for zero playback stutter and fast buffering.',
     features: ['Zero Stutter', 'Low Ping', 'Clean'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'tv' || season !== undefined) {
@@ -119,7 +120,8 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: false,
     supportsEnglishDub: true,
     supportsHindiDub: false,
-    description: 'High-speed global content delivery with multi-subtitle support and native player.',
+    description:
+      'High-speed global content delivery with multi-subtitle support and native player.',
     features: ['Global CDN', 'Multi-Subs', '1080p'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'tv' || season !== undefined) {
@@ -170,7 +172,8 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: false,
-    description: 'Dedicated NextGen anime player with Japanese audio, English Subtitles, English Dub, and zero ads.',
+    description:
+      'Dedicated NextGen anime player with Japanese audio, English Subtitles, English Dub, and zero ads.',
     features: ['Sub/Dub Switch', '0 Ads', '1080p Ultra'],
     getPlaybackUrl: ({ type, id, season, episode, isDub }) => {
       if (type === 'movie') {
@@ -212,7 +215,8 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: true,
     supportsEnglishDub: false,
     supportsHindiDub: false,
-    description: 'Pre-buffered streaming engine optimized for fast binge-watching without buffering.',
+    description:
+      'Pre-buffered streaming engine optimized for fast binge-watching without buffering.',
     features: ['Fast Binge', '1080p', 'Clean'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
@@ -233,7 +237,8 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: false,
-    description: 'Flagship 4K VidLink relay with instant start and multi-subtitle tracks in player settings.',
+    description:
+      'Flagship 4K VidLink relay with instant start and multi-subtitle tracks in player settings.',
     features: ['4K Ready', 'Multi-Subs', 'High Uptime'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
@@ -250,16 +255,16 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
  */
 export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
   // Movie/TV fallback order
-  vidlink:       ['vidsrc-pm', 'vidsrc-su', 'vidfast'],
-  'vidsrc-pm':   ['vidlink', 'vidsrc-su', 'vidfast'],
-  'vidsrc-su':   ['vidlink', 'vidsrc-pm', 'vidfast'],
-  vidfast:       ['vidlink', 'vidsrc-pm', 'vidsrc-su'],
+  vidlink: ['vidsrc-pm', 'vidsrc-su', 'vidfast'],
+  'vidsrc-pm': ['vidlink', 'vidsrc-su', 'vidfast'],
+  'vidsrc-su': ['vidlink', 'vidsrc-pm', 'vidfast'],
+  vidfast: ['vidlink', 'vidsrc-pm', 'vidsrc-su'],
 
   // Anime fallback order
-  'nextgen-anime':    ['vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
-  'vidsrc-pm-anime':  ['nextgen-anime', 'vidfast-anime', 'vidlink-anime'],
-  'vidfast-anime':    ['nextgen-anime', 'vidsrc-pm-anime', 'vidlink-anime'],
-  'vidlink-anime':    ['nextgen-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
+  'nextgen-anime': ['vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
+  'vidsrc-pm-anime': ['nextgen-anime', 'vidfast-anime', 'vidlink-anime'],
+  'vidfast-anime': ['nextgen-anime', 'vidsrc-pm-anime', 'vidlink-anime'],
+  'vidlink-anime': ['nextgen-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
 };
 
 /**
@@ -269,39 +274,39 @@ export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
 export const LUMINA_ALIASES: Record<string, string> = {
   // Anime Primary
   'nextgen-anime': 'nextgen-anime',
-  'nextgen':       'nextgen-anime',
-  'direct-hls':    'nextgen-anime',
-  'hikari':        'nextgen-anime',
-  'reanime':       'nextgen-anime',
+  nextgen: 'nextgen-anime',
+  'direct-hls': 'nextgen-anime',
+  hikari: 'nextgen-anime',
+  reanime: 'nextgen-anime',
   'vidsrc-su-anime': 'nextgen-anime',
   'vidlink-anime': 'vidlink-anime',
 
   // Movies/TV Primary
-  vidlink:         'vidlink',
-  vidfast:         'vidfast',
-  'vidsrc-su':     'vidsrc-su',
-  'vidsrc-pm':     'vidsrc-pm',
+  vidlink: 'vidlink',
+  vidfast: 'vidfast',
+  'vidsrc-su': 'vidsrc-su',
+  'vidsrc-pm': 'vidsrc-pm',
 
   // Dead servers → Clean working fallbacks
-  screenscape:         'vidlink',
+  screenscape: 'vidlink',
   'screenscape-anime': 'nextgen-anime',
-  autoembed:           'vidfast',
-  'autoembed-co':      'vidfast',
-  'autoembed-anime':   'nextgen-anime',
-  'autoembed-co-anime':'nextgen-anime',
-  nova:                'vidlink',
-  'nova-anime':        'nextgen-anime',
-  'vidfast-anime':     'vidfast-anime',
-  'vidsrc-pm-anime':   'vidsrc-pm-anime',
-  'vidsrc-dev':        'vidsrc-pm',
-  'vidsrc-net':        'vidsrc-su',
-  'vidsrc-me':         'vidsrc-su',
-  '2embed':            'vidlink',
-  '2embed-skin':       'vidlink',
-  '2embed-anime':      'nextgen-anime',
+  autoembed: 'vidfast',
+  'autoembed-co': 'vidfast',
+  'autoembed-anime': 'nextgen-anime',
+  'autoembed-co-anime': 'nextgen-anime',
+  nova: 'vidlink',
+  'nova-anime': 'nextgen-anime',
+  'vidfast-anime': 'vidfast-anime',
+  'vidsrc-pm-anime': 'vidsrc-pm-anime',
+  'vidsrc-dev': 'vidsrc-pm',
+  'vidsrc-net': 'vidsrc-su',
+  'vidsrc-me': 'vidsrc-su',
+  '2embed': 'vidlink',
+  '2embed-skin': 'vidlink',
+  '2embed-anime': 'nextgen-anime',
   '2embed-skin-anime': 'nextgen-anime',
-  videasy:             'vidlink',
-  smashy:              'vidfast',
+  videasy: 'vidlink',
+  smashy: 'vidfast',
 };
 
 /**
@@ -317,7 +322,7 @@ export function getCanonicalServerId(id?: string): string {
  * Retrieves all Lumina servers compatible with the given media category.
  */
 export function getLuminaServers(category: 'movie' | 'tv' | 'anime'): LuminaServerConfig[] {
-  return LUMINA_SERVERS.filter((server) => {
+  return LUMINA_SERVERS.filter(server => {
     if (category === 'anime') return server.supportsAnime;
     if (category === 'tv') return server.supportsTV;
     return server.supportsMovie;
@@ -341,12 +346,19 @@ export function getNextFallbackServer(
 /**
  * In-memory provider telemetry to measure health and latency across user sessions.
  */
-const healthMap = new Map<string, { failureCount: number; avgLatencyMs: number | null; lastChecked: number }>();
+const healthMap = new Map<
+  string,
+  { failureCount: number; avgLatencyMs: number | null; lastChecked: number }
+>();
 
 export const ProviderTelemetry = {
   recordSuccess(serverId: string, latencyMs?: number): void {
     const canonical = getCanonicalServerId(serverId);
-    const prev = healthMap.get(canonical) || { failureCount: 0, avgLatencyMs: null, lastChecked: 0 };
+    const prev = healthMap.get(canonical) || {
+      failureCount: 0,
+      avgLatencyMs: null,
+      lastChecked: 0,
+    };
     prev.failureCount = 0;
     prev.lastChecked = Date.now();
     if (latencyMs && latencyMs > 0) {
@@ -359,7 +371,11 @@ export const ProviderTelemetry = {
 
   recordFailure(serverId: string): void {
     const canonical = getCanonicalServerId(serverId);
-    const prev = healthMap.get(canonical) || { failureCount: 0, avgLatencyMs: null, lastChecked: 0 };
+    const prev = healthMap.get(canonical) || {
+      failureCount: 0,
+      avgLatencyMs: null,
+      lastChecked: 0,
+    };
     prev.failureCount += 1;
     prev.lastChecked = Date.now();
     healthMap.set(canonical, prev);
@@ -372,7 +388,11 @@ export const ProviderTelemetry = {
     return rec.failureCount >= 3 && Date.now() - rec.lastChecked < 300_000;
   },
 
-  getHealth(serverId: string): { failureCount: number; avgLatencyMs: number | null; isHealthy: boolean } {
+  getHealth(serverId: string): {
+    failureCount: number;
+    avgLatencyMs: number | null;
+    isHealthy: boolean;
+  } {
     const canonical = getCanonicalServerId(serverId);
     const rec = healthMap.get(canonical);
     if (!rec) return { failureCount: 0, avgLatencyMs: 24, isHealthy: true };
