@@ -52,28 +52,9 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
     if (isHindi) {
       requestedServerId = 'screenscape';
     } else if (isAnime) {
-      requestedServerId = 'vidlink-anime';
+      requestedServerId = 'nextgen-anime';
     } else {
       requestedServerId = 'vidlink';
-    }
-  }
-
-  // 1. If Nova is explicitly requested, attempt NovaAPI direct resolution first
-  if (requestedServerId === 'nova') {
-    const nova = legacyProviders.find(p => p.id === 'nova');
-    if (nova) {
-      try {
-        const info = await nova.resolve(req);
-        if (info.status === 'ok') {
-          ProviderTelemetry.recordSuccess('nova');
-          return {
-            ...info,
-            server: 'nova',
-          };
-        }
-      } catch {
-        ProviderTelemetry.recordFailure('nova');
-      }
     }
   }
 
@@ -166,10 +147,15 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
 
 export {
   LUMINA_SERVERS,
+  AUTO_SWITCH_CHAIN,
   getCanonicalServerId,
   getLuminaServers,
+  getNextFallbackServer,
   ProviderTelemetry,
   type LuminaServerConfig,
+  type ServerCategory,
+  type ServerCategoryMeta,
+  SERVER_CATEGORIES,
 } from './lumina';
 
 export type { PlaybackInfo, ResolveRequest, StreamProvider } from './types';

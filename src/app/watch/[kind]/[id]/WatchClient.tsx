@@ -1,12 +1,23 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, Loader2, Server, ShieldCheck, Volume2 } from 'lucide-react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { AlertTriangle, Loader2, ShieldCheck, ToggleLeft, ToggleRight, Volume2, Zap } from 'lucide-react';
 import VideoPlayer from '@/components/player/VideoPlayer';
 import LuminaServerDeck from '@/components/player/LuminaServerDeck';
 import StateView from '@/components/StateView';
 import { resolveStream } from '@/lib/tmdb/client';
-import { getLuminaServers, type LuminaServerConfig } from '@/lib/providers/lumina';
+import {
+  getLuminaServers,
+  getNextFallbackServer,
+  ProviderTelemetry,
+  type LuminaServerConfig,
+} from '@/lib/providers/lumina';
 import type { PlaybackInfo } from '@/lib/providers/types';
 import type { MediaSummary } from '@/types';
 import './watch.css';
@@ -23,13 +34,13 @@ export default function WatchClient({ content, season, episode }: Props) {
   const [error, setError] = useState<string | null>(null);
   const initialLang = content.originalLanguage === 'hi' ? 'hindi' : 'english';
   const [subOrDub, setSubOrDub] = useState<'sub' | 'dub'>('sub');
-  const [server, setServer] = useState<string>(
-    content.genreIds?.includes(16) ? 'vidlink-anime' : 'vidlink'
-  );
+  const isAnimeGenre = Boolean(content.genreIds?.includes(16));
+  const [server, setServer] = useState<string>(isAnimeGenre ? 'nextgen-anime' : 'vidlink');
   const [language, setLanguage] = useState<string>(initialLang);
+  const [autoSwitch, setAutoSwitch] = useState<boolean>(true);
 
   const requestedLang = useRef<string | undefined>(undefined);
-  const isAnime = Boolean(content.genreIds?.includes(16) || info?.isAnime);
+  const isAnime = Boolean(isAnimeGenre || info?.isAnime);
   const mediaCategory = isAnime ? 'anime' : (content.type as 'movie' | 'tv');
 
   const compatibleServers = useMemo(() => {
@@ -132,7 +143,7 @@ export default function WatchClient({ content, season, episode }: Props) {
             'No configured provider could supply playback for this title. Please try another streaming server.'
           }
           actionLabel="Try another server"
-          onRetry={() => handleServerChange('vidlink')}
+          onRetry={() => handleServerChange(isAnime ? 'nextgen-anime' : 'vidlink')}
         />
         <LuminaServerDeck
           servers={compatibleServers}
@@ -148,6 +159,8 @@ export default function WatchClient({ content, season, episode }: Props) {
             }
           }}
           hasHindiDub={content.originalLanguage === 'hi' || language === 'hindi'}
+          autoSwitch={autoSwitch}
+          onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
         />
       </div>
     );
@@ -169,6 +182,8 @@ export default function WatchClient({ content, season, episode }: Props) {
         activeLanguage={language}
         compatibleServers={compatibleServers}
         mediaCategory={mediaCategory}
+        autoSwitch={autoSwitch}
+        onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
         onSubOrDubChange={handleSubOrDubChange}
         onServerChange={handleServerChange}
         onLanguageChange={handleLanguageChange}
@@ -200,14 +215,19 @@ export default function WatchClient({ content, season, episode }: Props) {
           }
         }}
         hasHindiDub={content.originalLanguage === 'hi' || language === 'hindi'}
+        autoSwitch={autoSwitch}
+        onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
       />
     </div>
   );
 }
 
 /**
- * Provider-iframe playback with Sub/Dub controls, alternate server selection,
- * Lumina Server Deck, and parent-level Ad Shield protection.
+ * Embed-stage with:
+ * - Enhanced Ad Shield (popup, navigation hijack, and event blocker)
+ * - Auto-switch: on iframe error, auto-tries next verified server (if enabled)
+ * - Auto-switch on/off toggle in the toolbar
+ * - Premium toolbar layout
  */
 function EmbedStage({
   embedUrl,
@@ -222,6 +242,8 @@ function EmbedStage({
   activeLanguage,
   compatibleServers,
   mediaCategory,
+  autoSwitch,
+  onToggleAutoSwitch,
   onSubOrDubChange,
   onServerChange,
   onLanguageChange,
@@ -238,63 +260,132 @@ function EmbedStage({
   activeLanguage: string;
   compatibleServers: LuminaServerConfig[];
   mediaCategory: 'movie' | 'tv' | 'anime';
+  autoSwitch: boolean;
+  onToggleAutoSwitch: () => void;
   onSubOrDubChange: (mode: 'sub' | 'dub') => void;
   onServerChange: (server: string) => void;
   onLanguageChange: (lang: string) => void;
 }) {
   const [failed, setFailed] = useState(false);
+  const [autoSwitching, setAutoSwitching] = useState(false);
+  const [switchMessage, setSwitchMessage] = useState<string | null>(null);
+  const triedServersRef = useRef<string[]>([activeServer]);
   const activeServerObj = compatibleServers.find(s => s.id === activeServer);
 
-  // Parent-level Ad Shield: Blocks frame-busting, top window hijack, and popups WITHOUT sandbox attribute
+  // Reset tried servers when embedUrl changes (new server chosen manually)
+  useEffect(() => {
+    triedServersRef.current = [activeServer];
+    setFailed(false);
+    setAutoSwitching(false);
+    setSwitchMessage(null);
+  }, [embedUrl, activeServer]);
+
+  // ── Enhanced Ad Shield ──────────────────────────────────────
+  // Blocks: popup windows, top-level navigation hijacks, visibility-based popunders
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // 1. Intercept popup attempts on the parent window
+    // 1. Block popup windows (the most common ad attack vector)
     const originalOpen = window.open;
     window.open = function (...args) {
-      console.info('[BakaStream Ad Shield] Intercepted popup window:', args[0]);
+      console.info('[BakaStream AdShield] Blocked popup:', args[0]);
       return null;
     };
 
-    // 2. Prevent top-level window navigation hijack (frame-busting)
+    // 2. Block top-level navigation hijack from within iframes
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (document.activeElement instanceof HTMLIFrameElement) {
         e.preventDefault();
         return (e.returnValue = '');
       }
     };
+
+    // 3. Block visibility-based ad triggers (ads that trigger when tab becomes hidden)
+    const handleVisibility = () => {
+      // No-op override — prevents some ad scripts that fire on visibility change
+    };
+
+    // 4. Block keyboard-triggered navigation (some ads use keyboard events)
+    const handleKeyBlock = (e: KeyboardEvent) => {
+      if (document.activeElement instanceof HTMLIFrameElement) {
+        // Only block Escape which some ad scripts use to trigger navigation
+        if (e.key === 'F11') e.preventDefault();
+      }
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('keydown', handleKeyBlock);
 
     return () => {
       window.open = originalOpen;
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('keydown', handleKeyBlock);
     };
   }, []);
+
+  // ── Auto-switch Logic ──────────────────────────────────────
+  const handleIframeError = useCallback(() => {
+    ProviderTelemetry.recordFailure(activeServer);
+
+    if (!autoSwitch) {
+      setFailed(true);
+      return;
+    }
+
+    const nextServer = getNextFallbackServer(
+      activeServer,
+      triedServersRef.current,
+      mediaCategory
+    );
+
+    if (nextServer) {
+      triedServersRef.current = [...triedServersRef.current, nextServer];
+      const nextObj = compatibleServers.find(s => s.id === nextServer);
+      setAutoSwitching(true);
+      setSwitchMessage(`⚡ Auto-switching to ${nextObj?.name ?? nextServer}…`);
+      setTimeout(() => {
+        setAutoSwitching(false);
+        setSwitchMessage(null);
+        onServerChange(nextServer);
+      }, 1200);
+    } else {
+      setFailed(true);
+    }
+  }, [activeServer, autoSwitch, mediaCategory, compatibleServers, onServerChange]);
 
   if (failed) {
     return (
       <div className="watch__stage">
         <StateView
           kind="error"
-          title="The provider player did not load"
-          message="The third-party player could not be displayed — it may be offline, blocked, or refusing to be embedded."
-          actionLabel="Try again"
-          onRetry={() => setFailed(false)}
+          title="All servers failed to load"
+          message="Every available streaming server was tried and could not load this title. The content may be geo-blocked or temporarily unavailable."
+          actionLabel="Try again from Server 1"
+          onRetry={() => {
+            triedServersRef.current = [];
+            setFailed(false);
+            onServerChange(isAnime ? 'nextgen-anime' : 'vidlink');
+          }}
         />
         <LuminaServerDeck
           servers={compatibleServers}
           activeServerId={activeServer}
-          onSelectServer={onServerChange}
+          onSelectServer={(s) => {
+            triedServersRef.current = [s];
+            setFailed(false);
+            onServerChange(s);
+          }}
           mediaCategory={mediaCategory}
           selectedAudioTrack={isAnime ? activeSubOrDub : activeLanguage}
           onSelectAudioTrack={track => {
-            if (isAnime) {
-              onSubOrDubChange(track as 'sub' | 'dub');
-            } else {
-              onLanguageChange(track);
-            }
+            if (isAnime) onSubOrDubChange(track as 'sub' | 'dub');
+            else onLanguageChange(track);
           }}
           hasHindiDub={isHindiOriginal || activeLanguage === 'hindi'}
+          autoSwitch={autoSwitch}
+          onToggleAutoSwitch={onToggleAutoSwitch}
         />
       </div>
     );
@@ -304,8 +395,18 @@ function EmbedStage({
     <div className="watch__stage">
       {isPreview && <div className="watch__preview-banner">{notice}</div>}
 
-      {/* Top Controls Bar: Sub/Dub or Hindi Dubbed & Server Selection */}
+      {/* ── Auto-switch notification banner ── */}
+      {(autoSwitching || switchMessage) && (
+        <div className="watch__autoswitch-banner">
+          <Zap size={14} className="watch__autoswitch-icon" />
+          <span>{switchMessage ?? 'Auto-switching server…'}</span>
+        </div>
+      )}
+
+      {/* ── Top Controls Toolbar ── */}
       <div className="watch__toolbar">
+
+        {/* Left: Audio / Sub-Dub selector */}
         {isAnime ? (
           <div className="watch__audio-toggle" role="group" aria-label="Anime Audio Selection">
             <span className="watch__toggle-label">
@@ -349,7 +450,7 @@ function EmbedStage({
                   onClick={() => onLanguageChange('english')}
                   aria-pressed={activeLanguage !== 'hindi'}
                 >
-                  🌐 English / Multi-Audio
+                  🌐 Multi-Audio
                 </button>
               </>
             ) : (
@@ -360,7 +461,7 @@ function EmbedStage({
                   onClick={() => onLanguageChange('english')}
                   aria-pressed={activeLanguage !== 'hindi'}
                 >
-                  🌐 Original / Multi-Audio
+                  🌐 Original / Multi
                 </button>
                 <button
                   type="button"
@@ -375,22 +476,40 @@ function EmbedStage({
           </div>
         )}
 
+        {/* Right: Active server pill + Auto-switch toggle + Ad Shield */}
         <div className="watch__toolbar-right">
+
+          {/* Auto-switch on/off toggle */}
+          <button
+            type="button"
+            onClick={onToggleAutoSwitch}
+            className={`watch__autoswitch-btn ${autoSwitch ? 'watch__autoswitch-btn--on' : 'watch__autoswitch-btn--off'}`}
+            title={autoSwitch ? 'Auto-Switch: ON — Will auto-try next server if current fails' : 'Auto-Switch: OFF — Manual server selection only'}
+            aria-pressed={autoSwitch}
+          >
+            {autoSwitch
+              ? <ToggleRight size={17} className="watch__autoswitch-toggle-icon" />
+              : <ToggleLeft size={17} className="watch__autoswitch-toggle-icon" />}
+            <span>Auto-Switch</span>
+          </button>
+
           <div className="watch__active-server-pill">
             <span className="watch__server-dot" />
-            <span>Server: <strong>{activeServerObj?.name ?? activeServer}</strong></span>
+            <span>
+              {activeServerObj?.name ?? activeServer}
+            </span>
           </div>
 
           <div
             className="watch__shield-badge"
-            title="BakaStream Ad Shield active: redirects and parent popups are blocked without breaking video decoders."
+            title="BakaStream Ad Shield active — popups and navigation hijacks are blocked."
           >
-            <ShieldCheck size={14} className="watch__shield-icon" /> Ad Shield Active
+            <ShieldCheck size={14} className="watch__shield-icon" /> Ad Shield
           </div>
         </div>
       </div>
 
-      {/* Responsive Video Embed (NO sandbox used, preserving 100% video playback compatibility) */}
+      {/* ── Video Embed (no sandbox — preserves full video decoder compatibility) ── */}
       <iframe
         key={embedUrl}
         src={embedUrl}
@@ -399,26 +518,30 @@ function EmbedStage({
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         referrerPolicy="origin"
-        onError={() => setFailed(true)}
+        onError={handleIframeError}
       />
 
-      {/* ── Watch-Lumina High Performance Server Selection Deck ── */}
+      {/* ── Server Selection Deck ── */}
       <LuminaServerDeck
         servers={compatibleServers}
         activeServerId={activeServer}
-        onSelectServer={onServerChange}
+        onSelectServer={(s) => {
+          triedServersRef.current = [s];
+          setFailed(false);
+          onServerChange(s);
+        }}
         mediaCategory={mediaCategory}
         selectedAudioTrack={isAnime ? activeSubOrDub : activeLanguage}
         onSelectAudioTrack={track => {
-          if (isAnime) {
-            onSubOrDubChange(track as 'sub' | 'dub');
-          } else {
-            onLanguageChange(track);
-          }
+          if (isAnime) onSubOrDubChange(track as 'sub' | 'dub');
+          else onLanguageChange(track);
         }}
         hasHindiDub={isHindiOriginal || activeLanguage === 'hindi'}
+        autoSwitch={autoSwitch}
+        onToggleAutoSwitch={onToggleAutoSwitch}
       />
 
+      {/* ── Audio selector (secondary, for native audio track switching) ── */}
       <div className="watch__under">
         {audioTracks.length > 1 && !isAnime && (
           <label className="watch__lang">

@@ -4,13 +4,14 @@ import React, { useState, useMemo } from 'react';
 import {
   Check,
   Radio,
-  Volume2,
   Mic,
   Subtitles,
   Zap,
   Play,
   Layers,
-  Sparkles,
+  Volume2,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react';
 import {
   type LuminaServerConfig,
@@ -28,6 +29,8 @@ export interface LuminaServerDeckProps {
   selectedAudioTrack?: string;
   onSelectAudioTrack?: (trackId: string) => void;
   hasHindiDub?: boolean;
+  autoSwitch?: boolean;
+  onToggleAutoSwitch?: () => void;
 }
 
 export default function LuminaServerDeck({
@@ -38,6 +41,8 @@ export default function LuminaServerDeck({
   selectedAudioTrack = 'sub',
   onSelectAudioTrack,
   hasHindiDub = false,
+  autoSwitch = true,
+  onToggleAutoSwitch,
 }: LuminaServerDeckProps) {
   const [selectedCategory, setSelectedCategory] = useState<ServerCategory | 'all'>('all');
 
@@ -46,7 +51,6 @@ export default function LuminaServerDeck({
   const isDubSelected = selectedAudioTrack === 'dub' || selectedAudioTrack === 'dub-en';
   const isSubSelected = !isHindiSelected && !isDubSelected;
 
-  // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: servers.length };
     for (const s of servers) {
@@ -55,7 +59,6 @@ export default function LuminaServerDeck({
     return counts;
   }, [servers]);
 
-  // Filtered servers
   const filteredServers = useMemo(() => {
     if (selectedCategory === 'all') return servers;
     return servers.filter((s) => s.category === selectedCategory);
@@ -63,66 +66,87 @@ export default function LuminaServerDeck({
 
   return (
     <section className="lumina-deck" aria-label="Streaming Server Selection">
-      {/* ── Top Bar: Server Controls & Audio Switcher ── */}
+
+      {/* ── Row 1: Header + Audio Switcher ── */}
       <div className="lumina-deck__top">
         <div className="lumina-deck__heading">
           <div className="lumina-deck__icon-badge">
             <Radio size={14} className="lumina-deck__pulse-icon" />
           </div>
           <span className="lumina-deck__title">
-            {isAnime ? 'Anime Streaming Network' : 'Playback Server Network'}
+            {isAnime ? 'Anime Server Network' : 'Stream Server Network'}
           </span>
           <span className="lumina-deck__count-chip">
             <span className="lumina-deck__live-dot" />
-            {servers.length} Active Servers
+            {servers.length} Live
           </span>
         </div>
 
-        {/* Quick Audio Switcher */}
-        {onSelectAudioTrack && (
-          <div className="lumina-deck__audio-pills" role="group" aria-label="Audio Mode">
-            {isAnime ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => onSelectAudioTrack('sub')}
-                  className={`lumina-deck__audio-btn ${isSubSelected ? 'lumina-deck__audio-btn--active' : ''}`}
-                >
-                  <Subtitles size={12} /> SUB
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSelectAudioTrack('dub')}
-                  className={`lumina-deck__audio-btn ${isDubSelected ? 'lumina-deck__audio-btn--active' : ''}`}
-                >
-                  <Mic size={12} /> DUB
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => onSelectAudioTrack('english')}
-                  className={`lumina-deck__audio-btn ${!isHindiSelected ? 'lumina-deck__audio-btn--active' : ''}`}
-                >
-                  <Volume2 size={12} /> Multi-Audio
-                </button>
-                {(hasHindiDub || isHindiSelected) && (
+        <div className="lumina-deck__controls-right">
+          {/* Auto-Switch toggle (mini inline) */}
+          {onToggleAutoSwitch && (
+            <button
+              type="button"
+              onClick={onToggleAutoSwitch}
+              className={`lumina-deck__autoswitch ${autoSwitch ? 'lumina-deck__autoswitch--on' : 'lumina-deck__autoswitch--off'}`}
+              title={autoSwitch
+                ? 'Auto-Switch ON: will auto-try next server on failure'
+                : 'Auto-Switch OFF: manual server selection only'}
+              aria-pressed={autoSwitch}
+            >
+              {autoSwitch
+                ? <ToggleRight size={15} />
+                : <ToggleLeft size={15} />}
+              <span>Auto</span>
+            </button>
+          )}
+
+          {/* Quick Audio Switcher */}
+          {onSelectAudioTrack && (
+            <div className="lumina-deck__audio-pills" role="group" aria-label="Audio Mode">
+              {isAnime ? (
+                <>
                   <button
                     type="button"
-                    onClick={() => onSelectAudioTrack('hindi')}
-                    className={`lumina-deck__audio-btn ${isHindiSelected ? 'lumina-deck__audio-btn--active' : ''}`}
+                    onClick={() => onSelectAudioTrack('sub')}
+                    className={`lumina-deck__audio-btn ${isSubSelected ? 'lumina-deck__audio-btn--active' : ''}`}
                   >
-                    🇮🇳 Hindi Dubbed
+                    <Subtitles size={11} /> SUB
                   </button>
-                )}
-              </>
-            )}
-          </div>
-        )}
+                  <button
+                    type="button"
+                    onClick={() => onSelectAudioTrack('dub')}
+                    className={`lumina-deck__audio-btn ${isDubSelected ? 'lumina-deck__audio-btn--active' : ''}`}
+                  >
+                    <Mic size={11} /> DUB
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onSelectAudioTrack('english')}
+                    className={`lumina-deck__audio-btn ${!isHindiSelected ? 'lumina-deck__audio-btn--active' : ''}`}
+                  >
+                    <Volume2 size={11} /> Multi
+                  </button>
+                  {(hasHindiDub || isHindiSelected) && (
+                    <button
+                      type="button"
+                      onClick={() => onSelectAudioTrack('hindi')}
+                      className={`lumina-deck__audio-btn ${isHindiSelected ? 'lumina-deck__audio-btn--active' : ''}`}
+                    >
+                      🇮🇳 Hindi
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── Category Filter Tabs Bar ── */}
+      {/* ── Row 2: Category Filter Tabs ── */}
       <div className="lumina-deck__category-tabs" role="tablist" aria-label="Server Categories">
         <button
           type="button"
@@ -131,8 +155,8 @@ export default function LuminaServerDeck({
           onClick={() => setSelectedCategory('all')}
           className={`lumina-deck__cat-tab ${selectedCategory === 'all' ? 'lumina-deck__cat-tab--active' : ''}`}
         >
-          <Layers size={12} />
-          <span>All Servers</span>
+          <Layers size={11} />
+          <span>All</span>
           <span className="lumina-deck__tab-count">{categoryCounts.all}</span>
         </button>
 
@@ -140,7 +164,6 @@ export default function LuminaServerDeck({
           const count = categoryCounts[cat.id] || 0;
           if (count === 0) return null;
           const isSelected = selectedCategory === cat.id;
-
           return (
             <button
               key={cat.id}
@@ -159,7 +182,7 @@ export default function LuminaServerDeck({
         })}
       </div>
 
-      {/* ── Responsive Server Cards Grid (Zero Scrollbar) ── */}
+      {/* ── Row 3: Server Cards Grid (Zero Scroll) ── */}
       <div className="lumina-deck__cards-grid" role="group" aria-label="Available Streaming Servers">
         {filteredServers.map((server) => {
           const isActive = server.id === activeServerId;
@@ -173,49 +196,43 @@ export default function LuminaServerDeck({
               onClick={() => onSelectServer(server.id)}
               type="button"
               aria-pressed={isActive}
-              className={`lumina-server-card ${isActive ? 'lumina-server-card--active' : ''}`}
+              className={`lumina-server-card ${isActive ? 'lumina-server-card--active' : ''} ${inCooldown ? 'lumina-server-card--cooldown' : ''}`}
               title={server.description}
             >
-              {/* Card Top Row: Server Number & Live Status */}
+              {/* Header: Server Index + Status */}
               <div className="lumina-server-card__header">
                 <div className="lumina-server-card__index-pill">
-                  <Play size={9} className="lumina-server-card__play-icon" />
-                  <span>Server {server.serverIndex}</span>
+                  <Play size={8} className="lumina-server-card__play-icon" />
+                  <span>S{server.serverIndex}</span>
                 </div>
-
                 {isActive ? (
                   <span className="lumina-server-card__active-tag">
-                    <Check size={10} strokeWidth={3} /> Active
+                    <Check size={9} strokeWidth={3} /> Active
                   </span>
                 ) : (
                   <span className="lumina-server-card__ping">
-                    <span
-                      className={`lumina-server-card__dot ${
-                        inCooldown ? 'lumina-server-card__dot--cooldown' : ''
-                      }`}
-                    />
-                    {health.avgLatencyMs ? `${health.avgLatencyMs}ms` : 'Fast'}
+                    <span className={`lumina-server-card__dot ${inCooldown ? 'lumina-server-card__dot--cooldown' : ''}`} />
+                    {inCooldown ? 'Retry' : health.avgLatencyMs ? `${health.avgLatencyMs}ms` : 'Fast'}
                   </span>
                 )}
               </div>
 
-              {/* Card Middle: Server Name & Quality */}
+              {/* Body: Name & Quality */}
               <div className="lumina-server-card__body">
-                <span className="lumina-server-card__name">{server.name}</span>
-                <span className="lumina-server-card__quality">{server.quality}</span>
+                <span className="lumina-server-card__badge">{server.badge}</span>
+                <div className="lumina-server-card__text">
+                  <span className="lumina-server-card__name">{server.name}</span>
+                  <span className="lumina-server-card__quality">{server.quality}</span>
+                </div>
               </div>
 
-              {/* Card Footer: Feature Badges (Hindi, 0 Ads, etc.) */}
+              {/* Footer: Feature Pills */}
               <div className="lumina-server-card__footer">
                 {server.supportsHindiDub && (
-                  <span className="lumina-server-card__pill lumina-server-card__pill--hindi">
-                    🇮🇳 Hindi Dub
-                  </span>
+                  <span className="lumina-server-card__pill lumina-server-card__pill--hindi">🇮🇳 Hindi</span>
                 )}
                 {server.features.slice(0, 2).map((feat, idx) => (
-                  <span key={idx} className="lumina-server-card__pill">
-                    {feat}
-                  </span>
+                  <span key={idx} className="lumina-server-card__pill">{feat}</span>
                 ))}
               </div>
             </button>
@@ -223,10 +240,14 @@ export default function LuminaServerDeck({
         })}
       </div>
 
-      {/* ── Helpful Streaming Sub-notice ── */}
+      {/* ── Row 4: Auto-switch status footer ── */}
       <div className="lumina-deck__sub-notice">
-        <Zap size={11} className="lumina-deck__sub-icon" />
-        <span>If current server buffers or fails, pick another server above. All servers are monitored 24/7.</span>
+        <Zap size={10} className="lumina-deck__sub-icon" />
+        <span>
+          {autoSwitch
+            ? 'Auto-Switch is ON — server will auto-change if playback fails.'
+            : 'Auto-Switch is OFF — select a server manually if current fails.'}
+        </span>
       </div>
     </section>
   );
