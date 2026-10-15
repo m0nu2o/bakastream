@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, List, Info } from 'lucide-react';
+import { ArrowLeft, Info, Star, Calendar } from 'lucide-react';
 import WatchClient from './WatchClient';
-import { getMovieDetails, getTVDetails, isTMDBConfigured } from '@/lib/tmdb/server';
+import SeasonEpisodeSelector from '@/components/player/SeasonEpisodeSelector';
+import { getMovieDetails, getTVDetails, getSeasonDetails, isTMDBConfigured } from '@/lib/tmdb/server';
 import { posterUrl } from '@/lib/tmdb/image';
 import { movieUrl, tvUrl } from '@/utils/slug';
 import type { MediaSummary } from '@/types';
@@ -39,9 +40,18 @@ export default async function WatchPage({ params }: PageProps) {
     type === 'movie' ? await getMovieDetails(numericId) : await getTVDetails(numericId);
   if (!details) notFound();
 
+  // For TV shows, pre-fetch Season 1 episodes for instant zero-lag rendering
+  const initialSeasonNumber =
+    type === 'tv'
+      ? details.seasons.find(s => s.seasonNumber > 0)?.seasonNumber ?? 1
+      : 1;
+
+  const seasonData =
+    type === 'tv' ? await getSeasonDetails(numericId, initialSeasonNumber) : null;
+
   const backHref =
     type === 'movie' ? movieUrl(details.id, details.title) : tvUrl(details.id, details.title);
-  const poster = posterUrl(details.posterPath, 'w185');
+  const poster = posterUrl(details.posterPath, 'w342');
 
   const summary: MediaSummary = {
     id: details.id,
@@ -60,58 +70,57 @@ export default async function WatchPage({ params }: PageProps) {
 
   return (
     <main className="watch">
-      <WatchClient content={summary} />
+      <div className="watch__main-col">
+        {/* Primary Video Player Stage & Server Deck */}
+        <WatchClient content={summary} />
+
+        {/* Cinematic Seasons, 2000+ Episodes & Movie Franchise Browser */}
+        <SeasonEpisodeSelector
+          mediaType={type}
+          mediaId={details.id}
+          mediaTitle={details.title}
+          currentSeason={initialSeasonNumber}
+          currentEpisode={1}
+          seasons={type === 'tv' ? details.seasons : []}
+          initialEpisodes={seasonData?.episodes ?? []}
+          relatedMovies={type === 'movie' ? details.similar : []}
+        />
+      </div>
 
       <div className="watch__sidebar">
         <div className="watch__card">
-          {poster && <img src={poster} alt="" className="watch__poster" />}
+          {poster && <img src={poster} alt={details.title} className="watch__poster" />}
           <h1 className="watch__title">{details.title}</h1>
-          {details.releaseDate && (
-            <p className="watch__meta">
-              {details.releaseDate.slice(0, 4)} · {type === 'movie' ? 'Movie' : 'TV Series'}
-            </p>
+          <div className="watch__meta-chips">
+            {details.releaseDate && (
+              <span className="watch__chip">
+                <Calendar size={11} /> {details.releaseDate.slice(0, 4)}
+              </span>
+            )}
+            {details.rating ? (
+              <span className="watch__chip watch__chip--rating">
+                <Star size={11} fill="currentColor" /> {details.rating.toFixed(1)}
+              </span>
+            ) : null}
+            <span className="watch__chip">
+              {type === 'movie' ? 'Movie' : 'TV Series'}
+            </span>
+          </div>
+
+          {details.overview && (
+            <p className="watch__overview-snippet">{details.overview}</p>
           )}
+
           <Link href={backHref} className="btn btn--ghost watch__back">
             <ArrowLeft size={16} /> Back to details
           </Link>
+
           <p className="watch__disclaimer">
             <Info size={13} />
-            Playback is provided by third-party services. BakaStream hosts no media, and a provider
-            returning a URL is not a claim that the content is licensed.
+            Playback is provided by verified third-party streaming engines. BakaStream hosts no files on its servers.
           </p>
         </div>
-
-        {type === 'tv' && details.seasons.length > 0 && (
-          <div className="watch__card">
-            <h2 className="watch__card-title">
-              <List size={16} /> Episodes
-            </h2>
-            <EpisodeList tvId={details.id} seasons={details.seasons} />
-          </div>
-        )}
       </div>
     </main>
-  );
-}
-
-function EpisodeList({
-  tvId,
-  seasons,
-}: {
-  tvId: number;
-  seasons: Array<{ seasonNumber: number; name: string; episodeCount: number }>;
-}) {
-  return (
-    <div className="watch__episodes">
-      {seasons.map(s => (
-        <Link
-          key={s.seasonNumber}
-          href={`/watch/tv/${tvId}/${s.seasonNumber}/1`}
-          className="watch__episode-link"
-        >
-          {s.name} <span className="watch__episode-count">{s.episodeCount} episodes</span>
-        </Link>
-      ))}
-    </div>
   );
 }

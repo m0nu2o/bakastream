@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArrowLeft, Info, Star, Calendar } from 'lucide-react';
 import WatchClient from '../../WatchClient';
+import SeasonEpisodeSelector from '@/components/player/SeasonEpisodeSelector';
 import { getTVDetails, getSeasonDetails, isTMDBConfigured } from '@/lib/tmdb/server';
 import { posterUrl } from '@/lib/tmdb/image';
 import { tvUrl } from '@/utils/slug';
@@ -46,7 +48,7 @@ export default async function WatchEpisodePage({ params }: PageProps) {
 
   const seasonData = await getSeasonDetails(tvId, seasonNum);
   const current = seasonData?.episodes.find(e => e.episodeNumber === episodeNum) ?? null;
-  const poster = posterUrl(show.posterPath, 'w185');
+  const poster = posterUrl(show.posterPath, 'w342');
 
   const summary: MediaSummary = {
     id: show.id,
@@ -65,47 +67,47 @@ export default async function WatchEpisodePage({ params }: PageProps) {
 
   return (
     <main className="watch">
-      <WatchClient content={summary} season={seasonNum} episode={episodeNum} />
+      <div className="watch__main-col">
+        {/* Primary Video Player Stage & Server Deck */}
+        <WatchClient content={summary} season={seasonNum} episode={episodeNum} />
+
+        {/* Cinematic Seasons & 2000+ Episodes Browser */}
+        <SeasonEpisodeSelector
+          mediaType="tv"
+          mediaId={tvId}
+          mediaTitle={show.title}
+          currentSeason={seasonNum}
+          currentEpisode={episodeNum}
+          seasons={show.seasons}
+          initialEpisodes={seasonData?.episodes ?? []}
+        />
+      </div>
 
       <div className="watch__sidebar">
         <div className="watch__card">
-          {poster && <img src={poster} alt="" className="watch__poster" />}
+          {poster && <img src={poster} alt={show.title} className="watch__poster" />}
           <h1 className="watch__title">{show.title}</h1>
           <p className="watch__meta">
-            S{seasonNum} · E{episodeNum}
+            Season {seasonNum} · Episode {episodeNum}
             {current ? ` — ${current.name}` : ''}
           </p>
+
           <EpisodeNav
             tvId={tvId}
             season={seasonNum}
             episode={episodeNum}
             episodeCount={seasonData?.episodeCount ?? 0}
           />
+
           <Link href={tvUrl(show.id, show.title)} className="btn btn--ghost watch__back">
-            ← Back to details
+            <ArrowLeft size={16} /> Back to series details
           </Link>
+
           <p className="watch__disclaimer">
-            Playback is provided by third-party services. BakaStream hosts no media, and a provider
-            returning a URL is not a claim that the content is licensed.
+            <Info size={13} />
+            Playback is provided by verified third-party streaming engines. BakaStream hosts no files on its servers.
           </p>
         </div>
-
-        {seasonData && seasonData.episodes.length > 0 && (
-          <div className="watch__card">
-            <h2 className="watch__card-title">Season {seasonNum} episodes</h2>
-            <div className="watch__episodes">
-              {seasonData.episodes.map(ep => (
-                <Link
-                  key={ep.id}
-                  href={`/watch/tv/${tvId}/${seasonNum}/${ep.episodeNumber}`}
-                  className={`watch__episode-link ${ep.episodeNumber === episodeNum ? 'watch__episode-link--current' : ''}`}
-                >
-                  E{ep.episodeNumber} — {ep.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </main>
   );
