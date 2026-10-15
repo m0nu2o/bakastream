@@ -49,9 +49,7 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
   let requestedServerId = req.server ? getCanonicalServerId(req.server) : null;
 
   if (!requestedServerId) {
-    if (isHindi) {
-      requestedServerId = 'screenscape';
-    } else if (isAnime) {
+    if (isAnime) {
       requestedServerId = 'nextgen-anime';
     } else {
       requestedServerId = 'vidlink';
