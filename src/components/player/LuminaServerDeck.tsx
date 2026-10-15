@@ -1,8 +1,23 @@
 'use client';
 
-import React from 'react';
-import { Check, Radio, Volume2, Mic, Subtitles, Zap } from 'lucide-react';
-import { type LuminaServerConfig, ProviderTelemetry } from '@/lib/providers/lumina';
+import React, { useState, useMemo } from 'react';
+import {
+  Check,
+  Radio,
+  Volume2,
+  Mic,
+  Subtitles,
+  Zap,
+  Play,
+  Layers,
+  Sparkles,
+} from 'lucide-react';
+import {
+  type LuminaServerConfig,
+  type ServerCategory,
+  SERVER_CATEGORIES,
+  ProviderTelemetry,
+} from '@/lib/providers/lumina';
 import './LuminaServerDeck.css';
 
 export interface LuminaServerDeckProps {
@@ -24,29 +39,42 @@ export default function LuminaServerDeck({
   onSelectAudioTrack,
   hasHindiDub = false,
 }: LuminaServerDeckProps) {
+  const [selectedCategory, setSelectedCategory] = useState<ServerCategory | 'all'>('all');
+
   const isAnime = mediaCategory === 'anime';
   const isHindiSelected = selectedAudioTrack === 'hindi' || selectedAudioTrack === 'dub-hi';
   const isDubSelected = selectedAudioTrack === 'dub' || selectedAudioTrack === 'dub-en';
   const isSubSelected = !isHindiSelected && !isDubSelected;
 
-  const categoryLabel = isAnime
-    ? 'Anime Engines'
-    : mediaCategory === 'tv'
-    ? 'Series Relays'
-    : 'Cinema Network';
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: servers.length };
+    for (const s of servers) {
+      counts[s.category] = (counts[s.category] || 0) + 1;
+    }
+    return counts;
+  }, [servers]);
+
+  // Filtered servers
+  const filteredServers = useMemo(() => {
+    if (selectedCategory === 'all') return servers;
+    return servers.filter((s) => s.category === selectedCategory);
+  }, [servers, selectedCategory]);
 
   return (
-    <section className="lumina-deck" aria-label="Streaming Servers">
-      {/* ── Top Bar: Server Network Header & Audio Mode ── */}
+    <section className="lumina-deck" aria-label="Streaming Server Selection">
+      {/* ── Top Bar: Server Controls & Audio Switcher ── */}
       <div className="lumina-deck__top">
-        <div className="lumina-deck__label-group">
+        <div className="lumina-deck__heading">
           <div className="lumina-deck__icon-badge">
             <Radio size={14} className="lumina-deck__pulse-icon" />
           </div>
-          <span className="lumina-deck__category-title">{categoryLabel}</span>
-          <span className="lumina-deck__online-chip">
+          <span className="lumina-deck__title">
+            {isAnime ? 'Anime Streaming Network' : 'Playback Server Network'}
+          </span>
+          <span className="lumina-deck__count-chip">
             <span className="lumina-deck__live-dot" />
-            {servers.length} Servers Active
+            {servers.length} Active Servers
           </span>
         </div>
 
@@ -94,19 +122,49 @@ export default function LuminaServerDeck({
         )}
       </div>
 
-      {/* ── Helpful Streaming Sub-notice ── */}
-      <div className="lumina-deck__sub-notice">
-        <Zap size={12} className="lumina-deck__sub-icon" />
-        <span>If playback buffers or fails, switch to an alternate server below:</span>
+      {/* ── Category Filter Tabs Bar ── */}
+      <div className="lumina-deck__category-tabs" role="tablist" aria-label="Server Categories">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={selectedCategory === 'all'}
+          onClick={() => setSelectedCategory('all')}
+          className={`lumina-deck__cat-tab ${selectedCategory === 'all' ? 'lumina-deck__cat-tab--active' : ''}`}
+        >
+          <Layers size={12} />
+          <span>All Servers</span>
+          <span className="lumina-deck__tab-count">{categoryCounts.all}</span>
+        </button>
+
+        {SERVER_CATEGORIES.map((cat) => {
+          const count = categoryCounts[cat.id] || 0;
+          if (count === 0) return null;
+          const isSelected = selectedCategory === cat.id;
+
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`lumina-deck__cat-tab ${isSelected ? 'lumina-deck__cat-tab--active' : ''}`}
+              title={cat.description}
+            >
+              <span>{cat.badge}</span>
+              <span>{cat.shortLabel}</span>
+              <span className="lumina-deck__tab-count">{count}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* ── All Servers Grid (Zero Scrollbar, Responsive Wrap) ── */}
-      <div className="lumina-deck__grid" role="group" aria-label="Available Streaming Servers">
-        {servers.map((server) => {
+      {/* ── Responsive Server Cards Grid (Zero Scrollbar) ── */}
+      <div className="lumina-deck__cards-grid" role="group" aria-label="Available Streaming Servers">
+        {filteredServers.map((server) => {
           const isActive = server.id === activeServerId;
           const health = ProviderTelemetry.getHealth(server.id);
           const inCooldown = ProviderTelemetry.isInCooldown(server.id);
-          const qualityShort = server.quality.split('/')[0].trim();
 
           return (
             <button
@@ -115,32 +173,60 @@ export default function LuminaServerDeck({
               onClick={() => onSelectServer(server.id)}
               type="button"
               aria-pressed={isActive}
-              className={`lumina-server-btn ${isActive ? 'lumina-server-btn--active' : ''}`}
+              className={`lumina-server-card ${isActive ? 'lumina-server-card--active' : ''}`}
               title={server.description}
             >
-              <span className="lumina-server-btn__badge">{server.badge}</span>
-              <span className="lumina-server-btn__name">{server.name}</span>
-              <span className="lumina-server-btn__quality">{qualityShort}</span>
-              {server.supportsHindiDub && (
-                <span className="lumina-server-btn__tag lumina-server-btn__tag--hindi">Hindi</span>
-              )}
-              {isActive ? (
-                <span className="lumina-server-btn__active-badge">
-                  <Check size={11} strokeWidth={3} /> Active
-                </span>
-              ) : (
-                <span className="lumina-server-btn__latency">
-                  <span
-                    className={`lumina-server-btn__dot ${
-                      inCooldown ? 'lumina-server-btn__dot--cooldown' : ''
-                    }`}
-                  />
-                  {health.avgLatencyMs ? `${health.avgLatencyMs}ms` : 'Fast'}
-                </span>
-              )}
+              {/* Card Top Row: Server Number & Live Status */}
+              <div className="lumina-server-card__header">
+                <div className="lumina-server-card__index-pill">
+                  <Play size={9} className="lumina-server-card__play-icon" />
+                  <span>Server {server.serverIndex}</span>
+                </div>
+
+                {isActive ? (
+                  <span className="lumina-server-card__active-tag">
+                    <Check size={10} strokeWidth={3} /> Active
+                  </span>
+                ) : (
+                  <span className="lumina-server-card__ping">
+                    <span
+                      className={`lumina-server-card__dot ${
+                        inCooldown ? 'lumina-server-card__dot--cooldown' : ''
+                      }`}
+                    />
+                    {health.avgLatencyMs ? `${health.avgLatencyMs}ms` : 'Fast'}
+                  </span>
+                )}
+              </div>
+
+              {/* Card Middle: Server Name & Quality */}
+              <div className="lumina-server-card__body">
+                <span className="lumina-server-card__name">{server.name}</span>
+                <span className="lumina-server-card__quality">{server.quality}</span>
+              </div>
+
+              {/* Card Footer: Feature Badges (Hindi, 0 Ads, etc.) */}
+              <div className="lumina-server-card__footer">
+                {server.supportsHindiDub && (
+                  <span className="lumina-server-card__pill lumina-server-card__pill--hindi">
+                    🇮🇳 Hindi Dub
+                  </span>
+                )}
+                {server.features.slice(0, 2).map((feat, idx) => (
+                  <span key={idx} className="lumina-server-card__pill">
+                    {feat}
+                  </span>
+                ))}
+              </div>
             </button>
           );
         })}
+      </div>
+
+      {/* ── Helpful Streaming Sub-notice ── */}
+      <div className="lumina-deck__sub-notice">
+        <Zap size={11} className="lumina-deck__sub-icon" />
+        <span>If current server buffers or fails, pick another server above. All servers are monitored 24/7.</span>
       </div>
     </section>
   );

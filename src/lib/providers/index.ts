@@ -52,9 +52,9 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
     if (isHindi) {
       requestedServerId = 'screenscape';
     } else if (isAnime) {
-      requestedServerId = isDub ? 'vidlink-anime' : 'vidlink-anime';
+      requestedServerId = 'vidlink-anime';
     } else {
-      requestedServerId = 'nova';
+      requestedServerId = 'vidlink';
     }
   }
 

@@ -23,7 +23,9 @@ export default function WatchClient({ content, season, episode }: Props) {
   const [error, setError] = useState<string | null>(null);
   const initialLang = content.originalLanguage === 'hi' ? 'hindi' : 'english';
   const [subOrDub, setSubOrDub] = useState<'sub' | 'dub'>('sub');
-  const [server, setServer] = useState<string>('nova');
+  const [server, setServer] = useState<string>(
+    content.genreIds?.includes(16) ? 'vidlink-anime' : 'vidlink'
+  );
   const [language, setLanguage] = useState<string>(initialLang);
 
   const requestedLang = useRef<string | undefined>(undefined);
