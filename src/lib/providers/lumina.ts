@@ -76,10 +76,17 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsTV: true,
     supportsAnime: false,
     supportsEnglishDub: true,
-    supportsHindiDub: false,
+    supportsHindiDub: true,
     description: 'Flagship ultra-fast global CDN with 4K quality, 0 ads, and automatic playback.',
     features: ['4K Ready', '0 Ads', 'Auto-Play'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
+    getPlaybackUrl: ({ type, id, season, episode, language }) => {
+      const isHindi = language?.trim().toLowerCase() === 'hindi';
+      if (isHindi) {
+        if (type === 'tv' || season !== undefined) {
+          return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season || 1}&episode=${episode || 1}`;
+        }
+        return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
+      }
       if (type === 'tv' || season !== undefined) {
         return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=f43b4c`;
       }
@@ -87,10 +94,34 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     },
   },
   {
+    id: 'nova',
+    name: 'NovaAPI Pro',
+    category: 'fast',
+    serverIndex: 2,
+    quality: '1080p Multi-Audio',
+    badge: '🌟',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: true,
+    supportsEnglishDub: true,
+    supportsHindiDub: true,
+    description: 'NovaAPI engine with multi-audio language tracks (English, Hindi, Original) and direct stream extraction.',
+    features: ['Multi-Audio', '1080p HLS', 'Hindi Audio'],
+    getPlaybackUrl: ({ type, id, imdbId, season, episode }) => {
+      if (imdbId) {
+        return `https://slast430did.com/play/${encodeURIComponent(imdbId)}`;
+      }
+      if (type === 'tv' || season !== undefined) {
+        return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season || 1}&episode=${episode || 1}`;
+      }
+      return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
+    },
+  },
+  {
     id: 'vidfast',
     name: 'VidFast Ultra',
     category: 'fast',
-    serverIndex: 2,
+    serverIndex: 3,
     quality: '1080p 60fps',
     badge: '🚀',
     supportsMovie: true,
@@ -112,7 +143,7 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     id: 'vidsrc-su',
     name: 'VidSrc Stream HD',
     category: 'fast',
-    serverIndex: 3,
+    serverIndex: 4,
     quality: '1080p Multi-Sub',
     badge: '🎬',
     supportsMovie: true,
@@ -138,7 +169,7 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     id: 'vidsrc-pm',
     name: 'VidSrc Global Mirror',
     category: 'backup',
-    serverIndex: 4,
+    serverIndex: 5,
     quality: '1080p Mirror',
     badge: '🔥',
     supportsMovie: true,
@@ -165,17 +196,28 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     name: 'NextGen Anime',
     category: 'fast',
     serverIndex: 1,
-    quality: '1080p Sub+Dub',
+    quality: '1080p Sub+Dub+Hindi',
     badge: '⚡',
-    supportsMovie: false,
-    supportsTV: false,
+    supportsMovie: true,
+    supportsTV: true,
     supportsAnime: true,
     supportsEnglishDub: true,
-    supportsHindiDub: false,
+    supportsHindiDub: true,
     description:
       'Dedicated NextGen anime player with Japanese audio, English Subtitles, English Dub, and zero ads.',
     features: ['Sub/Dub Switch', '0 Ads', '1080p Ultra'],
-    getPlaybackUrl: ({ type, id, season, episode, isDub }) => {
+    getPlaybackUrl: ({ type, id, season, episode, isDub, language, malId }) => {
+      const isHindi = language?.trim().toLowerCase() === 'hindi';
+      if (isHindi) {
+        if (type === 'tv' || season !== undefined) {
+          return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season || 1}&episode=${episode || 1}`;
+        }
+        return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
+      }
+      if (malId) {
+        const epNum = type === 'movie' ? 1 : (episode || 1);
+        return `https://vidlink.pro/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?primaryColor=f43b4c&secondaryColor=12121c&iconColor=f43b4c`;
+      }
       if (type === 'movie') {
         return `https://vidsrc.su/embed/movie/${id}${isDub ? '?dub=1' : ''}`;
       }
@@ -183,13 +225,37 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     },
   },
   {
+    id: 'nova-anime',
+    name: 'NovaAPI Anime',
+    category: 'fast',
+    serverIndex: 2,
+    quality: '1080p Multi-Audio',
+    badge: '🌟',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: true,
+    supportsEnglishDub: true,
+    supportsHindiDub: true,
+    description: 'NovaAPI anime resolution with multi-audio dubs, HLS streams, and direct playback.',
+    features: ['Multi-Audio', 'Dual-Audio', 'Fast HLS'],
+    getPlaybackUrl: ({ type, id, imdbId, season, episode }) => {
+      if (imdbId) {
+        return `https://slast430did.com/play/${encodeURIComponent(imdbId)}`;
+      }
+      if (type === 'tv' || season !== undefined) {
+        return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season || 1}&episode=${episode || 1}`;
+      }
+      return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
+    },
+  },
+  {
     id: 'vidsrc-pm-anime',
     name: 'VidSpark Anime',
     category: 'fast',
-    serverIndex: 2,
+    serverIndex: 3,
     quality: '1080p Fast',
     badge: '🔥',
-    supportsMovie: false,
+    supportsMovie: true,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: false,
@@ -207,10 +273,10 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     id: 'vidfast-anime',
     name: 'VidFast Anime',
     category: 'fast',
-    serverIndex: 3,
+    serverIndex: 4,
     quality: '1080p Fast',
     badge: '🚀',
-    supportsMovie: false,
+    supportsMovie: true,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: false,
@@ -229,10 +295,10 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     id: 'vidlink-anime',
     name: 'VidLink Anime HD',
     category: 'backup',
-    serverIndex: 4,
+    serverIndex: 5,
     quality: '4K-1080p',
     badge: '🎬',
-    supportsMovie: false,
+    supportsMovie: true,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: true,
@@ -255,16 +321,18 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
  */
 export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
   // Movie/TV fallback order
-  vidlink: ['vidsrc-pm', 'vidsrc-su', 'vidfast'],
-  'vidsrc-pm': ['vidlink', 'vidsrc-su', 'vidfast'],
-  'vidsrc-su': ['vidlink', 'vidsrc-pm', 'vidfast'],
-  vidfast: ['vidlink', 'vidsrc-pm', 'vidsrc-su'],
+  vidlink: ['nova', 'vidsrc-pm', 'vidsrc-su', 'vidfast'],
+  nova: ['vidlink', 'vidsrc-pm', 'vidsrc-su', 'vidfast'],
+  'vidsrc-pm': ['vidlink', 'nova', 'vidsrc-su', 'vidfast'],
+  'vidsrc-su': ['vidlink', 'nova', 'vidsrc-pm', 'vidfast'],
+  vidfast: ['vidlink', 'nova', 'vidsrc-pm', 'vidsrc-su'],
 
   // Anime fallback order
-  'nextgen-anime': ['vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
-  'vidsrc-pm-anime': ['nextgen-anime', 'vidfast-anime', 'vidlink-anime'],
-  'vidfast-anime': ['nextgen-anime', 'vidsrc-pm-anime', 'vidlink-anime'],
-  'vidlink-anime': ['nextgen-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
+  'nextgen-anime': ['nova-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
+  'nova-anime': ['nextgen-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
+  'vidsrc-pm-anime': ['nextgen-anime', 'nova-anime', 'vidfast-anime', 'vidlink-anime'],
+  'vidfast-anime': ['nextgen-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidlink-anime'],
+  'vidlink-anime': ['nextgen-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
 };
 
 /**
@@ -287,6 +355,10 @@ export const LUMINA_ALIASES: Record<string, string> = {
   'vidsrc-su': 'vidsrc-su',
   'vidsrc-pm': 'vidsrc-pm',
 
+  // Nova
+  nova: 'nova',
+  'nova-anime': 'nova-anime',
+
   // Dead servers → Clean working fallbacks
   screenscape: 'vidlink',
   'screenscape-anime': 'nextgen-anime',
@@ -294,8 +366,6 @@ export const LUMINA_ALIASES: Record<string, string> = {
   'autoembed-co': 'vidfast',
   'autoembed-anime': 'nextgen-anime',
   'autoembed-co-anime': 'nextgen-anime',
-  nova: 'vidlink',
-  'nova-anime': 'nextgen-anime',
   'vidfast-anime': 'vidfast-anime',
   'vidsrc-pm-anime': 'vidsrc-pm-anime',
   'vidsrc-dev': 'vidsrc-pm',

@@ -1,4 +1,4 @@
-import MediaRow from '@/components/MediaRow';
+import CatalogSection from '@/components/CatalogSection';
 import { discover } from '@/lib/tmdb/server';
 import type { MediaSummary } from '@/types';
 
@@ -17,10 +17,11 @@ export default async function GenreSpotlight({ genreId, name }: { genreId: numbe
   if (!items.length) return null;
 
   return (
-    <MediaRow
+    <CatalogSection
       title={`${name} movies`}
+      type="movie"
       items={items}
-      seeAllHref={{ href: `/movies?genre=${genreId}` }}
+      viewAllHref={`/movies?genre=${genreId}`}
     />
   );
 }

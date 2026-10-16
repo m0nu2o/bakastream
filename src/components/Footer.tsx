@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Film, MonitorPlay, Sparkles, Bookmark, Info } from 'lucide-react';
+import { Film, MonitorPlay, Sparkles, Bookmark, Info, Mail } from 'lucide-react';
+import BakaLogo from '@/components/BakaLogo';
 import './Footer.css';
 
-function InstagramIcon({ size = 14, className = '' }: { size?: number; className?: string }) {
+function InstagramIcon({ size = 16, className = '' }: { size?: number; className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -26,74 +27,88 @@ function InstagramIcon({ size = 14, className = '' }: { size?: number; className
 
 export default function Footer() {
   return (
-    <footer className="footer-minimal" aria-label="BakaStream footer">
-      <div className="footer-minimal__inner">
-        {/* Top: Brand & Quick Navigation */}
-        <div className="footer-minimal__top">
-          <div className="footer-minimal__brand">
-            <Link href="/" className="footer-minimal__logo" aria-label="BakaStream home">
-              <img
-                src="/favicon.png"
-                alt="BakaStream"
-                width={22}
-                height={22}
-                className="footer-minimal__logo-img"
-              />
-              <span className="footer-minimal__logo-text">
-                <span className="footer-minimal__logo-accent">Baka</span>Stream
+    <footer className="footer-container" aria-label="BakaStream footer">
+      {/* ── TOP NAV BAR (PRESERVING ALL ORIGINAL ELEMENTS) ── */}
+      <div className="footer-top">
+        <div className="footer-top__inner">
+          <div className="footer-top__brand">
+            <Link href="/" className="footer-top__logo" aria-label="BakaStream home">
+              <BakaLogo size={28} />
+              <span className="footer-top__logo-text">
+                <span className="footer-top__logo-accent">BAKA</span>STREAM
               </span>
             </Link>
-            <p className="footer-minimal__tagline">
+            <p className="footer-top__tagline">
               Modern cinema discovery for movies, series &amp; anime.
             </p>
           </div>
 
-          <nav className="footer-minimal__nav" aria-label="Footer Navigation">
-            <Link href="/" className="footer-minimal__link">
+          <nav className="footer-top__nav" aria-label="Footer Navigation">
+            <Link href="/" className="footer-top__link">
               <Film size={13} /> Home
             </Link>
-            <Link href="/movies" className="footer-minimal__link">
+            <Link href="/movies" className="footer-top__link">
               Movies
             </Link>
-            <Link href="/tv" className="footer-minimal__link">
+            <Link href="/tv" className="footer-top__link">
               <MonitorPlay size={13} /> TV Series
             </Link>
-            <Link href="/anime" className="footer-minimal__link">
+            <Link href="/anime" className="footer-top__link">
               <Sparkles size={13} /> Anime
             </Link>
-            <Link href="/watchlist" className="footer-minimal__link">
+            <Link href="/watchlist" className="footer-top__link">
               <Bookmark size={13} /> Watchlist
             </Link>
-            <Link href="/about" className="footer-minimal__link">
+            <Link href="/about" className="footer-top__link">
               <Info size={13} /> Legal
             </Link>
+          </nav>
+        </div>
+      </div>
+
+      {/* ── BOTTOM SIGNATURE STRIP BAR (EXACT REFERENCE SCREENSHOT STYLE) ── */}
+      <div className="footer-strip">
+        <div className="footer-strip__inner">
+          {/* Left: Contact Email & TMDB Legal Notice */}
+          <div className="footer-strip__left">
+            <div className="footer-strip__contact">
+              <span className="footer-strip__label">Email:</span>
+              <a href="mailto:percyywii@gmail.com" className="footer-strip__link">
+                percyywii@gmail.com
+              </a>
+            </div>
+            <p className="footer-strip__legal">
+              Powered by TMDB API. BakaStream hosts no copyrighted media files.
+            </p>
+          </div>
+
+          {/* Center: Signature Round Social Buttons */}
+          <div className="footer-strip__center">
             <a
               href="https://www.instagram.com/itxz_baka/"
               target="_blank"
               rel="noopener noreferrer"
-              className="footer-minimal__social-pill"
+              className="footer-strip__circle-btn"
+              title="Instagram @itxz_baka"
               aria-label="Instagram profile @itxz_baka"
             >
-              <InstagramIcon size={13} />
-              <span>@itxz_baka</span>
+              <InstagramIcon size={18} />
             </a>
-          </nav>
-        </div>
-
-        {/* Bottom: Legal, Attribution & Live Status */}
-        <div className="footer-minimal__bottom">
-          <div className="footer-minimal__legal">
-            <span>Powered by TMDB API. BakaStream hosts no copyrighted media files.</span>
+            <a
+              href="mailto:percyywii@gmail.com"
+              className="footer-strip__circle-btn"
+              title="Email: percyywii@gmail.com"
+              aria-label="Email Support"
+            >
+              <Mail size={17} />
+            </a>
           </div>
 
-          <div className="footer-minimal__meta">
-            <span className="footer-minimal__status">
-              <span className="footer-minimal__status-dot" />
-              All Systems Operational
-            </span>
-            <span className="footer-minimal__copy">
+          {/* Right: Copyright */}
+          <div className="footer-strip__right">
+            <div className="footer-strip__copy">
               © {new Date().getFullYear()} BakaStream. All rights reserved.
-            </span>
+            </div>
           </div>
         </div>
       </div>

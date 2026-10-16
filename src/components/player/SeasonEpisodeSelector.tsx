@@ -41,12 +41,46 @@ export default function SeasonEpisodeSelector({
   initialEpisodes = [],
   relatedMovies = [],
 }: SeasonEpisodeSelectorProps) {
-  // Filter out empty seasons (e.g. season 0 with 0 episodes)
-  const validSeasons = useMemo(() => {
-    return seasons.filter(s => s.episodeCount > 0);
+  // Separate regular seasons (1, 2, 3...) from Specials (Season 0).
+  // Regular seasons are sorted ascending and always presented first.
+  // Season 0 (Specials / OVAs) is placed at the end so it never overrides Season 1.
+  const { orderedSeasons, regularCount } = useMemo(() => {
+    const regular = seasons
+      .filter(s => s.seasonNumber > 0 && s.episodeCount > 0)
+      .sort((a, b) => a.seasonNumber - b.seasonNumber);
+    const specials = seasons.filter(s => s.seasonNumber === 0 && s.episodeCount > 0);
+    return {
+      orderedSeasons: [...regular, ...specials],
+      regularCount: regular.length,
+    };
   }, [seasons]);
 
-  const [activeSeasonNum, setActiveSeasonNum] = useState<number>(currentSeason);
+  // Compute clean display info for a season tab with arc / part detection
+  const getSeasonDisplayInfo = (s: SeasonInfo) => {
+    if (s.seasonNumber === 0) {
+      return {
+        badge: 'OVA',
+        name: 'Specials & OVAs',
+        isSpecial: true,
+      };
+    }
+    const cleanName = s.name?.trim() ?? '';
+    const hasArcName = cleanName && !/^season\s+\d+$/i.test(cleanName);
+    return {
+      badge: `S${s.seasonNumber}`,
+      name: hasArcName ? `S${s.seasonNumber} · ${cleanName}` : `Season ${s.seasonNumber}`,
+      isSpecial: false,
+    };
+  };
+
+  // Default to currentSeason if valid, or the first regular season (Season 1)
+  const defaultSeason = useMemo(() => {
+    if (currentSeason !== undefined && currentSeason > 0) return currentSeason;
+    const firstRegular = orderedSeasons.find(s => s.seasonNumber > 0);
+    return firstRegular ? firstRegular.seasonNumber : (orderedSeasons[0]?.seasonNumber ?? 1);
+  }, [currentSeason, orderedSeasons]);
+
+  const [activeSeasonNum, setActiveSeasonNum] = useState<number>(defaultSeason);
   const [episodes, setEpisodes] = useState<EpisodeInfo[]>(initialEpisodes);
   const [loadingSeason, setLoadingSeason] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -230,7 +264,9 @@ export default function SeasonEpisodeSelector({
   // ─────────────────────────────────────────────────────────────
   // RENDER: TV & ANIME SERIES SEASONS & EPISODES
   // ─────────────────────────────────────────────────────────────
-  const totalSeriesEpisodes = validSeasons.reduce((acc, s) => acc + s.episodeCount, 0);
+  const currentActiveSeasonObj = orderedSeasons.find(s => s.seasonNumber === activeSeasonNum);
+  const activeSeasonInfo = currentActiveSeasonObj ? getSeasonDisplayInfo(currentActiveSeasonObj) : null;
+  const totalSeriesEpisodes = orderedSeasons.reduce((acc, s) => acc + s.episodeCount, 0);
 
   return (
     <section className="season-selector" aria-label="Seasons and Episodes">
@@ -243,9 +279,11 @@ export default function SeasonEpisodeSelector({
           <div>
             <h2 className="season-selector__title">Seasons & Episodes</h2>
             <p className="season-selector__subtitle">
-              {validSeasons.length > 1
-                ? `${validSeasons.length} Seasons · ${totalSeriesEpisodes.toLocaleString()} Total Episodes`
-                : `${episodes.length} Episodes Available`}
+              {activeSeasonInfo
+                ? `${activeSeasonInfo.name} · ${episodes.length} Episodes`
+                : orderedSeasons.length > 1
+                  ? `${regularCount} Seasons · ${totalSeriesEpisodes.toLocaleString()} Total Episodes`
+                  : `${episodes.length} Episodes Available`}
             </p>
           </div>
         </div>
@@ -297,12 +335,13 @@ export default function SeasonEpisodeSelector({
         </div>
       </div>
 
-      {/* ── Season Tabs (If multiple seasons exist) ── */}
-      {validSeasons.length > 1 && (
+      {/* ── Season Tabs (With Arc / Part Names & Specials at End) ── */}
+      {orderedSeasons.length > 1 && (
         <div className="season-selector__seasons-bar" role="tablist" aria-label="Select Season">
-          {validSeasons.map(s => {
+          {orderedSeasons.map(s => {
             const isSelected = s.seasonNumber === activeSeasonNum;
             const isPlayingThisSeason = s.seasonNumber === currentSeason;
+            const info = getSeasonDisplayInfo(s);
 
             return (
               <button
@@ -311,9 +350,14 @@ export default function SeasonEpisodeSelector({
                 role="tab"
                 aria-selected={isSelected}
                 onClick={() => handleSelectSeason(s.seasonNumber)}
-                className={`season-selector__season-tab ${isSelected ? 'season-selector__season-tab--active' : ''}`}
+                className={`season-selector__season-tab ${isSelected ? 'season-selector__season-tab--active' : ''} ${info.isSpecial ? 'season-selector__season-tab--special' : ''}`}
               >
-                <span className="season-selector__season-name">{s.name}</span>
+                {info.isSpecial ? (
+                  <Sparkles size={11} className="season-selector__special-icon" />
+                ) : (
+                  <span className="season-selector__season-badge-pill">{info.badge}</span>
+                )}
+                <span className="season-selector__season-name">{info.name}</span>
                 <span className="season-selector__season-eps">{s.episodeCount} Eps</span>
                 {isPlayingThisSeason && (
                   <span className="season-selector__playing-dot" title="Currently playing season" />
@@ -364,7 +408,7 @@ export default function SeasonEpisodeSelector({
       {loadingSeason ? (
         <div className="season-selector__loading">
           <Loader2 size={24} className="season-selector__spinner" />
-          <span>Loading Season {activeSeasonNum} episodes…</span>
+          <span>Loading {activeSeasonInfo?.name ?? `Season ${activeSeasonNum}`} episodes…</span>
         </div>
       ) : displayedEpisodes.length === 0 ? (
         <div className="season-selector__empty">
@@ -383,6 +427,10 @@ export default function SeasonEpisodeSelector({
           {displayedEpisodes.map(ep => {
             const isCurrent =
               activeSeasonNum === currentSeason && ep.episodeNumber === currentEpisode;
+            const epNumFormatted =
+              ep.episodeNumber > 0 && ep.episodeNumber < 10
+                ? `0${ep.episodeNumber}`
+                : String(ep.episodeNumber);
 
             return (
               <Link
@@ -392,7 +440,7 @@ export default function SeasonEpisodeSelector({
                 title={`Episode ${ep.episodeNumber}: ${ep.name}${ep.runtime ? ` (${ep.runtime}m)` : ''}`}
               >
                 <div className="season-ep-box__inner">
-                  <span className="season-ep-box__num">{ep.episodeNumber}</span>
+                  <span className="season-ep-box__num">{epNumFormatted}</span>
                   {isCurrent ? (
                     <span className="season-ep-box__active-badge">PLAYING</span>
                   ) : (
@@ -426,6 +474,9 @@ export default function SeasonEpisodeSelector({
                       <span>EP {ep.episodeNumber}</span>
                     </div>
                   )}
+                  {ep.runtime ? (
+                    <span className="season-ep-card__duration-pill">{ep.runtime}m</span>
+                  ) : null}
                   {isCurrent && (
                     <div className="season-ep-card__current-overlay">
                       <span className="season-ep-card__current-pill">NOW PLAYING</span>

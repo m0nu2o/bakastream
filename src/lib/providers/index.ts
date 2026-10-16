@@ -55,6 +55,25 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
     }
   }
 
+  // 1. If Nova is explicitly requested, attempt NovaAPI direct resolution first
+  if (requestedServerId === 'nova' || requestedServerId === 'nova-anime') {
+    const nova = legacyProviders.find(p => p.id === 'nova');
+    if (nova) {
+      try {
+        const info = await nova.resolve(req);
+        if (info.status === 'ok') {
+          ProviderTelemetry.recordSuccess('nova');
+          return {
+            ...info,
+            server: requestedServerId,
+          };
+        }
+      } catch {
+        ProviderTelemetry.recordFailure('nova');
+      }
+    }
+  }
+
   // 2. Resolve via Lumina Server Suite
   const luminaServer = LUMINA_SERVERS.find(s => s.id === requestedServerId);
   if (luminaServer) {

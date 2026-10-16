@@ -3,7 +3,20 @@
 import React, { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Play, Star, Film, Tv, ChevronDown } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Star,
+  Film,
+  Tv,
+  ChevronDown,
+  Sparkles,
+  Flame,
+  Smile,
+  Ghost,
+  Heart,
+} from 'lucide-react';
 import type { MediaSummary } from '@/types';
 import { posterUrl } from '@/lib/tmdb/image';
 import { mediaUrl } from '@/utils/slug';
@@ -17,14 +30,16 @@ interface Props {
   items: MediaSummary[];
   viewAllHref?: string;
   onPlay?: (item: MediaSummary) => void;
+  icon?: React.ReactNode;
 }
 
-export default function CatalogSection({ title, type, items, viewAllHref, onPlay }: Props) {
+export default function CatalogSection({ title, type, items, viewAllHref, onPlay, icon }: Props) {
   const [activeSort, setActiveSort] = useState<SortOption>('latest');
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   // Dynamic sorting based on selected criteria
   const sortedItems = useMemo(() => {
+    if (!items || items.length === 0) return [];
     const list = [...items];
     switch (activeSort) {
       case 'az':
@@ -47,6 +62,36 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
     }
   }, [items, activeSort]);
 
+  if (!items || items.length === 0) return null;
+
+  const renderIcon = () => {
+    if (icon) return icon;
+    const lower = title.toLowerCase();
+    if (lower.includes('anime')) {
+      return <Sparkles size={22} className="text-red-500" />;
+    }
+    if (lower.includes('top rated')) {
+      return <Star size={22} className="text-red-500" />;
+    }
+    if (lower.includes('action') || lower.includes('thriller')) {
+      return <Flame size={22} className="text-red-500" />;
+    }
+    if (lower.includes('comedy')) {
+      return <Smile size={22} className="text-red-500" />;
+    }
+    if (lower.includes('horror')) {
+      return <Ghost size={22} className="text-red-500" />;
+    }
+    if (lower.includes('romance')) {
+      return <Heart size={22} className="text-red-500" />;
+    }
+    return type === 'movie' ? (
+      <Film size={22} className="text-red-500" />
+    ) : (
+      <Tv size={22} className="text-red-500" />
+    );
+  };
+
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollerRef.current) return;
     const scrollAmount = scrollerRef.current.clientWidth * 0.75;
@@ -63,11 +108,7 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
         <div className="catalog-section__header">
           <div className="catalog-section__title-wrap">
             <span className="catalog-section__icon">
-              {type === 'movie' ? (
-                <Film size={22} className="text-red-500" />
-              ) : (
-                <Tv size={22} className="text-red-500" />
-              )}
+              {renderIcon()}
             </span>
             <div className="catalog-section__title-underline-wrap">
               {viewAllHref ? (
@@ -81,7 +122,7 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
             </div>
           </div>
 
-          {/* Sort By controls: Sort By: Latest ▾, A-Z ▾, Year ▾, Rate ▾ */}
+          {/* Sort By controls: Sort By: Latest, A-Z, Year, Rate */}
           <div className="catalog-section__controls">
             <span className="catalog-section__sort-label">Sort By:</span>
             <div className="catalog-section__sort-buttons">
@@ -93,7 +134,6 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
                 type="button"
               >
                 <span>Latest</span>
-                <ChevronDown size={13} />
               </button>
               <button
                 className={`catalog-section__sort-btn ${
@@ -103,7 +143,6 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
                 type="button"
               >
                 <span>A-Z</span>
-                <ChevronDown size={13} />
               </button>
               <button
                 className={`catalog-section__sort-btn ${
@@ -113,7 +152,6 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
                 type="button"
               >
                 <span>Year</span>
-                <ChevronDown size={13} />
               </button>
               <button
                 className={`catalog-section__sort-btn ${
@@ -123,9 +161,14 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
                 type="button"
               >
                 <span>Rate</span>
-                <ChevronDown size={13} />
               </button>
             </div>
+            {viewAllHref && (
+              <Link href={viewAllHref} className="catalog-section__see-all" aria-label={`View all ${title}`}>
+                <span>See all</span>
+                <ChevronRight size={13} />
+              </Link>
+            )}
           </div>
         </div>
 
@@ -141,7 +184,7 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
           </button>
 
           <div className="catalog-section__carousel" ref={scrollerRef}>
-            {sortedItems.map(item => {
+            {sortedItems.map((item, idx) => {
               const itemTitle = item.title || 'Untitled';
               const releaseYear = (item.releaseDate || '').substring(0, 4);
               const rating = item.rating ? item.rating.toFixed(1) : null;
@@ -150,7 +193,7 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
 
               return (
                 <Link
-                  key={`${item.type || type}-${item.id}`}
+                  key={`${item.type || type}-${item.id}-${idx}`}
                   href={href}
                   className="catalog-card"
                   onClick={e => {

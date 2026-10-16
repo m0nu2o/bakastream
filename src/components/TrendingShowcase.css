@@ -95,39 +95,62 @@
 .trending-showcase__genres-scroll {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 10px;
   min-width: max-content;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 4px clamp(16px, 4vw, 36px);
 }
 
 .trending-showcase__genre-chip {
-  padding: 6px 16px;
+  padding: 8px 18px;
   border-radius: 9999px;
-  background: #171722;
-  color: #8c8c9e;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  font-size: 12.5px;
-  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary, #cbd5e1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+:root[data-theme="light"] .trending-showcase__genre-chip {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.09);
+  color: #475569;
 }
 
 .trending-showcase__genre-chip:hover {
-  background: #232332;
+  background: rgba(244, 59, 76, 0.12);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
+  border-color: rgba(244, 59, 76, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(244, 59, 76, 0.25);
+}
+
+:root[data-theme="light"] .trending-showcase__genre-chip:hover {
+  background: #e2e8f0;
+  border-color: rgba(244, 59, 76, 0.35);
+  color: #0f172a;
 }
 
 .trending-showcase__genre-chip--active {
-  background: var(--accent) !important;
+  background: linear-gradient(135deg, #ff2e54 0%, #f43b4c 50%, #b80610 100%) !important;
   color: #ffffff !important;
-  border-color: var(--accent) !important;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.4);
+  border-color: #ff4d5e !important;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(244, 59, 76, 0.5), 0 0 10px rgba(255, 46, 84, 0.4) !important;
+  transform: translateY(-2px) scale(1.02);
+}
+
+:root[data-theme="light"] .trending-showcase__genre-chip--active {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  border-color: #f43f5e !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;
 }
 
 /* ── 3. Carousel Wrapper & Sleek Modern Edge Navigation ── */

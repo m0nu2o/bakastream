@@ -21,7 +21,16 @@ interface Props {
  * on demand from the internal TMDB proxy.
  */
 export default function EpisodeBrowser({ tvId, seasons }: Props) {
-  const [active, setActive] = useState(seasons[0]?.seasonNumber ?? 1);
+  // Separate regular seasons (1, 2, ...) from Specials (Season 0).
+  // Regular seasons are presented first; Specials are placed at the end.
+  const regularSeasons = seasons
+    .filter(s => s.seasonNumber > 0 && s.episodeCount > 0)
+    .sort((a, b) => a.seasonNumber - b.seasonNumber);
+  const specialSeasons = seasons.filter(s => s.seasonNumber === 0 && s.episodeCount > 0);
+  const orderedSeasons = [...regularSeasons, ...specialSeasons];
+
+  const defaultSeason = regularSeasons[0]?.seasonNumber ?? (orderedSeasons[0]?.seasonNumber ?? 1);
+  const [active, setActive] = useState(defaultSeason);
   const [season, setSeason] = useState<SeasonDetailInfo | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -43,25 +52,36 @@ export default function EpisodeBrowser({ tvId, seasons }: Props) {
     };
   }, [tvId, active]);
 
-  if (seasons.length === 0) return null;
+  if (orderedSeasons.length === 0) return null;
 
   return (
     <section className="episodes">
       <div className="episodes__header">
         <h2 className="detail-section__title">Episodes</h2>
-        {seasons.length > 1 && (
+        {orderedSeasons.length > 1 && (
           <div className="episodes__tabs" role="tablist" aria-label="Seasons">
-            {seasons.map(s => (
-              <button
-                key={s.seasonNumber}
-                role="tab"
-                aria-selected={s.seasonNumber === active}
-                className={`episodes__tab ${s.seasonNumber === active ? 'episodes__tab--active' : ''}`}
-                onClick={() => setActive(s.seasonNumber)}
-              >
-                {`S${s.seasonNumber}`}
-              </button>
-            ))}
+            {orderedSeasons.map(s => {
+              const isSpecial = s.seasonNumber === 0;
+              const cleanName = s.name?.trim() ?? '';
+              const hasArcName = cleanName && !/^season\s+\d+$/i.test(cleanName);
+              const label = isSpecial
+                ? '⭐ Specials / OVAs'
+                : hasArcName
+                  ? `S${s.seasonNumber}: ${cleanName}`
+                  : `Season ${s.seasonNumber}`;
+
+              return (
+                <button
+                  key={s.seasonNumber}
+                  role="tab"
+                  aria-selected={s.seasonNumber === active}
+                  className={`episodes__tab ${s.seasonNumber === active ? 'episodes__tab--active' : ''} ${isSpecial ? 'episodes__tab--special' : ''}`}
+                  onClick={() => setActive(s.seasonNumber)}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

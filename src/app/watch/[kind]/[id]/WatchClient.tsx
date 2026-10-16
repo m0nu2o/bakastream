@@ -163,15 +163,18 @@ export default function WatchClient({ content, season, episode }: Props) {
           activeServerId={server}
           onSelectServer={handleServerChange}
           mediaCategory={mediaCategory}
-          selectedAudioTrack={isAnime ? subOrDub : language}
+          selectedAudioTrack={language === 'hindi' ? 'hindi' : isAnime ? subOrDub : language}
           onSelectAudioTrack={track => {
-            if (isAnime) {
+            if (track === 'hindi') {
+              handleLanguageChange('hindi');
+            } else if (isAnime) {
+              setLanguage(initialLang);
               handleSubOrDubChange(track as 'sub' | 'dub');
             } else {
               handleLanguageChange(track);
             }
           }}
-          hasHindiDub={content.originalLanguage === 'hi' || language === 'hindi'}
+          hasHindiDub={true}
           autoSwitch={autoSwitch}
           onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
         />
@@ -219,15 +222,18 @@ export default function WatchClient({ content, season, episode }: Props) {
         activeServerId={server}
         onSelectServer={handleServerChange}
         mediaCategory={mediaCategory}
-        selectedAudioTrack={isAnime ? subOrDub : language}
+        selectedAudioTrack={language === 'hindi' ? 'hindi' : isAnime ? subOrDub : language}
         onSelectAudioTrack={track => {
-          if (isAnime) {
+          if (track === 'hindi') {
+            handleLanguageChange('hindi');
+          } else if (isAnime) {
+            setLanguage(initialLang);
             handleSubOrDubChange(track as 'sub' | 'dub');
           } else {
             handleLanguageChange(track);
           }
         }}
-        hasHindiDub={content.originalLanguage === 'hi' || language === 'hindi'}
+        hasHindiDub={true}
         autoSwitch={autoSwitch}
         onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
       />
@@ -387,12 +393,17 @@ function EmbedStage({
             onServerChange(s);
           }}
           mediaCategory={mediaCategory}
-          selectedAudioTrack={isAnime ? activeSubOrDub : activeLanguage}
+          selectedAudioTrack={activeLanguage === 'hindi' ? 'hindi' : isAnime ? activeSubOrDub : activeLanguage}
           onSelectAudioTrack={track => {
-            if (isAnime) onSubOrDubChange(track as 'sub' | 'dub');
-            else onLanguageChange(track);
+            if (track === 'hindi') {
+              onLanguageChange('hindi');
+            } else if (isAnime) {
+              onSubOrDubChange(track as 'sub' | 'dub');
+            } else {
+              onLanguageChange(track);
+            }
           }}
-          hasHindiDub={isHindiOriginal || activeLanguage === 'hindi'}
+          hasHindiDub={true}
           autoSwitch={autoSwitch}
           onToggleAutoSwitch={onToggleAutoSwitch}
         />
@@ -451,12 +462,17 @@ function EmbedStage({
           onServerChange(s);
         }}
         mediaCategory={mediaCategory}
-        selectedAudioTrack={isAnime ? activeSubOrDub : activeLanguage}
+        selectedAudioTrack={activeLanguage === 'hindi' ? 'hindi' : isAnime ? activeSubOrDub : activeLanguage}
         onSelectAudioTrack={track => {
-          if (isAnime) onSubOrDubChange(track as 'sub' | 'dub');
-          else onLanguageChange(track);
+          if (track === 'hindi') {
+            onLanguageChange('hindi');
+          } else if (isAnime) {
+            onSubOrDubChange(track as 'sub' | 'dub');
+          } else {
+            onLanguageChange(track);
+          }
         }}
-        hasHindiDub={isHindiOriginal || activeLanguage === 'hindi'}
+        hasHindiDub={true}
         autoSwitch={autoSwitch}
         onToggleAutoSwitch={onToggleAutoSwitch}
       />

@@ -6,8 +6,8 @@
   gap: 1.25rem;
   max-width: 1540px;
   margin: 0 auto;
-  padding: calc(68px + 0.75rem) clamp(1rem, 2.5vw, 2.25rem) 2.5rem;
-  min-height: calc(100vh - 68px);
+  padding: calc(76px + 1.1rem) clamp(1rem, 2.5vw, 2.25rem) 2.5rem;
+  min-height: calc(100vh - 76px);
   width: 100%;
   box-sizing: border-box;
 }
@@ -240,17 +240,26 @@
 .watch__iframe {
   width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: min(52vh, 480px);
-  border: none;
+  min-height: 380px;
+  max-height: min(78vh, 760px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-lg);
-  background: #000;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  background: #000000;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.75),
+    0 0 45px rgba(244, 59, 76, 0.12);
   display: block;
+  transition: box-shadow 0.3s ease;
+}
+
+:root[data-theme="light"] .watch__iframe {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
 }
 
 @media (max-height: 850px) and (min-width: 1025px) {
   .watch {
-    padding-top: calc(68px + 0.5rem);
+    padding-top: calc(76px + 0.85rem);
     padding-bottom: 1.5rem;
   }
   .watch__toolbar {
@@ -258,7 +267,14 @@
     padding: 0.45rem 0.75rem;
   }
   .watch__iframe {
-    max-height: 48vh;
+    max-height: 68vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .watch__iframe {
+    min-height: 220px;
+    max-height: 52vh;
   }
 }
 .watch__preview-banner {

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Search as SearchIcon, SlidersHorizontal } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { Search as SearchIcon, SlidersHorizontal, Sparkles } from 'lucide-react';
 import StreamingResultCard from '@/components/MediaCard';
 import type { Genre, MediaSummary } from '@/types';
 import styles from './BrowseFilters.module.css';
@@ -11,6 +12,17 @@ const TYPE_OPTIONS = [
   { value: 'all', label: 'All' },
   { value: 'movie', label: 'Movies' },
   { value: 'tv', label: 'TV Shows' },
+];
+
+const CATEGORY_ITEMS = [
+  { href: '/category/bollywood', label: 'Bollywood', icon: '🍿' },
+  { href: '/category/hindi-serials', label: 'Hindi Serials', icon: '📺' },
+  { href: '/category/hindi-web-series', label: 'Web Series', icon: '🇮🇳' },
+  { href: '/category/kdrama', label: 'K-Dramas', icon: '🇰🇷' },
+  { href: '/category/anime', label: 'Anime', icon: '⚔️' },
+  { href: '/category/hollywood', label: 'Hollywood', icon: '🎬' },
+  { href: '/category/cdrama', label: 'C-Dramas', icon: '🇨🇳' },
+  { href: '/category/cartoons', label: 'Cartoons', icon: '🎨' },
 ];
 
 interface Props {
@@ -22,6 +34,7 @@ interface Props {
 export default function BrowseClient({ results, genres, page }: Props) {
   const router = useRouter();
   const params = useSearchParams();
+  const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   const [query, setQuery] = useState(params.get('q') || '');
   const [showFilters, setShowFilters] = useState(false);
@@ -52,7 +65,7 @@ export default function BrowseClient({ results, genres, page }: Props) {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search movies and TV shows…"
+            placeholder="Search movies, TV shows, anime…"
             className={styles.searchInput}
             aria-label="Search query"
           />
@@ -79,61 +92,76 @@ export default function BrowseClient({ results, genres, page }: Props) {
               </button>
             ))}
           </div>
-          <div
-            className={styles.filterGroup}
-            style={{ flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}
-          >
-            <a href="/category/bollywood" className={styles.chip}>
-              🍿 Bollywood
-            </a>
-            <a href="/category/hindi-serials" className={styles.chip}>
-              📺 Hindi Serials
-            </a>
-            <a href="/category/hindi-web-series" className={styles.chip}>
-              🇮🇳 Web Series
-            </a>
-            <a href="/category/kdrama" className={styles.chip}>
-              🇰🇷 K-Dramas
-            </a>
-            <a href="/category/cdrama" className={styles.chip}>
-              🇨🇳 C-Dramas
-            </a>
-            <a href="/category/anime" className={styles.chip}>
-              ⚔️ Anime
-            </a>
-            <a href="/category/cartoons" className={styles.chip}>
-              🎨 Cartoons
-            </a>
-            <a href="/category/hollywood" className={styles.chip}>
-              🎬 Hollywood
-            </a>
+
+          <div className={styles.categoryGroup} role="group" aria-label="Quick Category Discovery">
+            {CATEGORY_ITEMS.map(cat => {
+              const isActive = pathname === cat.href;
+              return (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  className={`${styles.categoryChip} ${isActive ? styles.categoryChipActive : ''}`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </Link>
+              );
+            })}
           </div>
-          <select
-            className={styles.select}
-            value={activeGenre}
-            onChange={e => updateParam('genre', e.target.value || null)}
-            aria-label="Genre"
-          >
-            <option value="">All genres</option>
-            {genres.map(g => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-          <select
-            className={styles.select}
-            value={activeYear}
-            onChange={e => updateParam('year', e.target.value || null)}
-            aria-label="Year"
-          >
-            <option value="">Any year</option>
-            {years.map(y => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+
+          {genres.length > 0 && (
+            <>
+              <span className={styles.sectionLabel}>Genres</span>
+              <div className={styles.genreStrip} role="group" aria-label="Genre Filter Pills">
+                <button
+                  type="button"
+                  className={`${styles.genrePill} ${!activeGenre ? styles.genrePillActive : ''}`}
+                  onClick={() => updateParam('genre', null)}
+                >
+                  All Genres
+                </button>
+                {genres.slice(0, 10).map(g => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    className={`${styles.genrePill} ${activeGenre === String(g.id) ? styles.genrePillActive : ''}`}
+                    onClick={() => updateParam('genre', activeGenre === String(g.id) ? null : String(g.id))}
+                  >
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className={styles.selectGroup}>
+            <select
+              className={styles.select}
+              value={activeGenre}
+              onChange={e => updateParam('genre', e.target.value || null)}
+              aria-label="All Genres Select"
+            >
+              <option value="">More Genres…</option>
+              {genres.map(g => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className={styles.select}
+              value={activeYear}
+              onChange={e => updateParam('year', e.target.value || null)}
+              aria-label="Year"
+            >
+              <option value="">Any Year</option>
+              {years.map(y => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 

@@ -5,7 +5,6 @@ import Hero from '@/components/Hero';
 import TrendingShowcase from '@/components/TrendingShowcase';
 import WatchingBanner from '@/components/WatchingBanner';
 import CatalogSection from '@/components/CatalogSection';
-import MediaRow from '@/components/MediaRow';
 import GenreSpotlight from '@/components/GenreSpotlight';
 import StateView from '@/components/StateView';
 import { getHomeData } from '@/lib/tmdb/server';
@@ -82,51 +81,51 @@ async function HomeContent() {
       {/* ── 5. SERIES CATALOG (Interactive Sort: Latest, A-Z, Year, Rate) ── */}
       <CatalogSection title="Series" type="tv" items={data.popularTV} viewAllHref="/tv" />
 
-      {/* ── 6. CENTRAL DISCOVERY "+" EXPLORE BUTTON ── */}
-      <div className="home-explore-more">
-        <Link
-          href="/search"
-          className="home-explore-more__btn"
-          aria-label="Explore more titles"
-          title="Explore more"
-        >
-          <span>+</span>
-        </Link>
-      </div>
-
-      {/* ── 7. PRESERVED RICH MULTILINGUAL & SPECIALIZED CATEGORIES ── */}
-      <MediaRow
+      {/* ── 6. ALL SPECIALIZED & MULTILINGUAL CATEGORIES (UNIFIED CATALOG DESIGN) ── */}
+      <CatalogSection
         title="Bollywood & Hindi Movies"
+        type="movie"
         items={data.hindiMovies}
-        seeAllHref={{ href: '/category/bollywood' }}
+        viewAllHref="/category/bollywood"
       />
-      <MediaRow
+      <CatalogSection
         title="Popular Hindi Web Series"
+        type="tv"
         items={data.hindiTV}
-        seeAllHref={{ href: '/category/hindi-web-series' }}
+        viewAllHref="/category/hindi-web-series"
       />
-      <MediaRow
+      <CatalogSection
         title="Hindi Serials & Indian TV"
+        type="tv"
         items={data.hindiSerials}
-        seeAllHref={{ href: '/category/hindi-serials' }}
+        viewAllHref="/category/hindi-serials"
       />
-      <MediaRow
+      <CatalogSection
         title="Trending K-Dramas"
+        type="tv"
         items={data.kdrama}
-        seeAllHref={{ href: '/category/kdrama' }}
+        viewAllHref="/category/kdrama"
       />
-      <MediaRow title="Anime" items={data.anime} seeAllHref={{ href: '/category/anime' }} />
-      <MediaRow
+      <CatalogSection
+        title="Anime"
+        type="tv"
+        items={data.anime}
+        viewAllHref="/category/anime"
+      />
+      <CatalogSection
         title="Top rated movies"
+        type="movie"
         items={data.topRatedMovies}
-        seeAllHref={{ href: '/movies?sort=vote' }}
+        viewAllHref="/movies?sort=vote"
       />
-      <MediaRow
+      <CatalogSection
         title="Top rated series"
+        type="tv"
         items={data.topRatedTV}
-        seeAllHref={{ href: '/tv?sort=vote' }}
+        viewAllHref="/tv?sort=vote"
       />
 
+      {/* ── 7. GENRE SPOTLIGHTS (ACTION, COMEDY, HORROR, ANIMATION, ROMANCE, THRILLER) ── */}
       {GENRE_SPOTLIGHT.map(id => (
         <GenreSpotlight key={id} genreId={id} name={genreName(id)} />
       ))}

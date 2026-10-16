@@ -9,12 +9,16 @@ import {
   X,
   Home,
   Film,
-  MonitorPlay,
-  Clapperboard,
+  Tv,
+  Sparkles,
   Bookmark,
   ChevronDown,
+  LayoutGrid,
+  Layers,
+  Clapperboard,
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import BakaLogo from '@/components/BakaLogo';
 import { getGenres } from '@/lib/tmdb/client';
 import { listCategories } from '@/lib/categories';
 import type { Genre } from '@/types';
@@ -23,8 +27,8 @@ import './Navbar.css';
 const NAV_LINKS = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/movies', label: 'Movies', icon: Film },
-  { href: '/tv', label: 'TV Shows', icon: MonitorPlay },
-  { href: '/anime', label: 'Anime', icon: Clapperboard },
+  { href: '/tv', label: 'TV Shows', icon: Tv },
+  { href: '/anime', label: 'Anime', icon: Sparkles },
   { href: '/watchlist', label: 'Watchlist', icon: Bookmark },
 ];
 
@@ -78,28 +82,29 @@ export default function Navbar() {
       <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
         <div className="navbar__inner">
           <Link href="/" className="navbar__logo" aria-label="BakaStream home">
-            <img
-              src="/favicon.png"
-              alt="BakaStream"
-              width={28}
-              height={28}
-              className="navbar__logo-img"
-            />
-            <span>
-              <span className="navbar__logo-accent">Baka</span>Stream
-            </span>
+            <BakaLogo size={32} />
+            <div className="navbar__logo-text-box">
+              <span className="navbar__logo-main">
+                <span className="navbar__logo-accent">BAKA</span>STREAM
+              </span>
+              <span className="navbar__logo-sub">CINEMA HD</span>
+            </div>
           </Link>
 
-          <nav className="navbar__links" aria-label="Primary">
-            {NAV_LINKS.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`navbar__link ${isActive(link.href) ? 'navbar__link--active' : ''}`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="navbar__links" aria-label="Primary Navigation">
+            {NAV_LINKS.map(link => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`navbar__link ${isActive(link.href) ? 'navbar__link--active' : ''}`}
+                >
+                  <Icon size={14} className="navbar__link-icon" />
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
 
             {/* Categories Dropdown */}
             <div className={`navbar__dropdown ${categoriesOpen ? 'navbar__dropdown--open' : ''}`}>
@@ -112,23 +117,29 @@ export default function Navbar() {
                 aria-expanded={categoriesOpen}
                 aria-haspopup="true"
               >
-                Categories <ChevronDown size={14} />
+                <LayoutGrid size={14} className="navbar__link-icon" />
+                <span>Categories</span>
+                <ChevronDown size={13} className={`navbar__dropdown-chevron ${categoriesOpen ? 'navbar__dropdown-chevron--open' : ''}`} />
               </button>
               {categoriesOpen && (
                 <div
-                  className="navbar__dropdown-menu"
+                  className="navbar__dropdown-menu navbar__dropdown-menu--categories"
                   onMouseLeave={() => setCategoriesOpen(false)}
                 >
-                  {categories.map(c => (
-                    <Link
-                      key={c.id}
-                      href={`/category/${c.id}`}
-                      className="navbar__dropdown-item"
-                      onClick={() => setCategoriesOpen(false)}
-                    >
-                      {c.icon} {c.name}
-                    </Link>
-                  ))}
+                  <div className="navbar__dropdown-header">Explore Categories</div>
+                  <div className="navbar__dropdown-grid">
+                    {categories.map(c => (
+                      <Link
+                        key={c.id}
+                        href={`/category/${c.id}`}
+                        className="navbar__dropdown-pill"
+                        onClick={() => setCategoriesOpen(false)}
+                      >
+                        <span className="navbar__dropdown-icon">{c.icon}</span>
+                        <span className="navbar__dropdown-label">{c.name}</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -147,30 +158,37 @@ export default function Navbar() {
                 aria-expanded={genresOpen}
                 aria-haspopup="true"
               >
-                Genres <ChevronDown size={14} />
+                <Layers size={14} className="navbar__link-icon" />
+                <span>Genres</span>
+                <ChevronDown size={13} className={`navbar__dropdown-chevron ${genresOpen ? 'navbar__dropdown-chevron--open' : ''}`} />
               </button>
               {genresOpen && (
-                <div className="navbar__dropdown-menu" onMouseLeave={() => setGenresOpen(false)}>
-                  {genres.length === 0 && <span className="navbar__dropdown-empty">Loading…</span>}
-                  {genres.map(g => (
-                    <Link
-                      key={g.id}
-                      href={genreHref(g)}
-                      className="navbar__dropdown-item"
-                      onClick={() => setGenresOpen(false)}
-                    >
-                      {g.name}
-                    </Link>
-                  ))}
+                <div className="navbar__dropdown-menu navbar__dropdown-menu--genres" onMouseLeave={() => setGenresOpen(false)}>
+                  <div className="navbar__dropdown-header">Browse By Genre</div>
+                  <div className="navbar__dropdown-grid">
+                    {genres.length === 0 && <span className="navbar__dropdown-empty">Loading genres…</span>}
+                    {genres.map(g => (
+                      <Link
+                        key={g.id}
+                        href={genreHref(g)}
+                        className="navbar__dropdown-pill"
+                        onClick={() => setGenresOpen(false)}
+                      >
+                        <span className="navbar__dropdown-dot" />
+                        <span className="navbar__dropdown-label">{g.name}</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </nav>
 
           <div className="navbar__actions">
-            <Link href="/search" className="navbar__search-btn" aria-label="Search">
-              <Search size={20} />
-              <span className="navbar__search-label">Search</span>
+            <Link href="/search" className="navbar__search-capsule" aria-label="Search titles">
+              <Search size={15} />
+              <span className="navbar__search-text">Search</span>
+              <kbd className="navbar__search-kbd">⌘K</kbd>
             </Link>
             <ThemeToggle />
             <button
@@ -179,7 +197,7 @@ export default function Navbar() {
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen(o => !o)}
             >
-              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>

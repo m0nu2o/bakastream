@@ -87,10 +87,24 @@ export default async function WatchEpisodePage({ params }: PageProps) {
         <div className="watch__card">
           {poster && <img src={poster} alt={show.title} className="watch__poster" />}
           <h1 className="watch__title">{show.title}</h1>
-          <p className="watch__meta">
-            Season {seasonNum} · Episode {episodeNum}
-            {current ? ` — ${current.name}` : ''}
-          </p>
+          {(() => {
+            const currentSeasonObj = show.seasons.find(s => s.seasonNumber === seasonNum);
+            const isSpecial = seasonNum === 0;
+            const hasArcName =
+              currentSeasonObj?.name && !/^season\s+\d+$/i.test(currentSeasonObj.name.trim());
+            const seasonTitle = isSpecial
+              ? '⭐ Specials / OVAs'
+              : hasArcName
+                ? `Season ${seasonNum}: ${currentSeasonObj.name}`
+                : `Season ${seasonNum}`;
+
+            return (
+              <p className="watch__meta">
+                {seasonTitle} · Episode {episodeNum}
+                {current ? ` — ${current.name}` : ''}
+              </p>
+            );
+          })()}
 
           <EpisodeNav
             tvId={tvId}
