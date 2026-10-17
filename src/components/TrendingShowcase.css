@@ -95,7 +95,7 @@
 .trending-showcase__genres-scroll {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
   min-width: max-content;
   margin: 0 auto;
