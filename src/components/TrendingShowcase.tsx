@@ -5,8 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Star, Flame, Clock, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import type { MediaSummary, Genre, MediaType } from '@/types';
-import { posterUrl } from '@/lib/tmdb/image';
-import { mediaUrl } from '@/utils/slug';
+import MediaCard from '@/components/MediaCard';
 import './TrendingShowcase.css';
 
 interface Props {
@@ -215,80 +214,17 @@ export default function TrendingShowcase({
               <span>Loading titles…</span>
             </div>
           ) : (
-            displayList.map(item => {
-              const isSelected = item.id === selectedCardId;
-              const poster = posterUrl(item.posterPath, 'w500');
-              const year = item.releaseDate ? item.releaseDate.slice(0, 4) : null;
-              const rating = item.rating && item.rating > 0 ? item.rating.toFixed(1) : null;
-              const href = mediaUrl(item);
-
-              return (
-                <div
-                  key={`${item.type}-${item.id}`}
-                  className={`trending-showcase__card ${isSelected ? 'trending-showcase__card--selected' : ''}`}
-                  onClick={() => setSelectedCardId(item.id)}
-                >
-                  <div className="trending-showcase__poster-box">
-                    <Link
-                      href={href}
-                      className="trending-showcase__poster-link"
-                      aria-label={item.title}
-                    >
-                      {poster ? (
-                        <Image
-                          src={poster}
-                          alt={item.title}
-                          fill
-                          sizes="(max-width: 640px) 150px, (max-width: 1024px) 180px, 220px"
-                          className="trending-showcase__poster-img"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="trending-showcase__placeholder" />
-                      )}
-                    </Link>
-
-                    <div className="trending-showcase__play-overlay">
-                      {onPlay ? (
-                        <button
-                          className="trending-showcase__play-btn"
-                          onClick={e => {
-                            e.stopPropagation();
-                            onPlay(item);
-                          }}
-                          aria-label={`Play ${item.title}`}
-                          type="button"
-                        >
-                          <Play size={16} fill="currentColor" />
-                        </button>
-                      ) : (
-                        <Link
-                          href={href}
-                          className="trending-showcase__play-btn"
-                          aria-label={`Open ${item.title}`}
-                        >
-                          <Play size={16} fill="currentColor" />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="trending-showcase__info-block">
-                    <Link href={href} className="trending-showcase__title" title={item.title}>
-                      {item.title}
-                    </Link>
-                    <div className="trending-showcase__meta">
-                      {year && <span className="trending-showcase__year">{year}</span>}
-                      {rating && (
-                        <span className="trending-showcase__rating">
-                          <Star size={11} fill="#ffb800" stroke="#ffb800" /> {rating}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
+            displayList.map((item, idx) => (
+              <div
+                key={`${item.type}-${item.id}-${idx}`}
+                className="trending-showcase__card-wrap"
+              >
+                <MediaCard
+                  content={item}
+                  onPlay={onPlay}
+                />
+              </div>
+            ))
           )}
         </div>
 

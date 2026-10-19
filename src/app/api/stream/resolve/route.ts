@@ -43,21 +43,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const info = await resolveStream({
-    type,
-    id,
-    imdbId: typeof body.imdbId === 'string' && body.imdbId.trim() ? body.imdbId.trim() : undefined,
-    season: Number.isInteger(body.season) ? body.season : undefined,
-    episode: Number.isInteger(body.episode) ? body.episode : undefined,
-    title: typeof body.title === 'string' ? body.title : undefined,
-    isAnime: Boolean(body.isAnime),
-    subOrDub: body.subOrDub === 'dub' ? 'dub' : 'sub',
-    server: typeof body.server === 'string' ? body.server : undefined,
-    language: typeof body.language === 'string' ? body.language : undefined,
-    resumeAt: typeof body.resumeAt === 'number' ? body.resumeAt : undefined,
-  });
+  try {
+    const info = await resolveStream({
+      type,
+      id,
+      imdbId: typeof body.imdbId === 'string' && body.imdbId.trim() ? body.imdbId.trim() : undefined,
+      season: Number.isInteger(body.season) ? body.season : undefined,
+      episode: Number.isInteger(body.episode) ? body.episode : undefined,
+      title: typeof body.title === 'string' ? body.title : undefined,
+      isAnime: Boolean(body.isAnime),
+      subOrDub: body.subOrDub === 'dub' ? 'dub' : 'sub',
+      server: typeof body.server === 'string' ? body.server : undefined,
+      language: typeof body.language === 'string' ? body.language : undefined,
+      resumeAt: typeof body.resumeAt === 'number' ? body.resumeAt : undefined,
+    });
 
-  return NextResponse.json(info, {
-    headers: { 'cache-control': 'no-store' },
-  });
+    return NextResponse.json(info, {
+      headers: { 'cache-control': 'no-store' },
+    });
+  } catch (err) {
+    console.warn('[Stream Resolve Route] Resolution error:', err);
+    return NextResponse.json(
+      {
+        providerId: 'fallback',
+        providerLabel: 'Fallback',
+        status: 'unavailable',
+        playback: null,
+        audioTracks: [],
+        subtitles: [],
+        message: 'Stream provider temporarily unavailable. Please try another server.',
+        notice: '',
+      },
+      { headers: { 'cache-control': 'no-store' } }
+    );
+  }
 }

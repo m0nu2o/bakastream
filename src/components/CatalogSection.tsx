@@ -18,8 +18,7 @@ import {
   Heart,
 } from 'lucide-react';
 import type { MediaSummary } from '@/types';
-import { posterUrl } from '@/lib/tmdb/image';
-import { mediaUrl } from '@/utils/slug';
+import MediaCard from '@/components/MediaCard';
 import './CatalogSection.css';
 
 type SortOption = 'latest' | 'az' | 'year' | 'rate';
@@ -184,65 +183,17 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
           </button>
 
           <div className="catalog-section__carousel" ref={scrollerRef}>
-            {sortedItems.map((item, idx) => {
-              const itemTitle = item.title || 'Untitled';
-              const releaseYear = (item.releaseDate || '').substring(0, 4);
-              const rating = item.rating ? item.rating.toFixed(1) : null;
-              const href = mediaUrl({ id: item.id, type: item.type || type, title: itemTitle });
-              const poster = posterUrl(item.posterPath, 'w342');
-
-              return (
-                <Link
-                  key={`${item.type || type}-${item.id}-${idx}`}
-                  href={href}
-                  className="catalog-card"
-                  onClick={e => {
-                    if (onPlay) {
-                      e.preventDefault();
-                      onPlay(item);
-                    }
-                  }}
-                >
-                  <div className="catalog-card__poster-wrap">
-                    {poster ? (
-                      <Image
-                        src={poster}
-                        alt={itemTitle}
-                        fill
-                        sizes="(max-width: 768px) 140px, (max-width: 1200px) 180px, 220px"
-                        className="catalog-card__img"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="catalog-card__placeholder" />
-                    )}
-                    <div className="catalog-card__play-badge">
-                      <Play size={18} fill="currentColor" />
-                    </div>
-                  </div>
-
-                  <div className="catalog-card__info">
-                    <h3 className="catalog-card__title" title={itemTitle}>
-                      {itemTitle}
-                    </h3>
-                    <div className="catalog-card__meta">
-                      {releaseYear && <span className="catalog-card__year">{releaseYear}</span>}
-                      {rating && (
-                        <span className="catalog-card__rating">
-                          <Star
-                            size={12}
-                            className="catalog-card__star"
-                            fill="#eab308"
-                            stroke="#eab308"
-                          />
-                          {rating}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+            {sortedItems.map((item, idx) => (
+              <div
+                key={`${item.type || type}-${item.id}-${idx}`}
+                className="catalog-section__card-wrap"
+              >
+                <MediaCard
+                  content={{ ...item, type: item.type || type }}
+                  onPlay={onPlay}
+                />
+              </div>
+            ))}
           </div>
 
           <button

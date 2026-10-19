@@ -17,6 +17,7 @@ import {
   Tv,
 } from 'lucide-react';
 import type { EpisodeInfo, SeasonInfo, MediaSummary } from '@/types';
+import MediaCard from '@/components/MediaCard';
 import { posterUrl, stillUrl } from '@/lib/tmdb/image';
 import './SeasonEpisodeSelector.css';
 
@@ -210,52 +211,12 @@ export default function SeasonEpisodeSelector({
         </div>
 
         <div className="season-selector__movie-grid">
-          {relatedMovies.slice(0, 14).map(movie => {
-            const poster = posterUrl(movie.posterPath, 'w342');
-            const year = movie.releaseDate ? movie.releaseDate.slice(0, 4) : '';
-
-            return (
-              <Link
-                key={movie.id}
-                href={`/watch/movie/${movie.id}`}
-                className="season-movie-card"
-                title={`${movie.title} ${year ? `(${year})` : ''}`}
-              >
-                <div className="season-movie-card__poster-box">
-                  {poster ? (
-                    <img
-                      src={poster}
-                      alt={movie.title}
-                      className="season-movie-card__img"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="season-movie-card__fallback">
-                      <Film size={28} />
-                      <span className="season-movie-card__fallback-text">{movie.title}</span>
-                    </div>
-                  )}
-                  {movie.rating ? (
-                    <span className="season-movie-card__rating">★ {movie.rating.toFixed(1)}</span>
-                  ) : null}
-                  <div className="season-movie-card__play-overlay">
-                    <div className="season-movie-card__play-btn">
-                      <Play size={14} fill="currentColor" />
-                    </div>
-                  </div>
-                </div>
-                <div className="season-movie-card__info">
-                  <h3 className="season-movie-card__title" title={movie.title}>
-                    {movie.title}
-                  </h3>
-                  <div className="season-movie-card__meta">
-                    {year && <span className="season-movie-card__year">{year}</span>}
-                    <span className="season-movie-card__type">Movie</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {relatedMovies.map(movie => (
+            <MediaCard
+              key={movie.id}
+              content={{ ...movie, type: movie.type || 'movie' }}
+            />
+          ))}
         </div>
       </section>
     );
@@ -511,6 +472,35 @@ export default function SeasonEpisodeSelector({
               </Link>
             );
           })}
+        </div>
+      )}
+
+      {/* Franchise & Related TV Series / Spinoffs */}
+      {relatedMovies.length > 0 && (
+        <div className="season-selector__related-wrap" style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.75rem' }}>
+          <div className="season-selector__header">
+            <div className="season-selector__title-group">
+              <div className="season-selector__icon-badge">
+                <Tv size={15} />
+              </div>
+              <div>
+                <h2 className="season-selector__title">Franchise & Related Series</h2>
+                <p className="season-selector__subtitle">
+                  Spinoffs, prequels, and recommended shows for {mediaTitle}
+                </p>
+              </div>
+            </div>
+            <span className="season-selector__count-badge">{relatedMovies.length} Titles</span>
+          </div>
+
+          <div className="season-selector__movie-grid">
+            {relatedMovies.map(show => (
+              <MediaCard
+                key={show.id}
+                content={{ ...show, type: show.type || 'tv' }}
+              />
+            ))}
+          </div>
         </div>
       )}
     </section>

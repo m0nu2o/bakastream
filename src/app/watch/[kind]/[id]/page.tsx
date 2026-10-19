@@ -85,7 +85,7 @@ export default async function WatchPage({ params }: PageProps) {
           currentEpisode={1}
           seasons={type === 'tv' ? details.seasons : []}
           initialEpisodes={seasonData?.episodes ?? []}
-          relatedMovies={type === 'movie' ? details.similar : []}
+          relatedMovies={details.similar ?? []}
         />
       </div>
 

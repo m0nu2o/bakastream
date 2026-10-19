@@ -209,7 +209,36 @@
   display: none;
 }
 
-/* Movie / Series Cards */
+/* Movie / Series Cards (Unified MediaCard) */
+.catalog-section__card-wrap {
+  flex: 0 0 calc((100% - 80px) / 6);
+  min-width: 175px;
+  max-width: 220px;
+  scroll-snap-align: start;
+  display: flex;
+}
+
+@media (max-width: 1200px) {
+  .catalog-section__card-wrap {
+    flex: 0 0 calc((100% - 64px) / 5);
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 900px) {
+  .catalog-section__card-wrap {
+    flex: 0 0 calc((100% - 48px) / 4);
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 640px) {
+  .catalog-section__card-wrap {
+    flex: 0 0 calc((100% - 32px) / 2.5);
+    min-width: 130px;
+  }
+}
+
 .catalog-card {
   flex: 0 0 calc((100% - 80px) / 6);
   min-width: 175px;

@@ -111,18 +111,34 @@
   height: 32px;
   border-radius: 50%;
   color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid var(--border-strong);
-  backdrop-filter: blur(4px);
-  opacity: 0;
-  transition: all 0.2s ease;
+  background: rgba(18, 19, 24, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  opacity: 0.9;
+  z-index: 4;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .media-card:hover .media-card__save {
   opacity: 1;
+  background: rgba(18, 19, 24, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.media-card__save:hover {
+  transform: scale(1.12);
+  color: #ff4d5a;
+  border-color: #ff4d5a;
 }
 .media-card__save--on {
-  opacity: 1;
-  color: var(--accent);
+  opacity: 1 !important;
+  color: #ffffff !important;
+  background: var(--accent, #e50914) !important;
+  border-color: var(--accent, #e50914) !important;
+  box-shadow: 0 0 14px rgba(229, 9, 20, 0.6);
+}
+.media-card__save--on:hover {
+  background: #ff1e2b !important;
+  transform: scale(1.12);
 }
 
 .media-card__body {

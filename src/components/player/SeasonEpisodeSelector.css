@@ -714,11 +714,11 @@
   overflow: hidden;
 }
 
-/* ── 6. Movie Franchise Grid ── */
+/* ── 6. Movie Franchise Grid (Unified MediaCard) ── */
 .season-selector__movie-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-  gap: 14px 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px 14px;
   width: 100%;
 }
 

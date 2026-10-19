@@ -80,8 +80,9 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     description: 'Flagship ultra-fast global CDN with 4K quality, 0 ads, and automatic playback.',
     features: ['4K Ready', '0 Ads', 'Auto-Play'],
     getPlaybackUrl: ({ type, id, season, episode, language }) => {
-      const isHindi = language?.trim().toLowerCase() === 'hindi';
-      if (isHindi) {
+      const lang = language?.trim().toLowerCase();
+      const isRegional = lang === 'hindi' || lang === 'tamil' || lang === 'telugu';
+      if (isRegional) {
         if (type === 'tv' || season !== undefined) {
           return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season || 1}&episode=${episode || 1}`;
         }
@@ -228,8 +229,9 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
       'Dedicated NextGen anime player with Japanese audio, English Subtitles, English Dub, and zero ads.',
     features: ['Sub/Dub Switch', '0 Ads', '1080p Ultra'],
     getPlaybackUrl: ({ type, id, season, episode, isDub, language, malId }) => {
-      const isHindi = language?.trim().toLowerCase() === 'hindi';
-      if (isHindi) {
+      const lang = language?.trim().toLowerCase();
+      const isRegional = lang === 'hindi' || lang === 'tamil' || lang === 'telugu';
+      if (isRegional) {
         if (type === 'tv' || season !== undefined) {
           return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season || 1}&episode=${episode || 1}`;
         }

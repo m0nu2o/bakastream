@@ -224,7 +224,36 @@
   display: none;
 }
 
-/* ── 4. Cards ── */
+/* ── 4. Cards (Unified MediaCard) ── */
+.trending-showcase__card-wrap {
+  flex: 0 0 calc((100% - 80px) / 6);
+  min-width: 175px;
+  max-width: 220px;
+  scroll-snap-align: start;
+  display: flex;
+}
+
+@media (max-width: 1200px) {
+  .trending-showcase__card-wrap {
+    flex: 0 0 calc((100% - 64px) / 5);
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 900px) {
+  .trending-showcase__card-wrap {
+    flex: 0 0 calc((100% - 48px) / 4);
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 640px) {
+  .trending-showcase__card-wrap {
+    flex: 0 0 calc((100% - 32px) / 2.5);
+    min-width: 130px;
+  }
+}
+
 .trending-showcase__card {
   flex: 0 0 calc((100% - 80px) / 6);
   min-width: 175px;

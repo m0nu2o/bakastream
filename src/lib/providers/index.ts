@@ -47,11 +47,57 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
   // Determine canonical requested server (or intelligent default)
   let requestedServerId = req.server ? getCanonicalServerId(req.server) : null;
 
-  if (!requestedServerId) {
-    if (isAnime) {
-      requestedServerId = 'nextgen-anime';
-    } else {
-      requestedServerId = 'vidlink';
+  // 0. Primary High-Speed Engine: nextgen-anime.vercel.app for Anime & Donghua
+  if ((isAnime || requestedServerId === 'nextgen-anime' || req.isAnime) && req.title) {
+    try {
+      const epNum = isTV ? (season && episode ? episode : 1) : 1;
+      const cleanTitle = (req.title ?? '')
+        .replace(/\s*\(TV\)\s*/i, '')
+        .replace(/\s*Season\s*\d+/i, '')
+        .trim();
+
+      const nextgenUrl = `https://nextgen-anime.vercel.app/api/anime/stream?title=${encodeURIComponent(cleanTitle)}&episode=${epNum}&dub=${isDub}`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(nextgenUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.embedUrls) && data.embedUrls.length > 0) {
+          const matchingEmbed = isDub
+            ? (data.embedUrls.find((e: { isDub?: boolean; url: string }) => e.isDub) ?? data.embedUrls[0])
+            : (data.embedUrls.find((e: { isDub?: boolean; url: string }) => !e.isDub) ?? data.embedUrls[0]);
+
+          if (matchingEmbed?.url) {
+            ProviderTelemetry.recordSuccess('nextgen-anime');
+            return {
+              providerId: 'nextgen-anime',
+              providerLabel: 'NextGen Anime (FlixCloud Ultra-Fast)',
+              status: 'ok',
+              playback: {
+                kind: 'embed',
+                embedUrl: matchingEmbed.url,
+              },
+              audioTracks: [
+                { label: 'Japanese Audio (English Subtitles)', selected: !isDub },
+                { label: 'English Dubbed Audio', selected: isDub },
+                { label: 'Hindi Dubbed Audio', selected: false },
+              ],
+              subtitles: [],
+              selectedLanguage: isDub ? 'English Dubbed Audio' : 'Japanese Audio (English Subtitles)',
+              subOrDub: isDub ? 'dub' : 'sub',
+              isAnime: true,
+              server: 'nextgen-anime',
+              notice: `Streaming via NextGen Anime Cloud (Ultra-Fast 1080p ${isDub ? 'DUB' : 'SUB'}). Zero ads, instant load.`,
+              isPreview: false,
+            };
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[NextGen Anime] Direct stream fallback triggered:', err);
     }
   }
 
@@ -64,7 +110,7 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
         ProviderTelemetry.recordSuccess(explicitLegacy.id);
         return {
           ...info,
-          server: requestedServerId,
+          server: requestedServerId ?? undefined,
         };
       }
     } catch {

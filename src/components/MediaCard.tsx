@@ -67,12 +67,17 @@ export default function MediaCard({ content, onPlay }: Props) {
         )}
 
         <button
+          type="button"
           className={`media-card__save ${saved ? 'media-card__save--on' : ''}`}
-          aria-label={saved ? 'Remove from watchlist' : 'Add to watchlist'}
-          title={saved ? 'In watchlist' : 'Add to watchlist'}
-          onClick={() => toggleWatchlist(content)}
+          aria-label={saved ? 'Remove from watchlist' : 'Save to watchlist'}
+          title={saved ? 'In Watchlist (Click to remove)' : 'Save to Watchlist'}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWatchlist(content);
+          }}
         >
-          {saved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+          {saved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
         </button>
       </div>
 
