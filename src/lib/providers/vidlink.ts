@@ -39,12 +39,12 @@ export class VidLinkProvider implements StreamProvider {
     if (isAnime && malId) {
       // Dedicated VidLink Anime engine with explicit Sub / Dub track
       const epNum = isTV ? episode : 1;
-      embedUrl = `https://vidlink.pro/anime/${malId}/${epNum}/${subOrDub}?fallback=true&primaryColor=C21E56&secondaryColor=12121c&iconColor=C21E56`;
+      embedUrl = `https://vidlink.pro/anime/${malId}/${epNum}/${subOrDub}?fallback=true&primaryColor=F70063&secondaryColor=12121c&iconColor=F70063`;
     } else {
       // Default VidLink TMDB engine (multi-audio & subtitle support directly in player controls)
       embedUrl = isTV
-        ? `https://vidlink.pro/tv/${req.id}/${season}/${episode}?primaryColor=C21E56&secondaryColor=12121c&iconColor=C21E56`
-        : `https://vidlink.pro/movie/${req.id}?primaryColor=C21E56&secondaryColor=12121c&iconColor=C21E56`;
+        ? `https://vidlink.pro/tv/${req.id}/${season}/${episode}?primaryColor=F70063&secondaryColor=12121c&iconColor=F70063`
+        : `https://vidlink.pro/movie/${req.id}?primaryColor=F70063&secondaryColor=12121c&iconColor=F70063`;
     }
 
     const audioTracks = isAnime

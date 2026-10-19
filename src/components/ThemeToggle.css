@@ -78,8 +78,8 @@
 }
 
 :root[data-theme="light"] .theme-popover {
-  background: rgba(255, 253, 253, 0.98);
-  border-color: #D9D9E0;
+  background: #FFFFFF;
+  border-color: var(--border-color);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
 }
 
@@ -241,6 +241,21 @@
 :root[data-theme="light"] .theme-popover__badge {
   background: rgba(0, 0, 0, 0.06);
   color: var(--text-secondary);
+}
+
+.theme-popover__badge--dark {
+  background: rgba(247, 0, 99, 0.14);
+  color: #F70063;
+}
+
+.theme-popover__badge--midnight {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+}
+
+.theme-popover__badge--light {
+  background: rgba(247, 0, 99, 0.1);
+  color: #F70063;
 }
 
 .theme-popover__check {

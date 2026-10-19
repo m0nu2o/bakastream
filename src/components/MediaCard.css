@@ -13,28 +13,26 @@
   height: 100%;
   border-radius: 14px;
   overflow: hidden;
-  background: #161622;
-  border: 1px solid rgba(217, 217, 224, 0.2);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
 :root[data-theme="light"] .media-card {
-  background: #F1F0F3;
-  border: 1px solid #D9D9E0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .media-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-  border-color: var(--accent, #C21E56);
+  border-color: var(--accent, #F70063);
 }
 
 :root[data-theme="light"] .media-card:hover {
-  border-color: var(--accent, #C21E56);
-  box-shadow: 0 12px 28px rgba(194, 30, 86, 0.15);
+  border-color: var(--accent, #F70063);
+  box-shadow: 0 12px 28px rgba(247, 0, 99, 0.15);
 }
 
 /* Poster Box */
@@ -97,7 +95,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--accent, #C21E56);
+  background: var(--accent, #F70063);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -105,7 +103,7 @@
   opacity: 0;
   transform: scale(0.85);
   transition: all 0.25s ease;
-  box-shadow: 0 4px 18px rgba(194, 30, 86, 0.6);
+  box-shadow: 0 4px 18px rgba(247, 0, 99, 0.6);
   pointer-events: auto;
   border: none;
   cursor: pointer;
@@ -158,9 +156,9 @@
 .media-card__save--on {
   opacity: 1 !important;
   color: #ffffff !important;
-  background: var(--accent, #C21E56) !important;
+  background: var(--accent, #F70063) !important;
   border-color: var(--accent-subtle, #F7D5DF) !important;
-  box-shadow: 0 0 14px rgba(194, 30, 86, 0.6) !important;
+  box-shadow: 0 0 14px rgba(247, 0, 99, 0.6) !important;
 }
 
 .media-card__save--on:hover {
@@ -174,14 +172,9 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  background: #161622;
-  border-top: 1px solid rgba(217, 217, 224, 0.15);
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
   flex-grow: 1;
-}
-
-:root[data-theme="light"] .media-card__info {
-  background: #F1F0F3;
-  border-top: 1px solid #D9D9E0;
 }
 
 .media-card__title {
@@ -202,7 +195,7 @@
 }
 
 .media-card:hover .media-card__title {
-  color: var(--accent, #C21E56);
+  color: var(--accent, #F70063);
 }
 
 .media-card__meta {

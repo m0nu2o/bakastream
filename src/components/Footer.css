@@ -12,15 +12,15 @@
 /* ── Top Bar: Brand & Clean Nav ── */
 .footer-top {
   width: 100%;
-  background: var(--bg-primary, #0b0b12);
-  border-top: 1px solid rgba(217, 217, 224, 0.2);
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
   padding: 1.75rem clamp(1rem, 4vw, 3rem) 1.5rem;
   box-sizing: border-box;
 }
 
 :root[data-theme="light"] .footer-top {
-  background: #F1F0F3;
-  border-top-color: #D9D9E0;
+  background: #FFFFFF;
+  border-top-color: var(--border-color);
 }
 
 .footer-top__inner {
@@ -49,7 +49,7 @@
 
 .footer-top__logo:hover .bakastream-logo-icon {
   transform: scale(1.08) rotate(-1.5deg);
-  filter: drop-shadow(0 0 10px rgba(194, 30, 86, 0.7));
+  filter: drop-shadow(0 0 10px rgba(247, 0, 99, 0.7));
 }
 
 .footer-top__logo-text {
@@ -64,7 +64,7 @@
 }
 
 .footer-top__logo-accent {
-  background: linear-gradient(135deg, #FCE7F0, #C21E56);
+  background: linear-gradient(135deg, #FCE7F0, #F70063);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-right: 1px;
@@ -100,7 +100,7 @@
 }
 
 .footer-top__link:hover {
-  color: var(--brand-red, #C21E56);
+  color: var(--brand-red, #F70063);
   transform: translateY(-1px);
 }
 
@@ -109,22 +109,22 @@
 }
 
 :root[data-theme="light"] .footer-top__link:hover {
-  color: var(--brand-red, #C21E56);
+  color: var(--brand-red, #F70063);
 }
 
-/* ── Bottom Strip Bar (Signature Reference Screenshot Style) ── */
+/* ── Bottom Strip Bar ── */
 .footer-strip {
   width: 100%;
-  background: #767784; /* Signature slate-grey strip bar from screenshot */
-  color: #111218;
+  background: #08090D;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
   padding: 1rem clamp(1rem, 4vw, 3rem);
   box-sizing: border-box;
-  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.2);
 }
 
 :root[data-theme="light"] .footer-strip {
-  background: #D9D9E0;
-  color: #12131b;
+  background: #F1F3F5;
+  color: var(--text-secondary);
 }
 
 .footer-strip__inner {
@@ -174,7 +174,7 @@
 }
 
 :root[data-theme="light"] .footer-strip__link:hover {
-  color: var(--brand-red, #C21E56);
+  color: var(--brand-red, #F70063);
 }
 
 .footer-strip__legal {
@@ -210,11 +210,11 @@
 }
 
 .footer-strip__circle-btn:hover {
-  background: var(--brand-red, #C21E56);
-  border-color: var(--brand-red, #C21E56);
+  background: var(--brand-red, #F70063);
+  border-color: var(--brand-red, #F70063);
   color: #ffffff;
   transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 6px 16px rgba(194, 30, 86, 0.45);
+  box-shadow: 0 6px 16px rgba(247, 0, 99, 0.45);
 }
 
 /* Right side: Copyright */

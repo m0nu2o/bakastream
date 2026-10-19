@@ -57,7 +57,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FFFDFD',
+  themeColor: '#0B0C10',
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
@@ -67,7 +67,7 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
         <ThemeThemeProvider />
         <Script

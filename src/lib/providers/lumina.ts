@@ -89,9 +89,9 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
         return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
       }
       if (type === 'tv' || season !== undefined) {
-        return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=C21E56&secondaryColor=121318&iconColor=C21E56&icons=vid`;
+        return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
       }
-      return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=C21E56&secondaryColor=121318&iconColor=C21E56&icons=vid`;
+      return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
     },
   },
   {
@@ -239,7 +239,7 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
       }
       if (malId) {
         const epNum = type === 'movie' ? 1 : (episode || 1);
-        return `https://vidlink.pro/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?primaryColor=C21E56&secondaryColor=121318&iconColor=C21E56&icons=vid`;
+        return `https://vidlink.pro/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
       }
       if (type === 'movie') {
         return `https://vidsrc.su/embed/movie/${id}${isDub ? '?dub=1' : ''}`;
@@ -331,9 +331,9 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     features: ['4K Ready', 'Multi-Subs', 'High Uptime'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
-        return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=C21E56`;
+        return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=F70063`;
       }
-      return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=C21E56`;
+      return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063`;
     },
   },
 ];

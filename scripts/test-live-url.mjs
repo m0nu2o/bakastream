@@ -11,7 +11,7 @@ async function testLive() {
     console.log(`[1] Homepage status: ${res.status()}`);
 
     const initialTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-    console.log(`[2] Default theme: ${initialTheme} (Expected: light)`);
+    console.log(`[2] Default theme: ${initialTheme} (Expected: dark)`);
 
     // 2. Open Theme Popover
     const themeBtn = page.locator('.theme-toggle').first();
@@ -20,7 +20,7 @@ async function testLive() {
     console.log('[3] Theme popover opened successfully!');
 
     const themeCount = await page.locator('.theme-popover__item').count();
-    console.log(`[4] Total themes rendered: ${themeCount} (Expected: 8)`);
+    console.log(`[4] Total themes rendered: ${themeCount} (Expected: 3)`);
 
     // Switch to Midnight (OLED pure black)
     const midnightBtn = page.locator('.theme-popover__item[data-theme-id="midnight"]');
@@ -29,23 +29,23 @@ async function testLive() {
     const midnightTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     console.log(`[5] Switched theme to: ${midnightTheme} (Expected: midnight)`);
 
-    // Switch to Cyberpunk
-    await themeBtn.click();
-    await page.waitForSelector('.theme-popover', { state: 'visible', timeout: 5000 });
-    const cyberpunkBtn = page.locator('.theme-popover__item[data-theme-id="cyberpunk"]');
-    await cyberpunkBtn.click();
-    await page.waitForTimeout(300);
-    const cyberpunkTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-    console.log(`[6] Switched theme to: ${cyberpunkTheme} (Expected: cyberpunk)`);
-
-    // Switch back to Light (Rose Red accent)
+    // Switch to Light
     await themeBtn.click();
     await page.waitForSelector('.theme-popover', { state: 'visible', timeout: 5000 });
     const lightBtn = page.locator('.theme-popover__item[data-theme-id="light"]');
     await lightBtn.click();
     await page.waitForTimeout(300);
     const lightTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-    console.log(`[7] Switched theme back to: ${lightTheme} (Expected: light)`);
+    console.log(`[6] Switched theme to: ${lightTheme} (Expected: light)`);
+
+    // Switch back to Dark (Cinematic Dark)
+    await themeBtn.click();
+    await page.waitForSelector('.theme-popover', { state: 'visible', timeout: 5000 });
+    const darkBtn = page.locator('.theme-popover__item[data-theme-id="dark"]');
+    await darkBtn.click();
+    await page.waitForTimeout(300);
+    const darkTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+    console.log(`[7] Switched theme back to: ${darkTheme} (Expected: dark)`);
 
     // 3. Test Flash-Speed Tab Navigation (/movies)
     console.log('[8] Testing instant tab navigation to /movies ...');

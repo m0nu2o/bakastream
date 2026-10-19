@@ -2,24 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-const THEME_STORAGE_KEY = 'bakastream-theme-v6';
-const LEGACY_STORAGE_KEY = 'bakastream-theme-v5';
+const THEME_STORAGE_KEY = 'bakastream-theme-v7';
+const LEGACY_STORAGE_KEY_V6 = 'bakastream-theme-v6';
+const LEGACY_STORAGE_KEY_V5 = 'bakastream-theme-v5';
 const OLD_STORAGE_KEY = 'bakastream-theme';
 
-export type ThemeId =
-  | 'light'
-  | 'dark'
-  | 'midnight'
-  | 'cyberpunk'
-  | 'emerald'
-  | 'ocean'
-  | 'amber'
-  | 'sakura';
+export type ThemeId = 'dark' | 'midnight' | 'light';
 
 export interface ThemeOption {
   id: ThemeId;
   name: string;
-  category: 'light' | 'dark';
+  category: 'dark' | 'light';
   accent: string;
   bg: string;
   description: string;
@@ -27,84 +20,35 @@ export interface ThemeOption {
 
 export const THEME_OPTIONS: ThemeOption[] = [
   {
-    id: 'light',
-    name: 'Rose Minimal (Light)',
-    category: 'light',
-    accent: '#C21E56',
-    bg: '#FFFDFD',
-    description: 'Clean soft white canvas with signature Rose Red',
-  },
-  {
     id: 'dark',
-    name: 'Rose Cinematic (Dark)',
+    name: 'Cinematic Dark (Default)',
     category: 'dark',
-    accent: '#C21E56',
-    bg: '#121318',
-    description: 'Dark charcoal cinema with Rose Red accents',
+    accent: '#F70063',
+    bg: '#0B0C10',
+    description: 'Deep obsidian cinema with signature hot rose crimson',
   },
   {
     id: 'midnight',
-    name: 'OLED Midnight',
+    name: 'OLED Pure Black',
     category: 'dark',
-    accent: '#E50914',
-    bg: '#050507',
-    description: 'Pure black OLED with Netflix Crimson red',
+    accent: '#F70063',
+    bg: '#000000',
+    description: 'True pitch black with high-contrast crimson highlights',
   },
   {
-    id: 'cyberpunk',
-    name: 'Cyberpunk Neon',
-    category: 'dark',
-    accent: '#A855F7',
-    bg: '#090A14',
-    description: 'Electric violet with neon magenta glow',
-  },
-  {
-    id: 'emerald',
-    name: 'Emerald Matrix',
-    category: 'dark',
-    accent: '#10B981',
-    bg: '#05110E',
-    description: 'Deep forest night with jade green accents',
-  },
-  {
-    id: 'ocean',
-    name: 'Deep Ocean',
-    category: 'dark',
-    accent: '#0EA5E9',
-    bg: '#070E1A',
-    description: 'Midnight navy with vivid sky blue accents',
-  },
-  {
-    id: 'amber',
-    name: 'Sunset Amber',
-    category: 'dark',
-    accent: '#F59E0B',
-    bg: '#110D0B',
-    description: 'Warm obsidian with glowing sunset gold',
-  },
-  {
-    id: 'sakura',
-    name: 'Sakura Blossom',
+    id: 'light',
+    name: 'Clean Studio Light',
     category: 'light',
-    accent: '#EC4899',
-    bg: '#FFF8FA',
-    description: 'Soft floral blossom with vibrant cherry pink',
+    accent: '#F70063',
+    bg: '#F8F9FA',
+    description: 'Crisp Apple-grade off-white studio surface',
   },
 ];
 
-const VALID_THEMES = new Set<ThemeId>([
-  'light',
-  'dark',
-  'midnight',
-  'cyberpunk',
-  'emerald',
-  'ocean',
-  'amber',
-  'sakura',
-]);
+const VALID_THEMES = new Set<ThemeId>(['dark', 'midnight', 'light']);
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<ThemeId>('light');
+  const [theme, setThemeState] = useState<ThemeId>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -112,7 +56,8 @@ export function useTheme() {
     try {
       const stored = (
         window.localStorage.getItem(THEME_STORAGE_KEY) ||
-        window.localStorage.getItem(LEGACY_STORAGE_KEY) ||
+        window.localStorage.getItem(LEGACY_STORAGE_KEY_V6) ||
+        window.localStorage.getItem(LEGACY_STORAGE_KEY_V5) ||
         window.localStorage.getItem(OLD_STORAGE_KEY)
       ) as ThemeId | null;
 
@@ -120,12 +65,13 @@ export function useTheme() {
         setThemeState(stored);
         document.documentElement.setAttribute('data-theme', stored);
       } else {
-        setThemeState('light');
-        document.documentElement.setAttribute('data-theme', 'light');
+        // Default to dark cinematic mode
+        setThemeState('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
     } catch {
-      setThemeState('light');
-      document.documentElement.setAttribute('data-theme', 'light');
+      setThemeState('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, []);
 
@@ -159,6 +105,6 @@ export function useTheme() {
     toggle,
     mounted,
     themes: THEME_OPTIONS,
-    isDark: theme !== 'light' && theme !== 'sakura',
+    isDark: theme !== 'light',
   };
 }

@@ -124,33 +124,33 @@
 }
 
 .trending-showcase__genre-chip:hover {
-  background: rgba(194, 30, 86, 0.12);
+  background: rgba(247, 0, 99, 0.12);
   color: #ffffff;
-  border-color: rgba(194, 30, 86, 0.45);
+  border-color: rgba(247, 0, 99, 0.45);
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(194, 30, 86, 0.25);
+  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.25);
 }
 
 :root[data-theme="light"] .trending-showcase__genre-chip:hover {
-  background: #F1F0F3;
-  border-color: rgba(194, 30, 86, 0.35);
+  background: #F1F3F5;
+  border-color: rgba(247, 0, 99, 0.35);
   color: #0f172a;
 }
 
 .trending-showcase__genre-chip--active {
-  background: var(--accent, #C21E56) !important;
+  background: var(--accent, #F70063) !important;
   color: #ffffff !important;
   border-color: var(--accent-secondary, #FCE7F0) !important;
   font-weight: 700;
-  box-shadow: 0 4px 18px rgba(194, 30, 86, 0.45) !important;
+  box-shadow: 0 4px 18px rgba(247, 0, 99, 0.45) !important;
   transform: translateY(-2px) scale(1.02);
 }
 
 :root[data-theme="light"] .trending-showcase__genre-chip--active {
-  background: var(--accent, #C21E56) !important;
+  background: var(--accent, #F70063) !important;
   border-color: var(--accent-subtle, #F7D5DF) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(194, 30, 86, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.35) !important;
 }
 
 /* ── 3. Carousel Wrapper & Sleek Modern Edge Navigation ── */
@@ -190,11 +190,11 @@
 }
 
 .trending-showcase__edge-btn:hover {
-  background: var(--accent, #C21E56);
+  background: var(--accent, #F70063);
   border-color: var(--accent-subtle, #F7D5DF);
   color: #ffffff;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 0 22px rgba(194, 30, 86, 0.6);
+  box-shadow: 0 0 22px rgba(247, 0, 99, 0.6);
 }
 
 .trending-showcase__edge-btn--left {
