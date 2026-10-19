@@ -167,7 +167,8 @@ async function startSuite() {
   await runStep('A4. Categories dropdown exposes all 11 curated categories', async () => {
     const catToggle = page.locator('.navbar__dropdown-toggle', { hasText: 'Categories' });
     await catToggle.click();
-    await page.waitForTimeout(300);
+    await page.waitForSelector('.navbar__dropdown-menu--categories', { state: 'visible', timeout: 5000 });
+    await page.waitForTimeout(200);
 
     const pills = await page.locator('.navbar__dropdown-pill').allInnerTexts();
     const requiredCategories = ['Bollywood', 'Anime', 'Donghua', 'K-Drama', 'C-Drama', 'Hollywood', 'Western TV'];
@@ -292,7 +293,7 @@ async function startSuite() {
     const nextBtn = page.locator('button', { hasText: 'Next →' });
     if (await nextBtn.count() > 0) {
       await nextBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForURL(url => url.toString().includes('page=2'), { timeout: 8000 });
       const currentUrl = page.url();
       if (!currentUrl.includes('/category/kdrama')) {
         throw new Error(`REGRESSION DETECTED! Route hijacked away from category: ${currentUrl}`);
@@ -320,7 +321,7 @@ async function startSuite() {
     if (await genrePills.count() > 1) {
       // Click the second genre pill (first is "All Genres")
       await genrePills.nth(1).click();
-      await page.waitForTimeout(1000);
+      await page.waitForURL(url => url.toString().includes('genre='), { timeout: 8000 });
       const currentUrl = page.url();
       if (!currentUrl.includes('/category/kdrama')) {
         throw new Error(`REGRESSION DETECTED! Route hijacked on filter: ${currentUrl}`);
