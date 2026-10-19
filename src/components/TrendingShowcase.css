@@ -227,6 +227,7 @@
 /* ── 4. Cards (Unified MediaCard) ── */
 .trending-showcase__card-wrap {
   flex: 0 0 calc((100% - 80px) / 6);
+  flex-shrink: 0;
   min-width: 175px;
   max-width: 220px;
   scroll-snap-align: start;

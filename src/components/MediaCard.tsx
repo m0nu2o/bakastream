@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Star, Bookmark, BookmarkCheck, Info } from 'lucide-react';
+import { Play, Star, Bookmark, BookmarkCheck, Film } from 'lucide-react';
 import type { MediaSummary } from '@/types';
 import { posterUrl } from '@/lib/tmdb/image';
 import { mediaUrl } from '@/utils/slug';
@@ -26,46 +26,47 @@ export default function MediaCard({ content, onPlay }: Props) {
 
   return (
     <article className="media-card">
-      <div className="media-card__frame">
+      <div className="media-card__poster-box">
         <Link href={href} aria-label={content.title} className="media-card__poster-link">
           {poster ? (
             <Image
               src={poster}
               alt={`${content.title} poster`}
               fill
-              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 200px"
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 220px"
               className="media-card__img"
               loading="lazy"
             />
           ) : (
-            <span className="media-card__placeholder" aria-hidden="true">
-              <Info size={30} />
-            </span>
+            <div className="media-card__placeholder">
+              <Film size={28} />
+            </div>
           )}
         </Link>
 
-        <div className="media-card__hover">
+        {/* Center Hover Play Button */}
+        <div className="media-card__play-overlay">
           {onPlay ? (
             <button
-              className="media-card__play"
+              type="button"
+              className="media-card__play-btn"
               aria-label={`Play ${content.title}`}
-              onClick={() => onPlay(content)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onPlay(content);
+              }}
             >
               <Play size={18} fill="currentColor" />
             </button>
           ) : (
-            <Link href={href} className="media-card__play" aria-label={`Open ${content.title}`}>
+            <Link href={href} className="media-card__play-btn" aria-label={`Open ${content.title}`}>
               <Play size={18} fill="currentColor" />
             </Link>
           )}
         </div>
 
-        {rating && (
-          <span className="media-card__rating">
-            <Star size={11} /> {rating}
-          </span>
-        )}
-
+        {/* Save to Watchlist Button */}
         <button
           type="button"
           className={`media-card__save ${saved ? 'media-card__save--on' : ''}`}
@@ -81,17 +82,23 @@ export default function MediaCard({ content, onPlay }: Props) {
         </button>
       </div>
 
-      <Link href={href} className="media-card__body" draggable={false}>
-        <h3 className="media-card__title" title={content.title}>
+      {/* Info Block (Inset container exactly like the reference design) */}
+      <div className="media-card__info">
+        <Link href={href} className="media-card__title" title={content.title}>
           {content.title}
-        </h3>
-        <p className="media-card__meta">
-          {year && <span>{year}</span>}
-          <span className="media-card__type">
-            {content.type === 'movie' ? 'Movie' : 'TV Series'}
+        </Link>
+        <div className="media-card__meta">
+          <span className="media-card__year">
+            {year || (content.type === 'movie' ? 'Movie' : 'TV')}
           </span>
-        </p>
-      </Link>
+          {rating ? (
+            <span className="media-card__rating">
+              <Star size={11} className="media-card__star" fill="#ffb800" stroke="#ffb800" />
+              <span>{rating}</span>
+            </span>
+          ) : null}
+        </div>
+      </div>
     </article>
   );
 }
