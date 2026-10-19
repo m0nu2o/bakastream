@@ -18,17 +18,20 @@ export const revalidate = 900;
 const SKELETONS = Array.from({ length: 18 });
 
 interface Props {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; type?: string; genre?: string; year?: string }>;
 }
 
 async function AnimeListing({ searchParams }: Props) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
+  const type = (sp.type === 'movie' || sp.type === 'tv' ? sp.type : 'all') as 'all' | 'movie' | 'tv';
+  const genre = sp.genre ? Number(sp.genre) : undefined;
+  const year = sp.year ? Number(sp.year) : undefined;
 
   let items: MediaSummary[] = [];
   let failed = false;
   try {
-    items = await getAnime(page);
+    items = await getAnime(page, type, genre, year);
   } catch {
     failed = true;
   }
@@ -45,21 +48,17 @@ async function AnimeListing({ searchParams }: Props) {
     );
   }
 
-  if (items.length === 0) {
-    return (
-      <StateView
-        kind="empty"
-        title="No anime found"
-        message="Try again in a few minutes."
-        actionLabel="Retry"
-        actionHref="/anime"
-      />
-    );
-  }
-
   let genres: Genre[] = [];
   try {
-    genres = await getGenres('tv');
+    const [tvGenres, movieGenres] = await Promise.all([
+      getGenres('tv').catch(() => []),
+      getGenres('movie').catch(() => []),
+    ]);
+    const map = new Map<number, Genre>();
+    [...tvGenres, ...movieGenres].forEach(g => {
+      if (g.id !== 16 && !map.has(g.id)) map.set(g.id, g);
+    });
+    genres = Array.from(map.values());
   } catch {
     genres = [];
   }

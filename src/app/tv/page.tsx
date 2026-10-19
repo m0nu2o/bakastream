@@ -54,18 +54,6 @@ async function TVListing({ searchParams }: Props) {
     );
   }
 
-  if (items.length === 0) {
-    return (
-      <StateView
-        kind="empty"
-        title="No shows matched"
-        message="Try removing the year or genre filter to see more results."
-        actionLabel="Clear filters"
-        actionHref="/tv"
-      />
-    );
-  }
-
   let genres: Genre[] = [];
   try {
     genres = await getGenres('tv');

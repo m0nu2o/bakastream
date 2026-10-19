@@ -5,7 +5,7 @@ interface BakaLogoProps {
   className?: string;
 }
 
-export default function BakaLogo({ size = 36, className = '' }: BakaLogoProps) {
+export default function BakaLogo({ size = 32, className = '' }: BakaLogoProps) {
   return (
     <div
       className={`bakastream-logo-icon ${className}`}
@@ -21,97 +21,66 @@ export default function BakaLogo({ size = 36, className = '' }: BakaLogoProps) {
       aria-hidden="true"
     >
       <svg
-        viewBox="0 0 44 44"
+        viewBox="0 0 40 40"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         style={{ width: '100%', height: '100%', overflow: 'visible' }}
       >
         <defs>
-          {/* Intense anime crimson-red neon gradient */}
-          <linearGradient id="bakaNeonRed" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#ff2e54" />
-            <stop offset="45%" stopColor="#f43b4c" />
-            <stop offset="100%" stopColor="#be123c" />
+          {/* World-class cinematic crimson & scarlet gradient */}
+          <linearGradient id="bakaCrimsonGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#ff2e43" />
+            <stop offset="55%" stopColor="#e50914" />
+            <stop offset="100%" stopColor="#99000a" />
           </linearGradient>
 
-          {/* Electric blade highlight */}
-          <linearGradient id="bakaBlade" x1="12" y1="8" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-            <stop offset="50%" stopColor="#ff8597" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#f43b4c" stopOpacity="0.4" />
+          {/* Aerodynamic highlight ribbon */}
+          <linearGradient id="bakaHighlight" x1="8" y1="6" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+            <stop offset="40%" stopColor="#ff7b88" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#e50914" stopOpacity="0" />
           </linearGradient>
 
-          {/* Katana energy aura */}
-          <filter id="bakaGlowAura" x="-25%" y="-25%" width="150%" height="150%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3.5" floodColor="#f43b4c" floodOpacity="0.65" />
-          </filter>
-
-          <filter id="bakaSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          {/* Core play prism glow */}
+          <filter id="bakaEmblemGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#e50914" floodOpacity="0.55" />
           </filter>
         </defs>
 
-        {/* 1. Futuristic faceted badge background */}
-        <rect
-          x="2.5"
-          y="2.5"
-          width="39"
-          height="39"
-          rx="11"
-          fill="#10101b"
-          stroke="url(#bakaNeonRed)"
-          strokeWidth="1.5"
-          strokeOpacity="0.75"
+        {/* Ambient background disc with ultra-subtle dark glass ring */}
+        <circle
+          cx="20"
+          cy="20"
+          r="19"
+          fill="#161720"
+          stroke="rgba(255, 255, 255, 0.09)"
+          strokeWidth="1.2"
         />
 
-        {/* 2. Cyber-anime geometric shield grid lines */}
+        {/* Dynamic infinity-play ribbon: Outer sculpted velocity curve */}
         <path
-          d="M3 13 L12 3"
-          stroke="rgba(255, 46, 84, 0.35)"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
-        <path
-          d="M41 31 L32 41"
-          stroke="rgba(255, 46, 84, 0.35)"
-          strokeWidth="1"
-          strokeLinecap="round"
+          d="M13 10.5 C13 9.4 14.2 8.7 15.2 9.3 L30.5 18.5 C31.5 19.1 31.5 20.6 30.5 21.2 L15.2 30.4 C14.2 31 13 30.3 13 29.2 Z"
+          fill="url(#bakaCrimsonGrad)"
+          filter="url(#bakaEmblemGlow)"
         />
 
-        {/* 3. Stylized "B" Katana & Play Emblem (Brand Core) */}
-        {/* Left vertical katana spine */}
+        {/* Inner negative-space prism carving out the forward motion arrow */}
         <path
-          d="M11.5 10.5 C11.5 9.7 12.2 9 13 9 H15.5 C16.3 9 17 9.7 17 10.5 V33.5 C17 34.3 16.3 35 15.5 35 H13 C12.2 35 11.5 34.3 11.5 33.5 Z"
-          fill="url(#bakaNeonRed)"
-          filter="url(#bakaGlowAura)"
+          d="M16 14.5 L25.5 20 L16 25.5 Z"
+          fill="#161720"
+          opacity="0.95"
         />
 
-        {/* Top Wing / Loop of "B" */}
+        {/* Inner specular play core */}
         <path
-          d="M17 10 H24.5 C28 10 30.5 12.2 30.5 15.2 C30.5 18 28.2 20 25 20.5 H17 Z"
-          fill="url(#bakaNeonRed)"
-          filter="url(#bakaGlowAura)"
+          d="M17.5 16.5 L23 20 L17.5 23.5 Z"
+          fill="url(#bakaCrimsonGrad)"
         />
 
-        {/* Bottom Wing / Loop of "B" with extended cinema sweep */}
+        {/* Upper aerodynamic specular sheen */}
         <path
-          d="M17 21 H26.5 C30.5 21 33.5 23.4 33.5 27 C33.5 30.8 30 33.5 25.5 33.5 H17 Z"
-          fill="url(#bakaNeonRed)"
-          filter="url(#bakaGlowAura)"
-        />
-
-        {/* Dynamic Forward Cinema PLAY SHARD carved into the center */}
-        <path
-          d="M18.5 14.5 L28 21.5 L18.5 28.5 Z"
-          fill="url(#bakaBlade)"
-          filter="url(#bakaSoftGlow)"
-        />
-
-        {/* Anime Lightning Spark / Shuriken Accent on top-right */}
-        <polygon
-          points="35.5,7 38.5,12 34,11 37,16 31,10 35.5,10"
-          fill="#ff4d5e"
+          d="M14 11.5 L28 20 C24 18 19 15 15 13 Z"
+          fill="url(#bakaHighlight)"
         />
       </svg>
     </div>

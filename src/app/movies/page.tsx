@@ -54,18 +54,6 @@ async function MovieListing({ searchParams }: Props) {
     );
   }
 
-  if (items.length === 0) {
-    return (
-      <StateView
-        kind="empty"
-        title="No movies matched"
-        message="Try removing the year or genre filter to see more results."
-        actionLabel="Clear filters"
-        actionHref="/movies"
-      />
-    );
-  }
-
   let genres: Genre[] = [];
   try {
     genres = await getGenres('movie');

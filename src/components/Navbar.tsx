@@ -65,8 +65,17 @@ export default function Navbar() {
 
   const loadGenres = useCallback(() => {
     if (genres.length > 0) return;
-    getGenres('movie')
-      .then(setGenres)
+    Promise.all([
+      getGenres('movie').catch(() => []),
+      getGenres('tv').catch(() => []),
+    ])
+      .then(([mGenres, tGenres]) => {
+        const map = new Map<number, Genre>();
+        [...mGenres, ...tGenres].forEach(g => {
+          if (!map.has(g.id)) map.set(g.id, g);
+        });
+        setGenres(Array.from(map.values()));
+      })
       .catch(() => setGenres([]));
   }, [genres.length]);
 
@@ -75,7 +84,7 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
-  const genreHref = (g: Genre) => `/movies?genre=${g.id}`;
+  const genreHref = (g: Genre) => `/search?genre=${g.id}`;
 
   return (
     <>
@@ -87,7 +96,6 @@ export default function Navbar() {
               <span className="navbar__logo-main">
                 <span className="navbar__logo-accent">BAKA</span>STREAM
               </span>
-              <span className="navbar__logo-sub">CINEMA HD</span>
             </div>
           </Link>
 
@@ -187,8 +195,7 @@ export default function Navbar() {
           <div className="navbar__actions">
             <Link href="/search" className="navbar__search-capsule" aria-label="Search titles">
               <Search size={15} />
-              <span className="navbar__search-text">Search</span>
-              <kbd className="navbar__search-kbd">⌘K</kbd>
+              <span className="navbar__search-text">Search…</span>
             </Link>
             <ThemeToggle />
             <button

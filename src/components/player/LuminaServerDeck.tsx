@@ -129,14 +129,16 @@ export default function LuminaServerDeck({
                     <Volume2 size={11} />
                     <span>Multi</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onSelectAudioTrack('hindi')}
-                    className={`lumina-audio-btn ${isHindiSelected ? 'lumina-audio-btn--active' : ''}`}
-                    title="Hindi Audio Track"
-                  >
-                    <span>🇮🇳 Hindi</span>
-                  </button>
+                  {(hasHindiDub || activeServer.supportsHindiDub) && (
+                    <button
+                      type="button"
+                      onClick={() => onSelectAudioTrack('hindi')}
+                      className={`lumina-audio-btn ${isHindiSelected ? 'lumina-audio-btn--active' : ''}`}
+                      title="Hindi Audio Track"
+                    >
+                      <span>🇮🇳 Hindi</span>
+                    </button>
+                  )}
                 </>
               )}
             </div>
@@ -159,16 +161,6 @@ export default function LuminaServerDeck({
               <span className="lumina-action-chip__badge">{autoSwitch ? 'ON' : 'OFF'}</span>
             </button>
           )}
-        </div>
-      </div>
-
-      {/* ── Subtitle / Tip Bar ── */}
-      <div className="lumina-bar__footer">
-        <div className="lumina-bar__tip">
-          <Info size={12} className="lumina-bar__tip-icon" />
-          <span>
-            Streaming via <strong>{activeServer?.name ?? 'NextGen Engine'}</strong>. If you experience buffering or lag, switch server above.
-          </span>
         </div>
       </div>
     </div>

@@ -40,11 +40,13 @@ async function Results({ searchParams }: SearchProps) {
   const page = Math.max(1, Number(sp.page) || 1);
 
   let results: MediaSummary[] = [];
+  let totalResults = 0;
   let error = false;
 
   try {
     const data = await search({ query, type, genre, year, page });
     results = data.results;
+    totalResults = data.totalResults;
   } catch {
     error = true;
   }
@@ -59,23 +61,30 @@ async function Results({ searchParams }: SearchProps) {
     );
   }
 
-  if (results.length === 0) {
-    return (
-      <div className="empty-state">
-        <p className="empty-state__icon">🎬</p>
-        <h3>No results found</h3>
-        <p>
-          {query
-            ? `Nothing matched “${query}”. Try a different spelling or fewer filters.`
-            : 'No titles matched these filters. Try widening your search.'}
-        </p>
-      </div>
-    );
+  let genres: Genre[] = [];
+  try {
+    if (type === 'tv') {
+      genres = await getGenres('tv');
+    } else if (type === 'movie') {
+      genres = await getGenres('movie');
+    } else {
+      const [movieGenres, tvGenres] = await Promise.all([
+        getGenres('movie').catch(() => []),
+        getGenres('tv').catch(() => []),
+      ]);
+      const map = new Map<number, Genre>();
+      [...movieGenres, ...tvGenres].forEach(g => {
+        if (!map.has(g.id)) map.set(g.id, g);
+      });
+      genres = Array.from(map.values());
+    }
+  } catch {
+    genres = [];
   }
 
-  const genres: Genre[] = await getGenres('movie').catch(() => []);
+  const totalPages = Math.min(Math.ceil(totalResults / 20) || 1, 500);
 
-  return <BrowseClient results={results} genres={genres} page={page} />;
+  return <BrowseClient results={results} genres={genres} page={page} totalPages={totalPages} />;
 }
 
 export default async function SearchPage({ searchParams }: SearchProps) {

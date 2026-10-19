@@ -55,22 +55,20 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
     }
   }
 
-  // 1. If Nova is explicitly requested, attempt NovaAPI direct resolution first
-  if (requestedServerId === 'nova' || requestedServerId === 'nova-anime') {
-    const nova = legacyProviders.find(p => p.id === 'nova');
-    if (nova) {
-      try {
-        const info = await nova.resolve(req);
-        if (info.status === 'ok') {
-          ProviderTelemetry.recordSuccess('nova');
-          return {
-            ...info,
-            server: requestedServerId,
-          };
-        }
-      } catch {
-        ProviderTelemetry.recordFailure('nova');
+  // 1. If an explicit legacy provider (nova, 2embed, vidlink, demo) is requested, attempt it first
+  const explicitLegacy = legacyProviders.find(p => p.id === requestedServerId);
+  if (explicitLegacy) {
+    try {
+      const info = await explicitLegacy.resolve(req);
+      if (info.status === 'ok') {
+        ProviderTelemetry.recordSuccess(explicitLegacy.id);
+        return {
+          ...info,
+          server: requestedServerId,
+        };
       }
+    } catch {
+      ProviderTelemetry.recordFailure(explicitLegacy.id);
     }
   }
 

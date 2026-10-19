@@ -410,16 +410,64 @@ export async function getRecentlyAdded(page = 1) {
     .map(mapSummary);
 }
 
-export async function getAnime(page = 1) {
-  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
-    params: {
+export async function getAnime(
+  page = 1,
+  type: 'all' | 'movie' | 'tv' = 'all',
+  genre?: number,
+  year?: number
+) {
+  if (type === 'movie') {
+    const params: Record<string, string | number> = {
       page,
-      with_genres: 16,
-      with_origin_country: 'JP',
+      with_genres: genre ? `16,${genre}` : 16,
+      with_original_language: 'ja',
       sort_by: 'popularity.desc',
-    },
-  });
-  return data.results.map(mapSummary);
+    };
+    if (year) params.primary_release_date_year = year;
+    const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/movie', { params });
+    return data.results.map(mapSummary);
+  }
+
+  if (type === 'tv') {
+    const params: Record<string, string | number> = {
+      page,
+      with_genres: genre ? `16,${genre}` : 16,
+      with_original_language: 'ja',
+      sort_by: 'popularity.desc',
+    };
+    if (year) params.first_air_date_year = year;
+    const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', { params });
+    return data.results.map(mapSummary);
+  }
+
+  const [tvData, movieData] = await Promise.allSettled([
+    tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
+      params: {
+        page,
+        with_genres: genre ? `16,${genre}` : 16,
+        with_original_language: 'ja',
+        sort_by: 'popularity.desc',
+        ...(year ? { first_air_date_year: year } : {}),
+      },
+    }),
+    tmdbFetch<{ results: RawMedia[] }>('/discover/movie', {
+      params: {
+        page,
+        with_genres: genre ? `16,${genre}` : 16,
+        with_original_language: 'ja',
+        sort_by: 'popularity.desc',
+        ...(year ? { primary_release_date_year: year } : {}),
+      },
+    }),
+  ]);
+
+  const tvItems = tvData.status === 'fulfilled' ? tvData.value.results.map(mapSummary) : [];
+  const movieItems = movieData.status === 'fulfilled' ? movieData.value.results.map(mapSummary) : [];
+
+  const combined = [...tvItems, ...movieItems].sort(
+    (a, b) => (b.popularity || 0) - (a.popularity || 0)
+  );
+  return combined.slice(0, 24);
 }
 
 export async function getHindiMovies(page = 1) {
@@ -439,8 +487,8 @@ export async function getHindiTV(page = 1) {
       page,
       with_original_language: 'hi',
       without_genres: 10766,
-      'vote_count.gte': 15,
-      sort_by: 'vote_count.desc',
+      'vote_count.gte': 10,
+      sort_by: 'popularity.desc',
     },
   });
   return data.results.map(mapSummary);
@@ -451,7 +499,6 @@ export async function getHindiSerials(page = 1) {
     params: {
       page,
       with_original_language: 'hi',
-      with_origin_country: 'IN',
       with_genres: 10766,
       sort_by: 'popularity.desc',
     },
@@ -464,7 +511,7 @@ export async function getKDrama(page = 1) {
     params: {
       page,
       with_original_language: 'ko',
-      with_origin_country: 'KR',
+      without_genres: 16,
       sort_by: 'popularity.desc',
     },
   });
@@ -490,15 +537,17 @@ export async function search({ query, type = 'all', genre, year, page = 1 }: Sea
   }
 
   if (type === 'movie' || type === 'tv') {
+    const searchParams: Record<string, string | number> = { query, page: page_ };
+    if (year) {
+      if (type === 'movie') searchParams.primary_release_year = year;
+      else searchParams.first_air_date_year = year;
+    }
     const data = await tmdbFetch<{ results: RawMedia[]; total_results: number; page: number }>(
       `/search/${type}`,
-      { params: { query, page: page_ }, revalidate: 300 }
+      { params: searchParams, revalidate: 300 }
     );
     let results = data.results.map(mapSummary);
     if (genre) results = results.filter(r => r.genreIds.includes(genre));
-    if (year) {
-      results = results.filter(r => r.releaseDate?.startsWith(String(year)));
-    }
     return { results, page: data.page, totalResults: data.total_results };
   }
 

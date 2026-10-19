@@ -11,7 +11,7 @@ import '@/app/listing.css';
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; genre?: string; year?: string; sort?: string; type?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,34 +36,26 @@ async function CategoryListing({ params, searchParams }: Props) {
   const { slug } = await params;
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
+  const genre = sp.genre ? Number(sp.genre) : undefined;
+  const year = sp.year ? Number(sp.year) : undefined;
+  const sortBy = sp.sort;
+  const type = sp.type === 'movie' || sp.type === 'tv' ? sp.type : undefined;
 
-  const result = await fetchCategoryItems(slug, page);
+  const result = await fetchCategoryItems(slug, { page, genre, year, sortBy, type });
   if (!result || !result.category) {
     notFound();
   }
 
-  const { category, items } = result;
-
-  if (items.length === 0) {
-    return (
-      <StateView
-        kind="empty"
-        title={`No titles found in ${category.name}`}
-        message="Please check back soon for newly added titles."
-        actionLabel="Explore All Titles"
-        actionHref="/search"
-      />
-    );
-  }
+  const { category, items, totalPages } = result;
 
   let genres: Genre[] = [];
   try {
-    genres = await getGenres(category.type);
+    genres = await getGenres(type || category.type);
   } catch {
     genres = [];
   }
 
-  return <BrowseClient results={items} genres={genres} page={page} />;
+  return <BrowseClient results={items} genres={genres} page={page} totalPages={totalPages} />;
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {

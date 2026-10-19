@@ -57,6 +57,11 @@ const nextConfig = {
       { source: '/hindi-web-series', destination: '/category/hindi-web-series', permanent: false },
       { source: '/cartoons', destination: '/category/cartoons', permanent: false },
       { source: '/hollywood', destination: '/category/hollywood', permanent: false },
+      { source: '/donghua', destination: '/category/donghua', permanent: false },
+      { source: '/chinese-anime', destination: '/category/donghua', permanent: false },
+      { source: '/western-tv', destination: '/category/western-tv', permanent: false },
+      { source: '/international', destination: '/category/international', permanent: false },
+      { source: '/world-cinema', destination: '/category/international', permanent: false },
     ];
   },
 };

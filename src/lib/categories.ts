@@ -21,11 +21,11 @@ export interface CategoryDefinition {
 export const CATEGORIES: Record<string, CategoryDefinition> = {
   anime: {
     id: 'anime',
-    name: 'Anime',
+    name: 'Anime (Japanese Animation)',
     shortName: 'Anime',
     type: 'tv',
     description:
-      'Browse popular Japanese anime series, from ongoing seasonals to all-time classics.',
+      'Browse popular Japanese anime series and movies, from ongoing seasonals to all-time classics.',
     icon: '⚔️',
     params: {
       with_genres: 16,
@@ -33,61 +33,17 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
       sort_by: 'popularity.desc',
     },
   },
-  'hindi-serials': {
-    id: 'hindi-serials',
-    name: 'Hindi Serials & Indian TV',
-    shortName: 'Hindi Serials',
+  donghua: {
+    id: 'donghua',
+    name: 'Donghua (Chinese Animation)',
+    shortName: 'Donghua',
     type: 'tv',
     description:
-      'Popular Indian television serials, daily soaps, family dramas, and television shows.',
-    icon: '📺',
+      'Legendary Chinese 3D & 2D cultivation donghua, martial arts fantasies, and epic animated sagas.',
+    icon: '🐉',
     params: {
-      with_original_language: 'hi',
-      with_origin_country: 'IN',
-      with_genres: 10766,
-      sort_by: 'popularity.desc',
-    },
-  },
-  'hindi-web-series': {
-    id: 'hindi-web-series',
-    name: 'Hindi Web Series',
-    shortName: 'Web Series',
-    type: 'tv',
-    description:
-      'Top-rated Indian OTT web series, gripping crime thrillers, and acclaimed originals.',
-    icon: '🇮🇳',
-    params: {
-      with_original_language: 'hi',
-      without_genres: 10766,
-      'vote_count.gte': 15,
-      sort_by: 'vote_count.desc',
-    },
-  },
-  bollywood: {
-    id: 'bollywood',
-    name: 'Bollywood & Hindi Movies',
-    shortName: 'Bollywood',
-    type: 'movie',
-    description:
-      'Blockbuster Hindi movies, cinematic spectacles, romance classics, and award winners.',
-    icon: '🍿',
-    params: {
-      with_original_language: 'hi',
-      with_origin_country: 'IN',
-      sort_by: 'popularity.desc',
-    },
-  },
-  hollywood: {
-    id: 'hollywood',
-    name: 'Hollywood Movies',
-    shortName: 'Hollywood',
-    type: 'movie',
-    description:
-      'Global blockbuster films, studio franchises, and trending English cinematic releases.',
-    icon: '🎬',
-    params: {
-      with_original_language: 'en',
-      with_origin_country: 'US',
+      with_genres: 16,
+      with_original_language: 'zh',
       sort_by: 'popularity.desc',
     },
   },
@@ -101,7 +57,7 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '🇰🇷',
     params: {
       with_original_language: 'ko',
-      with_origin_country: 'KR',
+      without_genres: 16,
       sort_by: 'popularity.desc',
     },
   },
@@ -115,7 +71,89 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '🇨🇳',
     params: {
       with_original_language: 'zh',
-      with_origin_country: 'CN',
+      without_genres: 16,
+      sort_by: 'popularity.desc',
+    },
+  },
+  hollywood: {
+    id: 'hollywood',
+    name: 'Hollywood & English Movies',
+    shortName: 'Hollywood',
+    type: 'movie',
+    description:
+      'Global blockbuster films, studio franchises, and trending English cinematic releases.',
+    icon: '🎬',
+    params: {
+      with_original_language: 'en',
+      sort_by: 'popularity.desc',
+    },
+  },
+  bollywood: {
+    id: 'bollywood',
+    name: 'Bollywood & Hindi Movies',
+    shortName: 'Bollywood',
+    type: 'movie',
+    description:
+      'Blockbuster Hindi movies, cinematic spectacles, romance classics, and award winners.',
+    icon: '🍿',
+    params: {
+      with_original_language: 'hi',
+      sort_by: 'popularity.desc',
+    },
+  },
+  'western-tv': {
+    id: 'western-tv',
+    name: 'Western TV Series & Shows',
+    shortName: 'Western TV',
+    type: 'tv',
+    description:
+      'Top-rated Western television series, HBO/Netflix originals, crime dramas, and comedies.',
+    icon: '📺',
+    params: {
+      with_original_language: 'en',
+      without_genres: 16,
+      sort_by: 'popularity.desc',
+    },
+  },
+  international: {
+    id: 'international',
+    name: 'International Movies & World Cinema',
+    shortName: 'International',
+    type: 'movie',
+    description:
+      'Critically acclaimed international cinema from France, Spain, Germany, Japan, Korea, and beyond.',
+    icon: '🌍',
+    params: {
+      with_original_language: 'fr|es|de|it|ko|ja|zh|tr|pt|ru|th',
+      sort_by: 'popularity.desc',
+    },
+  },
+  'hindi-web-series': {
+    id: 'hindi-web-series',
+    name: 'Hindi Web Series & OTT',
+    shortName: 'Web Series',
+    type: 'tv',
+    description:
+      'Top-rated Indian OTT web series, gripping crime thrillers, and acclaimed originals.',
+    icon: '🇮🇳',
+    params: {
+      with_original_language: 'hi',
+      without_genres: 10766,
+      'vote_count.gte': 10,
+      sort_by: 'popularity.desc',
+    },
+  },
+  'hindi-serials': {
+    id: 'hindi-serials',
+    name: 'Hindi Serials & Indian TV',
+    shortName: 'Hindi Serials',
+    type: 'tv',
+    description:
+      'Popular Indian television serials, daily soaps, family dramas, and television shows.',
+    icon: '📻',
+    params: {
+      with_original_language: 'hi',
+      with_genres: 10766,
       sort_by: 'popularity.desc',
     },
   },
@@ -133,22 +171,9 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
       sort_by: 'popularity.desc',
     },
   },
-  international: {
-    id: 'international',
-    name: 'International Dramas',
-    shortName: 'International',
-    type: 'tv',
-    description:
-      'Critically acclaimed Turkish series, Spanish thrillers, and European television dramas.',
-    icon: '🌍',
-    params: {
-      with_original_language: 'tr',
-      sort_by: 'popularity.desc',
-    },
-  },
 };
 
-// Aliases for seamless URL matching (e.g., /k-drama, /c-drama, /korean, /chinese)
+// Aliases for seamless URL matching (e.g., /k-drama, /c-drama, /donghua, /western-tv)
 const ALIASES: Record<string, string> = {
   'k-drama': 'kdrama',
   korean: 'kdrama',
@@ -158,10 +183,18 @@ const ALIASES: Record<string, string> = {
   chinese: 'cdrama',
   'c-dramas': 'cdrama',
   cdramas: 'cdrama',
+  donghua: 'donghua',
+  'chinese-anime': 'donghua',
+  'chinese-animation': 'donghua',
   hindi: 'bollywood',
   'hindi-movies': 'bollywood',
   serials: 'hindi-serials',
   'web-series': 'hindi-web-series',
+  'western-tv': 'western-tv',
+  'western-series': 'western-tv',
+  'tv-shows': 'western-tv',
+  'international-movies': 'international',
+  'world-cinema': 'international',
   cartoon: 'cartoons',
   animation: 'cartoons',
 };
@@ -182,30 +215,65 @@ export function listCategories(): CategoryDefinition[] {
   return Object.values(CATEGORIES);
 }
 
+export interface CategoryFetchOptions {
+  page?: number;
+  genre?: number;
+  year?: number;
+  sortBy?: string;
+  type?: MediaType;
+}
+
 export async function fetchCategoryItems(
   categoryId: string,
-  page = 1
-): Promise<{ category: CategoryDefinition; items: MediaSummary[] } | null> {
+  optionsOrPage: number | CategoryFetchOptions = 1
+): Promise<{ category: CategoryDefinition; items: MediaSummary[]; totalPages: number } | null> {
   const category = getCategory(categoryId);
   if (!category) return null;
 
-  const endpoint = `/discover/${category.type}`;
-  const rawParams = {
+  const options: CategoryFetchOptions =
+    typeof optionsOrPage === 'number' ? { page: optionsOrPage } : optionsOrPage;
+
+  const page = Math.max(1, options.page || 1);
+  const mediaType: MediaType = options.type || category.type;
+  const endpoint = `/discover/${mediaType}`;
+
+  const rawParams: Record<string, string | number> = {
     page,
     include_adult: 'false',
     ...category.params,
   };
 
+  if (options.sortBy) {
+    rawParams.sort_by = options.sortBy;
+  }
+
+  if (options.year) {
+    if (mediaType === 'movie') {
+      rawParams.primary_release_date_year = options.year;
+    } else {
+      rawParams.first_air_date_year = options.year;
+    }
+  }
+
+  if (options.genre) {
+    if (rawParams.with_genres) {
+      rawParams.with_genres = `${rawParams.with_genres},${options.genre}`;
+    } else {
+      rawParams.with_genres = options.genre;
+    }
+  }
+
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = await tmdbFetch<{ results: any[] }>(endpoint, {
+    const data = await tmdbFetch<{ results: any[]; total_pages?: number }>(endpoint, {
       params: rawParams,
       revalidate: 900,
     });
     const items = (data.results ?? []).map(mapSummary);
-    return { category, items };
+    const totalPages = Math.min(data.total_pages || 1, 500);
+    return { category, items, totalPages };
   } catch (err) {
     console.error(`Failed to fetch category ${categoryId}:`, err);
-    return { category, items: [] };
+    return { category, items: [], totalPages: 1 };
   }
 }

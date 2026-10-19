@@ -111,6 +111,7 @@ export default async function WatchEpisodePage({ params }: PageProps) {
             season={seasonNum}
             episode={episodeNum}
             episodeCount={seasonData?.episodeCount ?? 0}
+            allSeasons={show.seasons}
           />
 
           <Link href={tvUrl(show.id, show.title)} className="btn btn--ghost watch__back">

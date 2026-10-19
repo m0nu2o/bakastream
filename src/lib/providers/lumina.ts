@@ -186,6 +186,27 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
       return `https://vidsrc.pm/embed/movie/${id}`;
     },
   },
+  {
+    id: '2embed',
+    name: '2Embed Direct',
+    category: 'backup',
+    serverIndex: 6,
+    quality: '1080p Backup',
+    badge: '🛡️',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: false,
+    supportsEnglishDub: true,
+    supportsHindiDub: false,
+    description: 'High-reliability global fallback embed mirror with broad device compatibility.',
+    features: ['High Uptime', 'Universal', 'Clean'],
+    getPlaybackUrl: ({ type, id, season, episode }) => {
+      if (type === 'tv' || season !== undefined) {
+        return `https://www.2embed.cc/embedtv/${id}&s=${season || 1}&e=${episode || 1}`;
+      }
+      return `https://www.2embed.cc/embed/${id}`;
+    },
+  },
 
   // ──────────────────────────────────────────────────────────────
   // ANIME — 100% DISTINCT, LIVE & VERIFIED ENGINES
@@ -321,11 +342,12 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
  */
 export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
   // Movie/TV fallback order
-  vidlink: ['nova', 'vidsrc-pm', 'vidsrc-su', 'vidfast'],
-  nova: ['vidlink', 'vidsrc-pm', 'vidsrc-su', 'vidfast'],
-  'vidsrc-pm': ['vidlink', 'nova', 'vidsrc-su', 'vidfast'],
-  'vidsrc-su': ['vidlink', 'nova', 'vidsrc-pm', 'vidfast'],
-  vidfast: ['vidlink', 'nova', 'vidsrc-pm', 'vidsrc-su'],
+  vidlink: ['nova', 'vidsrc-pm', 'vidsrc-su', 'vidfast', '2embed'],
+  nova: ['vidlink', 'vidsrc-pm', 'vidsrc-su', 'vidfast', '2embed'],
+  'vidsrc-pm': ['vidlink', 'nova', 'vidsrc-su', 'vidfast', '2embed'],
+  'vidsrc-su': ['vidlink', 'nova', 'vidsrc-pm', 'vidfast', '2embed'],
+  vidfast: ['vidlink', 'nova', 'vidsrc-pm', 'vidsrc-su', '2embed'],
+  '2embed': ['vidlink', 'nova', 'vidsrc-pm', 'vidsrc-su', 'vidfast'],
 
   // Anime fallback order
   'nextgen-anime': ['nova-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidlink-anime'],
@@ -370,11 +392,10 @@ export const LUMINA_ALIASES: Record<string, string> = {
   'vidsrc-pm-anime': 'vidsrc-pm-anime',
   'vidsrc-dev': 'vidsrc-pm',
   'vidsrc-net': 'vidsrc-su',
-  'vidsrc-me': 'vidsrc-su',
-  '2embed': 'vidlink',
-  '2embed-skin': 'vidlink',
-  '2embed-anime': 'nextgen-anime',
-  '2embed-skin-anime': 'nextgen-anime',
+  '2embed': '2embed',
+  '2embed-skin': '2embed',
+  '2embed-anime': '2embed',
+  '2embed-skin-anime': '2embed',
   videasy: 'vidlink',
   smashy: 'vidfast',
 };
@@ -391,12 +412,25 @@ export function getCanonicalServerId(id?: string): string {
 /**
  * Retrieves all Lumina servers compatible with the given media category.
  */
-export function getLuminaServers(category: 'movie' | 'tv' | 'anime'): LuminaServerConfig[] {
-  return LUMINA_SERVERS.filter(server => {
+export function getLuminaServers(
+  category: 'movie' | 'tv' | 'anime',
+  isHindi?: boolean
+): LuminaServerConfig[] {
+  const filtered = LUMINA_SERVERS.filter(server => {
     if (category === 'anime') return server.supportsAnime;
     if (category === 'tv') return server.supportsTV;
     return server.supportsMovie;
   });
+
+  if (isHindi) {
+    return [...filtered].sort((a, b) => {
+      if (a.supportsHindiDub && !b.supportsHindiDub) return -1;
+      if (!a.supportsHindiDub && b.supportsHindiDub) return 1;
+      return 0;
+    });
+  }
+
+  return filtered;
 }
 
 /**

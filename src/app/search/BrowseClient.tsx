@@ -14,14 +14,23 @@ const TYPE_OPTIONS = [
   { value: 'tv', label: 'TV Shows' },
 ];
 
+const SORT_OPTIONS = [
+  { value: 'popularity.desc', label: 'Most Popular' },
+  { value: 'vote', label: 'Top Rated' },
+  { value: 'recent', label: 'Recently Released' },
+];
+
 const CATEGORY_ITEMS = [
   { href: '/category/bollywood', label: 'Bollywood', icon: '🍿' },
-  { href: '/category/hindi-serials', label: 'Hindi Serials', icon: '📺' },
+  { href: '/category/hindi-serials', label: 'Hindi Serials', icon: '📻' },
   { href: '/category/hindi-web-series', label: 'Web Series', icon: '🇮🇳' },
   { href: '/category/kdrama', label: 'K-Dramas', icon: '🇰🇷' },
   { href: '/category/anime', label: 'Anime', icon: '⚔️' },
+  { href: '/category/donghua', label: 'Donghua', icon: '🐉' },
   { href: '/category/hollywood', label: 'Hollywood', icon: '🎬' },
   { href: '/category/cdrama', label: 'C-Dramas', icon: '🇨🇳' },
+  { href: '/category/western-tv', label: 'Western TV', icon: '📺' },
+  { href: '/category/international', label: 'International', icon: '🌍' },
   { href: '/category/cartoons', label: 'Cartoons', icon: '🎨' },
 ];
 
@@ -29,9 +38,10 @@ interface Props {
   results: MediaSummary[];
   genres: Genre[];
   page: number;
+  totalPages?: number;
 }
 
-export default function BrowseClient({ results, genres, page }: Props) {
+export default function BrowseClient({ results, genres, page, totalPages = 500 }: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const pathname = usePathname();
@@ -44,7 +54,23 @@ export default function BrowseClient({ results, genres, page }: Props) {
     if (value === null || value === '') next.delete(key);
     else next.set(key, value);
     if (key !== 'page') next.delete('page');
-    startTransition(() => router.push(`/search?${next.toString()}`, { scroll: false }));
+
+    // If searching with a new query, route to /search
+    if (key === 'q' && value) {
+      startTransition(() => router.push(`/search?${next.toString()}`, { scroll: false }));
+      return;
+    }
+
+    // Preserve current route (whether /category/..., /movies, /tv, /anime, or /search)
+    const targetPath =
+      pathname.startsWith('/category/') ||
+      pathname === '/movies' ||
+      pathname === '/tv' ||
+      pathname === '/anime'
+        ? pathname
+        : '/search';
+
+    startTransition(() => router.push(`${targetPath}?${next.toString()}`, { scroll: false }));
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -55,7 +81,10 @@ export default function BrowseClient({ results, genres, page }: Props) {
   const activeType = params.get('type') || 'all';
   const activeGenre = params.get('genre') || '';
   const activeYear = params.get('year') || '';
+  const activeSort = params.get('sort') || 'popularity.desc';
   const years = Array.from({ length: 36 }, (_, i) => String(new Date().getFullYear() - i));
+
+  const hasActiveFilters = activeType !== 'all' || Boolean(activeGenre) || Boolean(activeYear);
 
   return (
     <div className={styles.wrap}>
@@ -65,7 +94,7 @@ export default function BrowseClient({ results, genres, page }: Props) {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search movies, TV shows, anime…"
+            placeholder="Search movies, TV shows, anime, drama…"
             className={styles.searchInput}
             aria-label="Search query"
           />
@@ -79,7 +108,7 @@ export default function BrowseClient({ results, genres, page }: Props) {
         </button>
       </div>
 
-      {(showFilters || activeType !== 'all' || activeGenre || activeYear) && (
+      {(showFilters || hasActiveFilters) && (
         <div className={styles.filters}>
           <div className={styles.filterGroup}>
             {TYPE_OPTIONS.map(o => (
@@ -120,7 +149,7 @@ export default function BrowseClient({ results, genres, page }: Props) {
                 >
                   All Genres
                 </button>
-                {genres.slice(0, 10).map(g => (
+                {genres.slice(0, 12).map(g => (
                   <button
                     key={g.id}
                     type="button"
@@ -161,15 +190,56 @@ export default function BrowseClient({ results, genres, page }: Props) {
                 </option>
               ))}
             </select>
+            <select
+              className={styles.select}
+              value={activeSort}
+              onChange={e => updateParam('sort', e.target.value || null)}
+              aria-label="Sort by"
+            >
+              {SORT_OPTIONS.map(s => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       )}
 
-      <div className={`${styles.grid} ${pending ? styles.gridPending : ''}`} aria-busy={pending}>
-        {results.map(item => (
-          <StreamingResultCard key={`${item.type}-${item.id}`} content={item} />
-        ))}
-      </div>
+      {results.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyIcon}>🎬</p>
+          <h3 className={styles.emptyTitle}>No matching titles found</h3>
+          <p className={styles.emptyText}>
+            Try clearing filters or choosing another category or year.
+          </p>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="btn btn--primary"
+              style={{ marginTop: '1.25rem' }}
+              onClick={() => {
+                const targetPath =
+                  pathname.startsWith('/category/') ||
+                  pathname === '/movies' ||
+                  pathname === '/tv' ||
+                  pathname === '/anime'
+                    ? pathname
+                    : '/search';
+                startTransition(() => router.push(targetPath, { scroll: false }));
+              }}
+            >
+              Reset Filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className={`${styles.grid} ${pending ? styles.gridPending : ''}`} aria-busy={pending}>
+          {results.map(item => (
+            <StreamingResultCard key={`${item.type}-${item.id}`} content={item} />
+          ))}
+        </div>
+      )}
 
       {results.length > 0 && (
         <div className={styles.pagination}>
@@ -181,10 +251,14 @@ export default function BrowseClient({ results, genres, page }: Props) {
               ← Previous
             </button>
           )}
-          <span className={styles.pageLabel}>Page {page}</span>
-          <button className="btn btn--ghost" onClick={() => updateParam('page', String(page + 1))}>
-            Next →
-          </button>
+          <span className={styles.pageLabel}>
+            Page {page} {totalPages > 1 ? `of ${totalPages}` : ''}
+          </span>
+          {page < totalPages && (
+            <button className="btn btn--ghost" onClick={() => updateParam('page', String(page + 1))}>
+              Next →
+            </button>
+          )}
         </div>
       )}
     </div>

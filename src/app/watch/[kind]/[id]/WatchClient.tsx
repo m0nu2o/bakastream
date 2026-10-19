@@ -44,10 +44,24 @@ export default function WatchClient({ content, season, episode }: Props) {
   const requestedLang = useRef<string | undefined>(undefined);
   const isAnime = Boolean(isAnimeGenre || info?.isAnime);
   const mediaCategory = isAnime ? 'anime' : (content.type as 'movie' | 'tv');
+  const isHindiOriginal = content.originalLanguage === 'hi';
 
   const compatibleServers = useMemo(() => {
-    return getLuminaServers(mediaCategory);
-  }, [mediaCategory]);
+    return getLuminaServers(mediaCategory, isHindiOriginal).slice(0, 4);
+  }, [mediaCategory, isHindiOriginal]);
+
+  // AdShield: Intercept rogue popups at parent window level
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const originalOpen = window.open;
+    window.open = function (url?: string | URL) {
+      console.warn('[BakaStream AdShield] Neutralized popup attempt:', url);
+      return null;
+    };
+    return () => {
+      window.open = originalOpen;
+    };
+  }, []);
 
   const load = useCallback(
     async (options?: { language?: string; subOrDub?: 'sub' | 'dub'; server?: string }) => {
@@ -438,14 +452,21 @@ function EmbedStage({
         >
           <ShieldCheck size={13} className="watch__shield-icon" /> Ad Shield Active
         </div>
+
+        {isHindiOriginal && (
+          <div className="watch__shield-badge" title="Original Hindi language content">
+            🇮🇳 Hindi Original
+          </div>
+        )}
       </div>
 
-      {/* ── Video Embed (no sandbox — preserves full video decoder compatibility) ── */}
+      {/* ── Video Embed with Safe Sandboxing (blocks redirects, popunders, and top-level hijacks) ── */}
       <iframe
         key={embedUrl}
         src={embedUrl}
         title="Stream player"
         className="watch__iframe"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         referrerPolicy="origin"

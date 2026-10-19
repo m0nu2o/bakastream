@@ -152,22 +152,22 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 36px;
-  height: 60px;
-  border-radius: 8px;
-  background: rgba(20, 20, 28, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(18, 19, 26, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  opacity: 0;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  opacity: 0.75;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
 }
 
 .catalog-section__carousel-wrapper:hover .catalog-section__edge-btn {
@@ -175,17 +175,19 @@
 }
 
 .catalog-section__edge-btn:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #e50914;
+  border-color: #e50914;
   color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 0 22px rgba(229, 9, 20, 0.6);
 }
 
 .catalog-section__edge-btn--left {
-  left: 6px;
+  left: 12px;
 }
 
 .catalog-section__edge-btn--right {
-  right: 6px;
+  right: 12px;
 }
 
 .catalog-section__carousel {

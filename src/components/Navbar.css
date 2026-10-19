@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────
-   BAKASTREAM PREMIUM CINEMATIC NAVBAR & NAVIGATION SYSTEM
+   BAKASTREAM PREMIUM APPLE-GRADE WORLD-CLASS NAVBAR SYSTEM
    ───────────────────────────────────────────────────────────── */
 
 .navbar {
@@ -8,26 +8,32 @@
   left: 0;
   right: 0;
   z-index: 100;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  background: linear-gradient(180deg, rgba(9, 10, 16, 0.94) 0%, rgba(9, 10, 16, 0.75) 75%, transparent 100%);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(18, 19, 24, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 :root[data-theme="light"] .navbar {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.8) 75%, transparent 100%);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .navbar--scrolled {
-  background: rgba(11, 12, 20, 0.88) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  background: rgba(14, 15, 20, 0.92) !important;
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 :root[data-theme="light"] .navbar--scrolled {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.09);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
 .navbar__inner {
@@ -35,18 +41,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  height: 68px;
+  height: 58px;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 clamp(1rem, 3.5vw, 32px);
+  padding: 0 clamp(1rem, 3.5vw, 36px);
   box-sizing: border-box;
 }
 
-/* ── 1. Modern Vector Brand Emblem & Typography ── */
+/* ── 1. Modern Vector Brand Emblem & Apple-Grade Typography ── */
 .navbar__logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.7rem;
   text-decoration: none;
   flex-shrink: 0;
   user-select: none;
@@ -57,23 +63,24 @@
 }
 
 .navbar__logo:hover .bakastream-logo-icon {
-  transform: scale(1.08) rotate(-1.5deg);
-  filter: drop-shadow(0 0 12px rgba(244, 59, 76, 0.75));
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 16px rgba(229, 9, 20, 0.75));
 }
 
 .navbar__logo-text-box {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   line-height: 1;
 }
 
 .navbar__logo-main {
-  font-size: 1.28rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary, #ffffff);
   display: inline-flex;
   align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
 }
 
 :root[data-theme="light"] .navbar__logo-main {
@@ -81,28 +88,12 @@
 }
 
 .navbar__logo-accent {
-  background: linear-gradient(135deg, #ff2e54, #f43b4c);
+  background: linear-gradient(135deg, #ff2e43 0%, #e50914 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-right: 1px;
-}
-
-.navbar__logo-light {
-  color: #ffffff;
-}
-
-:root[data-theme="light"] .navbar__logo-light {
-  color: #12121c;
-}
-
-.navbar__logo-sub {
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  color: var(--accent, #f43b4c);
-  margin-top: 3px;
-  text-transform: uppercase;
-  opacity: 0.9;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  margin-right: 2px;
 }
 
 /* ── 2. Primary Nav Links with Icons ── */
@@ -256,6 +247,8 @@
   max-height: 380px;
   overflow-y: auto;
   scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+  padding-right: 4px;
 }
 
 .navbar__dropdown-menu--genres .navbar__dropdown-grid {
@@ -338,62 +331,40 @@
 .navbar__search-capsule {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 7px 14px 7px 12px;
-  border-radius: 999px;
-  background: #171724;
+  gap: 0.55rem;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary, #9da1b6);
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.22s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .navbar__search-capsule:hover {
-  background: #202030;
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  border-color: rgba(229, 9, 20, 0.5);
+  box-shadow: 0 0 16px rgba(229, 9, 20, 0.25);
 }
 
 :root[data-theme="light"] .navbar__search-capsule {
-  background: #ffffff;
+  background: rgba(0, 0, 0, 0.05);
   border-color: rgba(0, 0, 0, 0.1);
   color: #64647a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 :root[data-theme="light"] .navbar__search-capsule:hover {
-  background: #f5f5fa;
+  background: rgba(0, 0, 0, 0.08);
   color: #12121c;
-  border-color: rgba(0, 0, 0, 0.18);
+  border-color: rgba(229, 9, 20, 0.4);
 }
 
 .navbar__search-text {
   font-size: 12.5px;
-}
-
-.navbar__search-kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 10px;
-  font-family: inherit;
-  font-weight: 600;
-  color: var(--text-tertiary, #76778e);
-  line-height: 1;
-}
-
-:root[data-theme="light"] .navbar__search-kbd {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.08);
-  color: #7b7b90;
+  letter-spacing: -0.01em;
 }
 
 .navbar__burger {
@@ -511,9 +482,6 @@
   }
   .navbar__burger {
     display: inline-flex;
-  }
-  .navbar__search-kbd {
-    display: none;
   }
 }
 
