@@ -176,7 +176,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: linear-gradient(135deg, var(--accent, #F70063) 0%, var(--accent-strong, #910E3B) 100%);
+  background: linear-gradient(135deg, var(--accent, #F70063) 0%, var(--accent-strong, #D40054) 100%);
   color: #ffffff;
   padding: 12px 28px;
   border-radius: 9999px;

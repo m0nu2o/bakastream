@@ -44,6 +44,11 @@ export default function MediaCard({ content, onPlay }: Props) {
           )}
         </Link>
 
+        {/* Quality Indicator Pill */}
+        <div className="media-card__badge-pill">
+          {content.type === 'tv' ? 'TV' : 'HD'}
+        </div>
+
         {/* Center Hover Play Button */}
         <div className="media-card__play-overlay">
           {onPlay ? (

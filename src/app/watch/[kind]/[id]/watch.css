@@ -550,8 +550,8 @@
 }
 
 .player-hud-toast--holding {
-  border-color: #f59e0b !important;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 28px rgba(245, 158, 11, 0.55) !important;
+  border-color: var(--accent, #F70063) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 28px rgba(247, 0, 99, 0.6) !important;
   animation: hudPulse 0.8s infinite alternate ease-in-out !important;
 }
 

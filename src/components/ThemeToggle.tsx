@@ -44,11 +44,7 @@ export default function ThemeToggle() {
         aria-haspopup="dialog"
         title={`Theme: ${activeThemeObj.name}`}
       >
-        <span
-          className="theme-toggle__dot"
-          style={{ backgroundColor: activeThemeObj.accent }}
-        />
-        <Palette size={17} className="theme-toggle__icon" />
+        <Palette size={18} className="theme-toggle__icon" />
       </button>
 
       {open && (
@@ -86,14 +82,14 @@ export default function ThemeToggle() {
                   aria-pressed={isSelected}
                 >
                   <div
-                    className="theme-popover__swatch"
+                    className="theme-popover__preview-pill"
                     style={{
                       background: opt.bg,
-                      borderColor: opt.accent,
+                      borderColor: isSelected ? opt.accent : 'var(--border-color)',
                     }}
                   >
                     <span
-                      className="theme-popover__swatch-core"
+                      className="theme-popover__preview-accent"
                       style={{ background: opt.accent }}
                     />
                   </div>

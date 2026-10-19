@@ -37,17 +37,6 @@
   border-color: var(--accent);
 }
 
-.theme-toggle__dot {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  box-shadow: 0 0 6px currentColor;
-  transition: background-color 0.25s ease;
-}
-
 .theme-toggle__icon {
   transition: transform 0.25s ease;
 }
@@ -176,23 +165,26 @@
   border-color: var(--accent);
 }
 
-.theme-popover__swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border-width: 2px;
-  border-style: solid;
+.theme-popover__preview-pill {
+  width: 32px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  position: relative;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
 }
 
-.theme-popover__swatch-core {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.theme-popover__preview-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 9px;
+  height: 100%;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .theme-popover__details {
