@@ -27,23 +27,23 @@ export default function BakaLogo({ size = 32, className = '' }: BakaLogoProps) {
         style={{ width: '100%', height: '100%', overflow: 'visible' }}
       >
         <defs>
-          {/* World-class cinematic crimson & scarlet gradient */}
+          {/* World-class cinematic crimson & rose palette gradient */}
           <linearGradient id="bakaCrimsonGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#ff2e43" />
-            <stop offset="55%" stopColor="#e50914" />
-            <stop offset="100%" stopColor="#99000a" />
+            <stop offset="0%" stopColor="#ffabab" />
+            <stop offset="55%" stopColor="#d14d72" />
+            <stop offset="100%" stopColor="#b23a5d" />
           </linearGradient>
 
           {/* Aerodynamic highlight ribbon */}
           <linearGradient id="bakaHighlight" x1="8" y1="6" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
-            <stop offset="40%" stopColor="#ff7b88" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#e50914" stopOpacity="0" />
+            <stop offset="0%" stopColor="#fef2f4" stopOpacity="0.9" />
+            <stop offset="40%" stopColor="#ffabab" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#d14d72" stopOpacity="0" />
           </linearGradient>
 
           {/* Core play prism glow */}
           <filter id="bakaEmblemGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#e50914" floodOpacity="0.55" />
+            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#d14d72" floodOpacity="0.55" />
           </filter>
         </defs>
 

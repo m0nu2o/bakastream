@@ -76,11 +76,11 @@
   opacity: 1;
 }
 .media-row__arrow:hover {
-  background: #e50914;
-  border-color: #e50914;
+  background: var(--accent, #d14d72);
+  border-color: var(--accent-subtle, #fcc8d1);
   color: #ffffff;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 0 22px rgba(229, 9, 20, 0.6);
+  box-shadow: 0 0 22px rgba(209, 77, 114, 0.6);
 }
 .media-row__arrow--left {
   left: 1rem;

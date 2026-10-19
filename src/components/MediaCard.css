@@ -97,7 +97,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--accent, #e50914);
+  background: var(--accent, #d14d72);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -105,7 +105,7 @@
   opacity: 0;
   transform: scale(0.85);
   transition: all 0.25s ease;
-  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.6);
+  box-shadow: 0 4px 18px rgba(209, 77, 114, 0.6);
   pointer-events: auto;
   border: none;
   cursor: pointer;
@@ -119,7 +119,7 @@
 
 .media-card__play-btn:hover {
   transform: scale(1.1);
-  background: #ff1e2b;
+  background: var(--accent-hover, #df5c82);
 }
 
 /* Save (Watchlist) Button */
@@ -151,20 +151,20 @@
 
 .media-card__save:hover {
   transform: scale(1.12);
-  color: #ff4d5a;
-  border-color: #ff4d5a;
+  color: var(--accent-secondary, #ffabab);
+  border-color: var(--accent-secondary, #ffabab);
 }
 
 .media-card__save--on {
   opacity: 1 !important;
   color: #ffffff !important;
-  background: var(--accent, #e50914) !important;
-  border-color: var(--accent, #e50914) !important;
-  box-shadow: 0 0 14px rgba(229, 9, 20, 0.6) !important;
+  background: var(--accent, #d14d72) !important;
+  border-color: var(--accent-subtle, #fcc8d1) !important;
+  box-shadow: 0 0 14px rgba(209, 77, 114, 0.6) !important;
 }
 
 .media-card__save--on:hover {
-  background: #ff1e2b !important;
+  background: var(--accent-hover, #df5c82) !important;
   transform: scale(1.12);
 }
 
@@ -202,7 +202,7 @@
 }
 
 .media-card:hover .media-card__title {
-  color: var(--accent, #e50914);
+  color: var(--accent, #d14d72);
 }
 
 .media-card__meta {

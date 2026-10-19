@@ -176,7 +176,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: linear-gradient(135deg, #e50914 0%, #b80610 100%);
+  background: linear-gradient(135deg, #d14d72 0%, #b23a5d 100%);
   color: #ffffff;
   padding: 12px 28px;
   border-radius: 9999px;
@@ -184,12 +184,12 @@
   font-weight: 700;
   text-decoration: none;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5);
+  box-shadow: 0 4px 20px rgba(209, 77, 114, 0.5);
 }
 
 .hero__watch-btn:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 30px rgba(229, 9, 20, 0.7);
+  box-shadow: 0 8px 30px rgba(209, 77, 114, 0.7);
 }
 
 .hero__watch-btn:active {
@@ -292,7 +292,7 @@
   background: var(--accent);
   border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.4);
+  box-shadow: 0 6px 18px rgba(209, 77, 114, 0.4);
 }
 
 .hero__arrow:active {

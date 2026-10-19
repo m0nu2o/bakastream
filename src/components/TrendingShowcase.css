@@ -124,33 +124,33 @@
 }
 
 .trending-showcase__genre-chip:hover {
-  background: rgba(244, 59, 76, 0.12);
+  background: rgba(209, 77, 114, 0.12);
   color: #ffffff;
-  border-color: rgba(244, 59, 76, 0.45);
+  border-color: rgba(209, 77, 114, 0.45);
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(244, 59, 76, 0.25);
+  box-shadow: 0 4px 14px rgba(209, 77, 114, 0.25);
 }
 
 :root[data-theme="light"] .trending-showcase__genre-chip:hover {
   background: #e2e8f0;
-  border-color: rgba(244, 59, 76, 0.35);
+  border-color: rgba(209, 77, 114, 0.35);
   color: #0f172a;
 }
 
 .trending-showcase__genre-chip--active {
-  background: #e50914 !important;
+  background: var(--accent, #d14d72) !important;
   color: #ffffff !important;
-  border-color: #ff2a38 !important;
+  border-color: var(--accent-secondary, #ffabab) !important;
   font-weight: 700;
-  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.45) !important;
+  box-shadow: 0 4px 18px rgba(209, 77, 114, 0.45) !important;
   transform: translateY(-2px) scale(1.02);
 }
 
 :root[data-theme="light"] .trending-showcase__genre-chip--active {
-  background: #e50914 !important;
-  border-color: #e50914 !important;
+  background: var(--accent, #d14d72) !important;
+  border-color: var(--accent-subtle, #fcc8d1) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(209, 77, 114, 0.35) !important;
 }
 
 /* ── 3. Carousel Wrapper & Sleek Modern Edge Navigation ── */
@@ -190,11 +190,11 @@
 }
 
 .trending-showcase__edge-btn:hover {
-  background: #e50914;
-  border-color: #e50914;
+  background: var(--accent, #d14d72);
+  border-color: var(--accent-subtle, #fcc8d1);
   color: #ffffff;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 0 22px rgba(229, 9, 20, 0.6);
+  box-shadow: 0 0 22px rgba(209, 77, 114, 0.6);
 }
 
 .trending-showcase__edge-btn--left {
@@ -337,7 +337,7 @@
   cursor: pointer;
   text-decoration: none;
   transition: transform 0.2s ease;
-  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.6);
+  box-shadow: 0 4px 18px rgba(209, 77, 114, 0.6);
   pointer-events: auto;
 }
 
@@ -490,7 +490,7 @@
 
 :root[data-theme="light"] .trending-showcase__card--selected {
   border-color: var(--accent);
-  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.2);
+  box-shadow: 0 6px 20px rgba(209, 77, 114, 0.2);
 }
 
 /* ── 5. Responsive ── */

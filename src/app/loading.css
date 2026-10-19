@@ -23,14 +23,14 @@
   width: 380px;
   height: 380px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(244, 59, 76, 0.18) 0%, rgba(99, 102, 241, 0.08) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(209, 77, 114, 0.22) 0%, rgba(255, 171, 171, 0.08) 50%, transparent 70%);
   filter: blur(60px);
   pointer-events: none;
   animation: ambient-pulse 3s infinite ease-in-out;
 }
 
 :root[data-theme="light"] .cinema-loading__ambient {
-  background: radial-gradient(circle, rgba(244, 59, 76, 0.12) 0%, rgba(99, 102, 241, 0.05) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(209, 77, 114, 0.14) 0%, rgba(255, 171, 171, 0.05) 50%, transparent 70%);
 }
 
 @keyframes ambient-pulse {
@@ -69,8 +69,8 @@
   inset: 0;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: var(--brand-red, #f43b4c);
-  border-right-color: rgba(244, 59, 76, 0.3);
+  border-top-color: var(--brand-red, #d14d72);
+  border-right-color: rgba(209, 77, 114, 0.3);
   animation: ring-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
@@ -104,14 +104,14 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(244, 59, 76, 0.2) 0%, rgba(18, 18, 28, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(209, 77, 114, 0.25) 0%, rgba(18, 18, 28, 0.9) 100%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(244, 59, 76, 0.25);
+    0 0 20px rgba(209, 77, 114, 0.25);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -121,7 +121,7 @@
   border-color: rgba(0, 0, 0, 0.1);
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.08),
-    0 0 20px rgba(244, 59, 76, 0.15);
+    0 0 20px rgba(209, 77, 114, 0.15);
 }
 
 .cinema-loading__logo-img {
@@ -154,14 +154,14 @@
 }
 
 .cinema-loading__title-accent {
-  color: var(--brand-red, #f43b4c);
+  color: var(--brand-red, #d14d72);
 }
 
 .cinema-loading__dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--brand-red, #f43b4c);
+  background: var(--brand-red, #d14d72);
   margin-left: 2px;
   animation: dot-pulse 1.4s infinite ease-in-out;
 }
@@ -211,7 +211,7 @@
   bottom: 0;
   width: 45%;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, var(--brand-red, #f43b4c), #ff6b7a, transparent);
+  background: linear-gradient(90deg, transparent, var(--brand-red, #d14d72), #ffabab, transparent);
   animation: shimmer-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
