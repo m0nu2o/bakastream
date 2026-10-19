@@ -51,7 +51,7 @@
 }
 
 .lumina-bar__pulse {
-  color: var(--brand-red, #f70063);
+  color: var(--brand-red, #D87591);
   animation: luminaPulse 2s infinite ease-in-out;
 }
 
@@ -111,21 +111,21 @@
 }
 
 .lumina-server-chip--active {
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-secondary, #ffabab) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-secondary, #F7D5DF) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.45);
+  box-shadow: 0 4px 16px rgba(216, 117, 145, 0.45);
 }
 
 :root[data-theme="light"] .lumina-server-chip--active {
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-subtle, #fcc8d1) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-subtle, #F7D5DF) !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 10px rgba(247, 0, 99, 0.3);
+  box-shadow: 0 2px 10px rgba(216, 117, 145, 0.3);
 }
 
 .lumina-server-chip--nextgen {
-  border-color: rgba(247, 0, 99, 0.35);
+  border-color: rgba(216, 117, 145, 0.35);
 }
 
 .lumina-server-chip__dot {
@@ -244,9 +244,9 @@
 
 .lumina-audio-select:hover,
 .lumina-audio-select:focus {
-  border-color: var(--accent, #f70063);
+  border-color: var(--accent, #D87591);
   color: #ffffff;
-  box-shadow: 0 0 10px rgba(247, 0, 99, 0.25);
+  box-shadow: 0 0 10px rgba(216, 117, 145, 0.25);
 }
 
 .lumina-audio-select option {
@@ -318,15 +318,15 @@
 }
 
 .lumina-audio-btn--active {
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-secondary, #ffabab) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-secondary, #F7D5DF) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.45) !important;
+  box-shadow: 0 4px 14px rgba(216, 117, 145, 0.45) !important;
 }
 
 :root[data-theme="light"] .lumina-audio-btn--active {
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-subtle, #fcc8d1) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-subtle, #F7D5DF) !important;
   color: #ffffff !important;
 }
 
@@ -396,7 +396,7 @@
 }
 
 .lumina-bar__tip-icon {
-  color: var(--brand-red, #f70063);
+  color: var(--brand-red, #D87591);
   flex-shrink: 0;
 }
 

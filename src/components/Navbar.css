@@ -12,28 +12,28 @@
   background: rgba(18, 19, 24, 0.75);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(217, 217, 224, 0.2);
 }
 
 :root[data-theme="light"] .navbar {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 253, 253, 0.85);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid #D9D9E0;
 }
 
 .navbar--scrolled {
   background: rgba(14, 15, 20, 0.92) !important;
   backdrop-filter: blur(32px) saturate(200%);
   -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(217, 217, 224, 0.35);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 :root[data-theme="light"] .navbar--scrolled {
-  background: rgba(255, 255, 255, 0.94) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.09);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 253, 253, 0.96) !important;
+  border-bottom-color: #D9D9E0;
+  box-shadow: 0 4px 24px rgba(216, 117, 145, 0.08);
 }
 
 .navbar__inner {
@@ -64,7 +64,7 @@
 
 .navbar__logo:hover .bakastream-logo-icon {
   transform: scale(1.06);
-  filter: drop-shadow(0 0 16px rgba(247, 0, 99, 0.75));
+  filter: drop-shadow(0 0 16px rgba(216, 117, 145, 0.75));
 }
 
 .navbar__logo-text-box {
@@ -88,7 +88,7 @@
 }
 
 .navbar__logo-accent {
-  background: linear-gradient(135deg, #ffabab 0%, #f70063 100%);
+  background: linear-gradient(135deg, #F7D5DF 0%, #D87591 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
@@ -150,18 +150,18 @@
 
 .navbar__link--active {
   color: #ffffff !important;
-  background: rgba(247, 0, 99, 0.15) !important;
+  background: rgba(216, 117, 145, 0.16) !important;
   font-weight: 700;
 }
 
 .navbar__link--active .navbar__link-icon {
-  color: var(--accent, #f70063);
+  color: var(--accent, #D87591);
   opacity: 1;
 }
 
 :root[data-theme="light"] .navbar__link--active {
-  color: var(--accent, #f70063) !important;
-  background: rgba(247, 0, 99, 0.1) !important;
+  color: var(--accent, #D87591) !important;
+  background: rgba(216, 117, 145, 0.12) !important;
 }
 
 /* ── 3. Dropdown Menus (Categories & Genres) ── */
@@ -282,9 +282,9 @@
 }
 
 :root[data-theme="light"] .navbar__dropdown-pill:hover {
-  background: rgba(225, 29, 72, 0.08);
+  background: rgba(216, 117, 145, 0.1);
   color: #12121c;
-  border-color: rgba(225, 29, 72, 0.2);
+  border-color: rgba(216, 117, 145, 0.3);
 }
 
 .navbar__dropdown-icon {
@@ -296,7 +296,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent, #f70063);
+  background: var(--accent, #D87591);
   opacity: 0.6;
   flex-shrink: 0;
   transition: opacity 0.15s ease;
@@ -304,7 +304,7 @@
 
 .navbar__dropdown-pill:hover .navbar__dropdown-dot {
   opacity: 1;
-  box-shadow: 0 0 8px var(--accent, #f70063);
+  box-shadow: 0 0 8px var(--accent, #D87591);
 }
 
 .navbar__dropdown-label {

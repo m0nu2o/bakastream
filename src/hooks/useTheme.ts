@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 
-const THEME_STORAGE_KEY = 'bakastream-theme';
-const LEGACY_STORAGE_KEY = 'skystream-theme';
+const THEME_STORAGE_KEY = 'bakastream-theme-v5';
+const LEGACY_STORAGE_KEY = 'bakastream-theme';
 
 type Theme = 'dark' | 'light';
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export function useTheme() {
     if (stored === 'light' || stored === 'dark') {
       setTheme(stored);
       document.documentElement.setAttribute('data-theme', stored);
-    } else if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+    } else {
       setTheme('light');
       document.documentElement.setAttribute('data-theme', 'light');
     }

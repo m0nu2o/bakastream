@@ -14,27 +14,27 @@
   border-radius: 14px;
   overflow: hidden;
   background: #161622;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(217, 217, 224, 0.2);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
 :root[data-theme="light"] .media-card {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  background: #F1F0F3;
+  border: 1px solid #D9D9E0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .media-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(216, 117, 145, 0.6);
 }
 
 :root[data-theme="light"] .media-card:hover {
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  border-color: #D87591;
+  box-shadow: 0 12px 28px rgba(216, 117, 145, 0.15);
 }
 
 /* Poster Box */
@@ -97,7 +97,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--accent, #f70063);
+  background: var(--accent, #D87591);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -105,7 +105,7 @@
   opacity: 0;
   transform: scale(0.85);
   transition: all 0.25s ease;
-  box-shadow: 0 4px 18px rgba(247, 0, 99, 0.6);
+  box-shadow: 0 4px 18px rgba(216, 117, 145, 0.6);
   pointer-events: auto;
   border: none;
   cursor: pointer;
@@ -119,7 +119,7 @@
 
 .media-card__play-btn:hover {
   transform: scale(1.1);
-  background: var(--accent-hover, #ff1a75);
+  background: var(--accent-hover, #C4627D);
 }
 
 /* Save (Watchlist) Button */
@@ -135,7 +135,7 @@
   border-radius: 50%;
   color: #fff;
   background: rgba(18, 19, 24, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(217, 217, 224, 0.3);
   backdrop-filter: blur(8px);
   opacity: 0.9;
   z-index: 4;
@@ -146,25 +146,25 @@
 .media-card:hover .media-card__save {
   opacity: 1;
   background: rgba(18, 19, 24, 0.92);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(217, 217, 224, 0.5);
 }
 
 .media-card__save:hover {
   transform: scale(1.12);
-  color: var(--accent-secondary, #ffabab);
-  border-color: var(--accent-secondary, #ffabab);
+  color: var(--accent-secondary, #F7D5DF);
+  border-color: var(--accent-secondary, #F7D5DF);
 }
 
 .media-card__save--on {
   opacity: 1 !important;
   color: #ffffff !important;
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-subtle, #fcc8d1) !important;
-  box-shadow: 0 0 14px rgba(247, 0, 99, 0.6) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-subtle, #F7D5DF) !important;
+  box-shadow: 0 0 14px rgba(216, 117, 145, 0.6) !important;
 }
 
 .media-card__save--on:hover {
-  background: var(--accent-hover, #ff1a75) !important;
+  background: var(--accent-hover, #C4627D) !important;
   transform: scale(1.12);
 }
 
@@ -175,13 +175,13 @@
   flex-direction: column;
   gap: 5px;
   background: #161622;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid rgba(217, 217, 224, 0.15);
   flex-grow: 1;
 }
 
 :root[data-theme="light"] .media-card__info {
-  background: #ffffff;
-  border-top-color: rgba(0, 0, 0, 0.04);
+  background: #F1F0F3;
+  border-top: 1px solid #D9D9E0;
 }
 
 .media-card__title {
@@ -202,7 +202,7 @@
 }
 
 .media-card:hover .media-card__title {
-  color: var(--accent, #f70063);
+  color: var(--accent, #D87591);
 }
 
 .media-card__meta {

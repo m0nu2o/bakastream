@@ -13,14 +13,14 @@
 .footer-top {
   width: 100%;
   background: var(--bg-primary, #0b0b12);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(217, 217, 224, 0.2);
   padding: 1.75rem clamp(1rem, 4vw, 3rem) 1.5rem;
   box-sizing: border-box;
 }
 
 :root[data-theme="light"] .footer-top {
-  background: #f8f8fb;
-  border-top-color: rgba(0, 0, 0, 0.08);
+  background: #F1F0F3;
+  border-top-color: #D9D9E0;
 }
 
 .footer-top__inner {
@@ -49,7 +49,7 @@
 
 .footer-top__logo:hover .bakastream-logo-icon {
   transform: scale(1.08) rotate(-1.5deg);
-  filter: drop-shadow(0 0 10px rgba(247, 0, 99, 0.7));
+  filter: drop-shadow(0 0 10px rgba(216, 117, 145, 0.7));
 }
 
 .footer-top__logo-text {
@@ -64,7 +64,7 @@
 }
 
 .footer-top__logo-accent {
-  background: linear-gradient(135deg, #ffabab, #f70063);
+  background: linear-gradient(135deg, #F7D5DF, #D87591);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-right: 1px;
@@ -100,7 +100,7 @@
 }
 
 .footer-top__link:hover {
-  color: var(--brand-red, #f70063);
+  color: var(--brand-red, #D87591);
   transform: translateY(-1px);
 }
 
@@ -109,7 +109,7 @@
 }
 
 :root[data-theme="light"] .footer-top__link:hover {
-  color: var(--brand-red, #f70063);
+  color: var(--brand-red, #D87591);
 }
 
 /* ── Bottom Strip Bar (Signature Reference Screenshot Style) ── */
@@ -123,7 +123,7 @@
 }
 
 :root[data-theme="light"] .footer-strip {
-  background: #d8d9e2;
+  background: #D9D9E0;
   color: #12131b;
 }
 
@@ -174,7 +174,7 @@
 }
 
 :root[data-theme="light"] .footer-strip__link:hover {
-  color: var(--brand-red, #e11d48);
+  color: var(--brand-red, #D87591);
 }
 
 .footer-strip__legal {
@@ -210,11 +210,11 @@
 }
 
 .footer-strip__circle-btn:hover {
-  background: var(--brand-red, #f70063);
-  border-color: var(--brand-red, #f70063);
+  background: var(--brand-red, #D87591);
+  border-color: var(--brand-red, #D87591);
   color: #ffffff;
   transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 6px 16px rgba(247, 0, 99, 0.45);
+  box-shadow: 0 6px 16px rgba(216, 117, 145, 0.45);
 }
 
 /* Right side: Copyright */

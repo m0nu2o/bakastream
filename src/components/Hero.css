@@ -176,7 +176,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: linear-gradient(135deg, #f70063 0%, #b80047 100%);
+  background: linear-gradient(135deg, #D87591 0%, #B24E6A 100%);
   color: #ffffff;
   padding: 12px 28px;
   border-radius: 9999px;
@@ -184,12 +184,12 @@
   font-weight: 700;
   text-decoration: none;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(247, 0, 99, 0.5);
+  box-shadow: 0 4px 20px rgba(216, 117, 145, 0.5);
 }
 
 .hero__watch-btn:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 30px rgba(247, 0, 99, 0.7);
+  box-shadow: 0 8px 30px rgba(216, 117, 145, 0.7);
 }
 
 .hero__watch-btn:active {

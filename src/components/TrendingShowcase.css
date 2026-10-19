@@ -128,29 +128,29 @@
   color: #ffffff;
   border-color: rgba(247, 0, 99, 0.45);
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.25);
+  box-shadow: 0 4px 14px rgba(216, 117, 145, 0.25);
 }
 
 :root[data-theme="light"] .trending-showcase__genre-chip:hover {
-  background: #e2e8f0;
-  border-color: rgba(247, 0, 99, 0.35);
+  background: #F1F0F3;
+  border-color: rgba(216, 117, 145, 0.35);
   color: #0f172a;
 }
 
 .trending-showcase__genre-chip--active {
-  background: var(--accent, #f70063) !important;
+  background: var(--accent, #D87591) !important;
   color: #ffffff !important;
-  border-color: var(--accent-secondary, #ffabab) !important;
+  border-color: var(--accent-secondary, #F7D5DF) !important;
   font-weight: 700;
-  box-shadow: 0 4px 18px rgba(247, 0, 99, 0.45) !important;
+  box-shadow: 0 4px 18px rgba(216, 117, 145, 0.45) !important;
   transform: translateY(-2px) scale(1.02);
 }
 
 :root[data-theme="light"] .trending-showcase__genre-chip--active {
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-subtle, #fcc8d1) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-subtle, #F7D5DF) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(216, 117, 145, 0.35) !important;
 }
 
 /* ── 3. Carousel Wrapper & Sleek Modern Edge Navigation ── */
@@ -190,11 +190,11 @@
 }
 
 .trending-showcase__edge-btn:hover {
-  background: var(--accent, #f70063);
-  border-color: var(--accent-subtle, #fcc8d1);
+  background: var(--accent, #D87591);
+  border-color: var(--accent-subtle, #F7D5DF);
   color: #ffffff;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 0 22px rgba(247, 0, 99, 0.6);
+  box-shadow: 0 0 22px rgba(216, 117, 145, 0.6);
 }
 
 .trending-showcase__edge-btn--left {

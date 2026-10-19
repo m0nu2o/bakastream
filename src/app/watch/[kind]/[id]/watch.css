@@ -79,10 +79,10 @@
 }
 
 .watch__toggle-btn--active {
-  background: var(--brand-red, #f70063) !important;
+  background: var(--brand-red, #D87591) !important;
   color: #fff !important;
-  border-color: var(--brand-red, #f70063) !important;
-  box-shadow: 0 0 10px rgba(247, 0, 99, 0.35);
+  border-color: var(--brand-red, #D87591) !important;
+  box-shadow: 0 0 10px rgba(216, 117, 145, 0.35);
 }
 
 :root[data-theme="light"] .watch__toggle-btn {
@@ -97,9 +97,9 @@
 }
 
 :root[data-theme="light"] .watch__toggle-btn--active {
-  background: var(--brand-red, #e11d48) !important;
+  background: var(--brand-red, #D87591) !important;
   color: #ffffff !important;
-  border-color: var(--brand-red, #e11d48) !important;
+  border-color: var(--brand-red, #D87591) !important;
 }
 
 .watch__toolbar-right {

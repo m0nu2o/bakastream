@@ -3,48 +3,48 @@
    ──────────────────────────────────────────────────────────────────────── */
 
 :root,
-:root[data-theme="dark"] {
-  --accent: #f70063;
-  --accent-strong: #b80047;
-  --accent-hover: #ff1a75;
-  --accent-secondary: #ffabab;
-  --accent-subtle: #fcc8d1;
-  --brand-red: #f70063;
+:root[data-theme="light"] {
+  --accent: #D87591;
+  --accent-strong: #B24E6A;
+  --accent-hover: #C4627D;
+  --accent-secondary: #F7D5DF;
+  --accent-subtle: #F7D5DF;
+  --brand-red: #D87591;
 
-  --bg-primary: #121318;
-  --bg-secondary: #171820;
-  --bg-tertiary: #1e202a;
-  --bg-elevated: #242633;
+  --bg-primary: #FFFDFD;
+  --bg-secondary: #F1F0F3;
+  --bg-tertiary: #F1F0F3;
+  --bg-elevated: #FFFDFD;
 
-  --text-primary: #fef2f4;
-  --text-secondary: #a3a6b7;
-  --text-tertiary: #6e7285;
+  --text-primary: #1A1A24;
+  --text-secondary: #5A5A6C;
+  --text-tertiary: #848496;
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(247, 0, 99, 0.25);
-  --overlay-bg: rgba(10, 11, 15, 0.82);
-  --card-bg: #1a1c25;
-  --card-hover-bg: #222531;
+  --border-color: #D9D9E0;
+  --border-strong: #D9D9E0;
+  --overlay-bg: rgba(25, 25, 35, 0.6);
+  --card-bg: #F1F0F3;
+  --card-hover-bg: #EAE9EE;
 
-  --input-bg: rgba(255, 255, 255, 0.06);
-  --input-border: rgba(255, 255, 255, 0.12);
+  --input-bg: #F1F0F3;
+  --input-border: #D9D9E0;
 
   --scrollbar-track: transparent;
-  --scrollbar-thumb: rgba(255, 255, 255, 0.18);
-  --scrollbar-thumb-hover: #f70063;
+  --scrollbar-thumb: #D9D9E0;
+  --scrollbar-thumb-hover: #D87591;
 
   --success: #34d399;
   --warning: #f5c518;
-  --danger: #f70063;
+  --danger: #D87591;
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 35px rgba(247, 0, 99, 0.4);
+  --shadow-md: 0 8px 24px rgba(216, 117, 145, 0.08);
+  --shadow-lg: 0 16px 48px rgba(216, 117, 145, 0.14);
+  --shadow-glow: 0 0 35px rgba(216, 117, 145, 0.25);
 
   --header-height: 60px;
 
@@ -69,39 +69,39 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-:root[data-theme="light"] {
-  --accent: #f70063;
-  --accent-strong: #b80047;
-  --accent-hover: #ff1a75;
-  --accent-secondary: #ffabab;
-  --accent-subtle: #fcc8d1;
-  --brand-red: #f70063;
+:root[data-theme="dark"] {
+  --accent: #D87591;
+  --accent-strong: #B24E6A;
+  --accent-hover: #C4627D;
+  --accent-secondary: #F7D5DF;
+  --accent-subtle: #F7D5DF;
+  --brand-red: #D87591;
 
-  --bg-primary: #fef2f4;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #fce8ec;
-  --bg-elevated: #ffffff;
+  --bg-primary: #121318;
+  --bg-secondary: #171820;
+  --bg-tertiary: #1e202a;
+  --bg-elevated: #242633;
 
-  --text-primary: #17171f;
-  --text-secondary: #56566a;
-  --text-tertiary: #8b8b9e;
+  --text-primary: #FFFDFD;
+  --text-secondary: #D9D9E0;
+  --text-tertiary: #88889C;
 
-  --border-color: rgba(247, 0, 99, 0.12);
-  --border-strong: rgba(247, 0, 99, 0.25);
-  --overlay-bg: rgba(20, 20, 30, 0.6);
-  --card-bg: #ffffff;
-  --card-hover-bg: #fff5f7;
+  --border-color: #D9D9E0;
+  --border-strong: #D9D9E0;
+  --overlay-bg: rgba(10, 11, 15, 0.82);
+  --card-bg: #1a1c25;
+  --card-hover-bg: #222531;
 
-  --input-bg: rgba(247, 0, 99, 0.04);
-  --input-border: rgba(247, 0, 99, 0.16);
+  --input-bg: rgba(255, 255, 255, 0.06);
+  --input-border: #D9D9E0;
 
   --scrollbar-track: transparent;
-  --scrollbar-thumb: #e2c0c7;
-  --scrollbar-thumb-hover: #f70063;
+  --scrollbar-thumb: #D9D9E0;
+  --scrollbar-thumb-hover: #D87591;
 
-  --shadow-md: 0 8px 24px rgba(247, 0, 99, 0.08);
-  --shadow-lg: 0 16px 48px rgba(247, 0, 99, 0.14);
-  --shadow-glow: 0 0 40px rgba(247, 0, 99, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 35px rgba(216, 117, 145, 0.4);
 }
 
 * {
@@ -238,12 +238,12 @@ img {
 .btn--primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.35);
+  box-shadow: 0 4px 16px rgba(216, 117, 145, 0.35);
 }
 .btn--primary:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(247, 0, 99, 0.45);
+  box-shadow: 0 6px 24px rgba(216, 117, 145, 0.45);
 }
 .btn--secondary {
   background: rgba(255, 255, 255, 0.14);
@@ -310,9 +310,9 @@ img {
   letter-spacing: 0.02em;
 }
 .badge--accent {
-  background: rgba(247, 0, 99, 0.16);
+  background: rgba(216, 117, 145, 0.16);
   color: var(--accent);
-  border: 1px solid rgba(247, 0, 99, 0.3);
+  border: 1px solid rgba(216, 117, 145, 0.3);
 }
 .badge--muted {
   background: rgba(255, 255, 255, 0.08);

@@ -85,10 +85,10 @@
   transform: translateY(-1px);
 }
 .chipActive {
-  background: var(--accent, #f70063) !important;
-  border-color: var(--accent-secondary, #ffabab) !important;
+  background: var(--accent, #D87591) !important;
+  border-color: var(--accent-secondary, #F7D5DF) !important;
   color: #fff !important;
-  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.45);
+  box-shadow: 0 4px 16px rgba(216, 117, 145, 0.45);
 }
 .sectionLabel {
   display: block;
@@ -125,16 +125,16 @@
 }
 .categoryChip:hover {
   color: #ffffff;
-  background: rgba(247, 0, 99, 0.12);
-  border-color: rgba(247, 0, 99, 0.35);
+  background: rgba(216, 117, 145, 0.12);
+  border-color: rgba(216, 117, 145, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.2);
+  box-shadow: 0 4px 14px rgba(216, 117, 145, 0.2);
 }
 .categoryChipActive {
-  background: var(--accent, #f70063) !important;
+  background: var(--accent, #D87591) !important;
   color: #ffffff !important;
-  border-color: var(--accent-secondary, #ffabab) !important;
-  box-shadow: 0 4px 18px rgba(247, 0, 99, 0.45) !important;
+  border-color: var(--accent-secondary, #F7D5DF) !important;
+  box-shadow: 0 4px 18px rgba(216, 117, 145, 0.45) !important;
 }
 .genreStrip {
   display: flex;
@@ -163,10 +163,10 @@
   transform: translateY(-1px);
 }
 .genrePillActive {
-  background: var(--accent, #f70063) !important;
+  background: var(--accent, #D87591) !important;
   color: #ffffff !important;
-  border-color: var(--accent-secondary, #ffabab) !important;
-  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.45) !important;
+  border-color: var(--accent-secondary, #F7D5DF) !important;
+  box-shadow: 0 4px 16px rgba(216, 117, 145, 0.45) !important;
 }
 .selectGroup {
   display: flex;
