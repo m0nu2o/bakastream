@@ -8,7 +8,13 @@ import {
   ToggleLeft,
   ToggleRight,
   Volume2,
+  VolumeX,
   Zap,
+  Play,
+  Pause,
+  FastForward,
+  Rewind,
+  Maximize,
 } from 'lucide-react';
 import VideoPlayer from '@/components/player/VideoPlayer';
 import LuminaServerDeck from '@/components/player/LuminaServerDeck';
@@ -305,6 +311,178 @@ function EmbedStage({
   const triedServersRef = useRef<string[]>([activeServer]);
   const activeServerObj = compatibleServers.find(s => s.id === activeServer);
 
+  const stageRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [hud, setHud] = useState<{ text: string; holding?: boolean } | null>(null);
+  const hudTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isHoldingRef = useRef<boolean>(false);
+  const holdKeyRef = useRef<string | null>(null);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showHud = useCallback((text: string, duration = 1200, holding = false) => {
+    if (hudTimeoutRef.current) clearTimeout(hudTimeoutRef.current);
+    setHud({ text, holding });
+    if (!holding) {
+      hudTimeoutRef.current = setTimeout(() => {
+        setHud(null);
+      }, duration);
+    }
+  }, []);
+
+  const broadcastToIframe = useCallback((command: string, value?: any) => {
+    const iframe = iframeRef.current;
+    if (!iframe || !iframe.contentWindow) return;
+
+    const messages = [
+      { type: command, value },
+      { event: command, value },
+      { action: command, value },
+      { method: command, arg: value },
+      JSON.stringify({ method: command, value }),
+      JSON.stringify({ event: command, data: value }),
+    ];
+
+    messages.forEach(msg => {
+      try {
+        iframe.contentWindow?.postMessage(msg, '*');
+      } catch {
+        // Cross-origin safe
+      }
+    });
+  }, []);
+
+  // ── Keyboard Controls & Hold to 2X Fast Forward ──────────────
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
+      const key = e.key.toLowerCase();
+
+      // If already holding this key, prevent duplicate timers & repeated actions
+      if (isHoldingRef.current && holdKeyRef.current === key) {
+        if (key === ' ' || key === 'arrowright') {
+          e.preventDefault();
+        }
+        return;
+      }
+
+      if (key === ' ' || key === 'k') {
+        e.preventDefault();
+        holdKeyRef.current = key;
+
+        if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = setTimeout(() => {
+          isHoldingRef.current = true;
+          broadcastToIframe('setSpeed', 2);
+          broadcastToIframe('speed', 2);
+          showHud('▶▶ 2X Speed (Holding)', 0, true);
+        }, 220);
+        return;
+      }
+
+      if (key === 'arrowright' || key === 'l') {
+        e.preventDefault();
+        holdKeyRef.current = key;
+
+        if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = setTimeout(() => {
+          isHoldingRef.current = true;
+          broadcastToIframe('setSpeed', 2);
+          broadcastToIframe('speed', 2);
+          showHud('▶▶ 2X Speed (Holding)', 0, true);
+        }, 220);
+        return;
+      }
+
+      if (key === 'arrowleft' || key === 'j') {
+        e.preventDefault();
+        broadcastToIframe('seek', -10);
+        broadcastToIframe('seekTo', -10);
+        broadcastToIframe('backward', 10);
+        showHud('◀◀ -10s Skip');
+        return;
+      }
+
+      if (key === 'arrowup') {
+        e.preventDefault();
+        broadcastToIframe('volume', 0.1);
+        showHud('🔊 Volume Up');
+        return;
+      }
+
+      if (key === 'arrowdown') {
+        e.preventDefault();
+        broadcastToIframe('volume', -0.1);
+        showHud('🔉 Volume Down');
+        return;
+      }
+
+      if (key === 'm') {
+        e.preventDefault();
+        broadcastToIframe('mute');
+        broadcastToIframe('toggleMute');
+        showHud('🔇 Mute / Unmute');
+        return;
+      }
+
+      if (key === 'f') {
+        e.preventDefault();
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+          showHud('⛶ Exit Fullscreen');
+        } else {
+          stageRef.current?.requestFullscreen().catch(() => {});
+          showHud('⛶ Fullscreen');
+        }
+        return;
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
+      const key = e.key.toLowerCase();
+
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = null;
+      }
+
+      if (holdKeyRef.current === key) {
+        if (isHoldingRef.current) {
+          // Revert holding 2X mode back to 1X
+          isHoldingRef.current = false;
+          broadcastToIframe('setSpeed', 1);
+          broadcastToIframe('speed', 1);
+          showHud('1X Speed', 800, false);
+        } else {
+          // Short press (tap)
+          if (key === ' ' || key === 'k') {
+            broadcastToIframe('toggle');
+            broadcastToIframe('play');
+            showHud('⏯ Play / Pause');
+          } else if (key === 'arrowright' || key === 'l') {
+            broadcastToIframe('seek', 10);
+            broadcastToIframe('seekTo', 10);
+            broadcastToIframe('forward', 10);
+            showHud('▶▶ +10s Skip');
+          }
+        }
+        holdKeyRef.current = null;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      if (hudTimeoutRef.current) clearTimeout(hudTimeoutRef.current);
+    };
+  }, [broadcastToIframe, showHud]);
+
   // Reset tried servers when embedUrl changes (new server chosen manually)
   useEffect(() => {
     triedServersRef.current = [activeServer];
@@ -436,8 +614,15 @@ function EmbedStage({
   }
 
   return (
-    <div className="watch__stage">
+    <div className="watch__stage" ref={stageRef}>
       {isPreview && <div className="watch__preview-banner">{notice}</div>}
+
+      {/* ── Apple-Grade Player HUD Toast ── */}
+      {hud && (
+        <div className={`player-hud-toast ${hud.holding ? 'player-hud-toast--holding' : ''}`}>
+          <span>{hud.text}</span>
+        </div>
+      )}
 
       {/* ── Auto-switch notification banner ── */}
       {(autoSwitching || switchMessage) && (
@@ -472,6 +657,7 @@ function EmbedStage({
 
       {/* ── Video Embed with Ad Shield Protection (blocks redirects, popunders, and top-level hijacks) ── */}
       <iframe
+        ref={iframeRef}
         key={embedUrl}
         src={embedUrl}
         title="Stream player"

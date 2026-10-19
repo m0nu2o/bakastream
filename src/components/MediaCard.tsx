@@ -27,7 +27,7 @@ export default function MediaCard({ content, onPlay }: Props) {
   return (
     <article className="media-card">
       <div className="media-card__poster-box">
-        <Link href={href} aria-label={content.title} className="media-card__poster-link">
+        <Link href={href} prefetch={true} aria-label={content.title} className="media-card__poster-link">
           {poster ? (
             <Image
               src={poster}
@@ -84,7 +84,7 @@ export default function MediaCard({ content, onPlay }: Props) {
 
       {/* Info Block (Inset container exactly like the reference design) */}
       <div className="media-card__info">
-        <Link href={href} className="media-card__title" title={content.title}>
+        <Link href={href} prefetch={true} className="media-card__title" title={content.title}>
           {content.title}
         </Link>
         <div className="media-card__meta">

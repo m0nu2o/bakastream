@@ -68,6 +68,23 @@ export default function VideoPlayer({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Keyboard navigation & Hold 2X Fast-Forward state
+  const [hud, setHud] = useState<{ text: string; holding?: boolean } | null>(null);
+  const hudTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isHoldingRef = useRef(false);
+  const holdKeyRef = useRef<string | null>(null);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showHud = useCallback((text: string, duration = 1200, holding = false) => {
+    if (hudTimerRef.current) clearTimeout(hudTimerRef.current);
+    setHud({ text, holding });
+    if (!holding) {
+      hudTimerRef.current = setTimeout(() => {
+        setHud(null);
+      }, duration);
+    }
+  }, []);
+
   // Quality levels
   const [levels, setLevels] = useState<Array<{ height: number; index: number }>>([]);
   const [activeLevel, setActiveLevel] = useState(-1);
@@ -426,68 +443,153 @@ export default function VideoPlayer({
     }
   }, [native]);
 
-  /* keyboard shortcuts */
+  /* keyboard shortcuts & hold to 2X fast forward */
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
+    const video = videoRef.current;
+
+    const onKeyDown = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
-      switch (e.key.toLowerCase()) {
-        case ' ':
-        case 'k':
-          e.preventDefault();
-          togglePlay();
-          break;
-        case 'arrowright':
-          e.preventDefault();
-          seekBy(5);
-          break;
-        case 'arrowleft':
-          e.preventDefault();
-          seekBy(-5);
-          break;
-        case 'l':
-          seekBy(RESUME_SKIP_SECONDS);
-          break;
-        case 'j':
-          seekBy(-RESUME_SKIP_SECONDS);
-          break;
-        case 'f':
-          toggleFullscreen();
-          break;
-        case 'm':
-          toggleMute();
-          break;
-        case 'p':
-          togglePiP();
-          break;
-        case 'c':
-          toggleSubtitlesQuick();
-          break;
-        case '<':
-        case ',': {
-          const curIdx = SPEEDS.indexOf(speed);
-          if (curIdx > 0) changeSpeed(SPEEDS[curIdx - 1]);
-          break;
+      const key = e.key.toLowerCase();
+
+      // If already holding this key, prevent duplicate timers & repeated actions
+      if (isHoldingRef.current && holdKeyRef.current === key) {
+        if (key === ' ' || key === 'arrowright') e.preventDefault();
+        return;
+      }
+
+      if (key === ' ' || key === 'k') {
+        e.preventDefault();
+        holdKeyRef.current = key;
+
+        if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = setTimeout(() => {
+          isHoldingRef.current = true;
+          if (video) video.playbackRate = 2;
+          showHud('▶▶ 2X Speed (Holding)', 0, true);
+        }, 220);
+        return;
+      }
+
+      if (key === 'arrowright' || key === 'l') {
+        e.preventDefault();
+        holdKeyRef.current = key;
+
+        if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = setTimeout(() => {
+          isHoldingRef.current = true;
+          if (video) video.playbackRate = 2;
+          showHud('▶▶ 2X Speed (Holding)', 0, true);
+        }, 220);
+        return;
+      }
+
+      if (key === 'arrowleft' || key === 'j') {
+        e.preventDefault();
+        seekBy(-10);
+        showHud('◀◀ -10s Skip');
+        return;
+      }
+
+      if (key === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+        showHud(fullscreen ? 'Exit Fullscreen' : 'Fullscreen');
+        return;
+      }
+
+      if (key === 'm') {
+        e.preventDefault();
+        toggleMute();
+        showHud(muted ? '🔊 Unmuted' : '🔇 Muted');
+        return;
+      }
+
+      if (key === 'p') {
+        togglePiP();
+        return;
+      }
+
+      if (key === 'c') {
+        toggleSubtitlesQuick();
+        return;
+      }
+
+      if (key === '<' || key === ',') {
+        const curIdx = SPEEDS.indexOf(speed);
+        if (curIdx > 0) {
+          changeSpeed(SPEEDS[curIdx - 1]);
+          showHud(`${SPEEDS[curIdx - 1]}X Speed`);
         }
-        case '>':
-        case '.': {
-          const curIdx = SPEEDS.indexOf(speed);
-          if (curIdx < SPEEDS.length - 1) changeSpeed(SPEEDS[curIdx + 1]);
-          break;
+        return;
+      }
+
+      if (key === '>' || key === '.') {
+        const curIdx = SPEEDS.indexOf(speed);
+        if (curIdx < SPEEDS.length - 1) {
+          changeSpeed(SPEEDS[curIdx + 1]);
+          showHud(`${SPEEDS[curIdx + 1]}X Speed`);
         }
-        case 'arrowup':
-          e.preventDefault();
-          changeVolume(volume + 0.1);
-          break;
-        case 'arrowdown':
-          e.preventDefault();
-          changeVolume(volume - 0.1);
-          break;
-        default:
-          if (/^[0-9]$/.test(e.key)) seekTo(Number(e.key) / 10);
+        return;
+      }
+
+      if (key === 'arrowup') {
+        e.preventDefault();
+        const nextVol = Math.min(1, volume + 0.1);
+        changeVolume(nextVol);
+        showHud(`🔊 Volume ${Math.round(nextVol * 100)}%`);
+        return;
+      }
+
+      if (key === 'arrowdown') {
+        e.preventDefault();
+        const nextVol = Math.max(0, volume - 0.1);
+        changeVolume(nextVol);
+        showHud(`🔉 Volume ${Math.round(nextVol * 100)}%`);
+        return;
+      }
+
+      if (/^[0-9]$/.test(e.key)) {
+        seekTo(Number(e.key) / 10);
+        showHud(`Seek to ${Number(e.key) * 10}%`);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
+      const key = e.key.toLowerCase();
+
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = null;
+      }
+
+      if (holdKeyRef.current === key) {
+        if (isHoldingRef.current) {
+          isHoldingRef.current = false;
+          if (video) video.playbackRate = speed;
+          showHud(`${speed}X Speed`, 800, false);
+        } else {
+          if (key === ' ' || key === 'k') {
+            togglePlay();
+            showHud(playing ? '⏸ Paused' : '▶ Playing');
+          } else if (key === 'arrowright' || key === 'l') {
+            seekBy(10);
+            showHud('▶▶ +10s Skip');
+          }
+        }
+        holdKeyRef.current = null;
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      if (hudTimerRef.current) clearTimeout(hudTimerRef.current);
+    };
   }, [
     togglePlay,
     seekBy,
@@ -500,6 +602,10 @@ export default function VideoPlayer({
     toggleSubtitlesQuick,
     speed,
     changeSpeed,
+    showHud,
+    fullscreen,
+    muted,
+    playing,
   ]);
 
   useEffect(() => {
@@ -583,6 +689,13 @@ export default function VideoPlayer({
           />
         ))}
       </video>
+
+      {/* ── Apple-Grade Player HUD Toast ── */}
+      {hud && (
+        <div className={`player-hud-toast ${hud.holding ? 'player-hud-toast--holding' : ''}`}>
+          <span>{hud.text}</span>
+        </div>
+      )}
 
       {/* Loading / error overlays */}
       {buffering && !error && (

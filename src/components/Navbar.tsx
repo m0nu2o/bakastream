@@ -106,6 +106,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={true}
                   className={`navbar__link ${isActive(link.href) ? 'navbar__link--active' : ''}`}
                 >
                   <Icon size={14} className="navbar__link-icon" />
@@ -140,6 +141,7 @@ export default function Navbar() {
                       <Link
                         key={c.id}
                         href={`/category/${c.id}`}
+                        prefetch={true}
                         className="navbar__dropdown-pill"
                         onClick={() => setCategoriesOpen(false)}
                       >
@@ -179,6 +181,7 @@ export default function Navbar() {
                       <Link
                         key={g.id}
                         href={genreHref(g)}
+                        prefetch={true}
                         className="navbar__dropdown-pill"
                         onClick={() => setGenresOpen(false)}
                       >
@@ -193,7 +196,7 @@ export default function Navbar() {
           </nav>
 
           <div className="navbar__actions">
-            <Link href="/search" className="navbar__search-capsule" aria-label="Search titles">
+            <Link href="/search" prefetch={true} className="navbar__search-capsule" aria-label="Search titles">
               <Search size={15} />
               <span className="navbar__search-text">Search…</span>
             </Link>
@@ -220,6 +223,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={true}
                   className={`mobile-nav__link ${isActive(link.href) ? 'mobile-nav__link--active' : ''}`}
                 >
                   <Icon size={22} />
@@ -242,7 +246,7 @@ export default function Navbar() {
             {mobileCategoriesOpen && (
               <div className="mobile-nav__genres">
                 {categories.map(c => (
-                  <Link key={c.id} href={`/category/${c.id}`} className="mobile-nav__genre">
+                  <Link key={c.id} href={`/category/${c.id}`} prefetch={true} className="mobile-nav__genre">
                     {c.icon} {c.name}
                   </Link>
                 ))}
@@ -264,13 +268,17 @@ export default function Navbar() {
               <div className="mobile-nav__genres">
                 {genres.length === 0 && <span className="mobile-nav__genre-empty">Loading…</span>}
                 {genres.map(g => (
-                  <Link key={g.id} href={genreHref(g)} className="mobile-nav__genre">
+                  <Link key={g.id} href={genreHref(g)} prefetch={true} className="mobile-nav__genre">
                     {g.name}
                   </Link>
                 ))}
               </div>
             )}
           </nav>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0.5rem', borderTop: '1px solid var(--border-color)' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Theme &amp; Appearance</span>
+            <ThemeToggle />
+          </div>
           <p className="mobile-nav__footnote">Movies &amp; series. Metadata by TMDB.</p>
         </div>
       )}

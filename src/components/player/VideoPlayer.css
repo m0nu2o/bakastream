@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(247, 0, 99, 0.92);
+  background: var(--accent, #C21E56);
   color: #fff;
   box-shadow: var(--shadow-glow);
   z-index: 5;
@@ -94,7 +94,7 @@
   height: 14px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 8px rgba(247, 0, 99, 0.7);
+  box-shadow: 0 0 8px rgba(194, 30, 86, 0.7);
 }
 .videoplayer__seek::-moz-range-thumb {
   width: 14px;

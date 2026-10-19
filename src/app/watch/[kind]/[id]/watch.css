@@ -18,6 +18,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .watch__stage--loading {
   aspect-ratio: 16 / 9;
@@ -79,10 +80,10 @@
 }
 
 .watch__toggle-btn--active {
-  background: var(--brand-red, #D87591) !important;
+  background: var(--brand-red, #C21E56) !important;
   color: #fff !important;
-  border-color: var(--brand-red, #D87591) !important;
-  box-shadow: 0 0 10px rgba(216, 117, 145, 0.35);
+  border-color: var(--brand-red, #C21E56) !important;
+  box-shadow: 0 0 10px rgba(194, 30, 86, 0.35);
 }
 
 :root[data-theme="light"] .watch__toggle-btn {
@@ -97,9 +98,9 @@
 }
 
 :root[data-theme="light"] .watch__toggle-btn--active {
-  background: var(--brand-red, #D87591) !important;
+  background: var(--brand-red, #C21E56) !important;
   color: #ffffff !important;
-  border-color: var(--brand-red, #D87591) !important;
+  border-color: var(--brand-red, #C21E56) !important;
 }
 
 .watch__toolbar-right {
@@ -513,4 +514,63 @@
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ── Apple-Grade Player HUD Toast ── */
+.player-hud-toast {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 9999px;
+  background: rgba(18, 19, 28, 0.9);
+  border: 1.5px solid var(--accent, #C21E56);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 24px rgba(194, 30, 86, 0.45);
+  pointer-events: none;
+  z-index: 60;
+  animation: hudPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+:root[data-theme="light"] .player-hud-toast {
+  background: rgba(255, 255, 255, 0.95);
+  color: #12121c;
+  border-color: var(--accent, #C21E56);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 0 24px rgba(194, 30, 86, 0.25);
+}
+
+.player-hud-toast--holding {
+  border-color: #f59e0b !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 28px rgba(245, 158, 11, 0.55) !important;
+  animation: hudPulse 0.8s infinite alternate ease-in-out !important;
+}
+
+@keyframes hudPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes hudPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
 }

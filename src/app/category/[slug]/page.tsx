@@ -151,9 +151,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               borderRadius: '999px',
               fontSize: '0.74rem',
               fontWeight: '700',
-              background: 'rgba(216, 117, 145, 0.15)',
-              border: '1px solid rgba(216, 117, 145, 0.3)',
-              color: 'var(--accent, #D87591)',
+              background: 'rgba(194, 30, 86, 0.15)',
+              border: '1px solid rgba(194, 30, 86, 0.3)',
+              color: 'var(--accent, #C21E56)',
             }}
           >
             🛡️ Ad Shield Protected

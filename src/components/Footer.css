@@ -49,7 +49,7 @@
 
 .footer-top__logo:hover .bakastream-logo-icon {
   transform: scale(1.08) rotate(-1.5deg);
-  filter: drop-shadow(0 0 10px rgba(216, 117, 145, 0.7));
+  filter: drop-shadow(0 0 10px rgba(194, 30, 86, 0.7));
 }
 
 .footer-top__logo-text {
@@ -64,7 +64,7 @@
 }
 
 .footer-top__logo-accent {
-  background: linear-gradient(135deg, #F7D5DF, #D87591);
+  background: linear-gradient(135deg, #FCE7F0, #C21E56);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-right: 1px;
@@ -100,7 +100,7 @@
 }
 
 .footer-top__link:hover {
-  color: var(--brand-red, #D87591);
+  color: var(--brand-red, #C21E56);
   transform: translateY(-1px);
 }
 
@@ -109,7 +109,7 @@
 }
 
 :root[data-theme="light"] .footer-top__link:hover {
-  color: var(--brand-red, #D87591);
+  color: var(--brand-red, #C21E56);
 }
 
 /* ── Bottom Strip Bar (Signature Reference Screenshot Style) ── */
@@ -174,7 +174,7 @@
 }
 
 :root[data-theme="light"] .footer-strip__link:hover {
-  color: var(--brand-red, #D87591);
+  color: var(--brand-red, #C21E56);
 }
 
 .footer-strip__legal {
@@ -210,11 +210,11 @@
 }
 
 .footer-strip__circle-btn:hover {
-  background: var(--brand-red, #D87591);
-  border-color: var(--brand-red, #D87591);
+  background: var(--brand-red, #C21E56);
+  border-color: var(--brand-red, #C21E56);
   color: #ffffff;
   transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 6px 16px rgba(216, 117, 145, 0.45);
+  box-shadow: 0 6px 16px rgba(194, 30, 86, 0.45);
 }
 
 /* Right side: Copyright */

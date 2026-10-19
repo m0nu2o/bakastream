@@ -1,17 +1,252 @@
+/* ─────────────────────────────────────────────────────────────
+   THEME PICKER POPOVER — APPLE-GRADE DESIGN SYSTEM
+   ───────────────────────────────────────────────────────────── */
+
+.theme-picker-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .theme-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-color);
   background: var(--input-bg);
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
-.theme-toggle:hover {
+
+.theme-toggle:hover,
+.theme-toggle--open {
   color: var(--text-primary);
-  border-color: var(--text-tertiary);
-  transform: rotate(12deg);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.05);
+}
+
+:root[data-theme="light"] .theme-toggle:hover,
+:root[data-theme="light"] .theme-toggle--open {
+  background: #f1f0f4;
+  border-color: var(--accent);
+}
+
+.theme-toggle__dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+  transition: background-color 0.25s ease;
+}
+
+.theme-toggle__icon {
+  transition: transform 0.25s ease;
+}
+
+.theme-toggle:hover .theme-toggle__icon {
+  transform: rotate(20deg);
+}
+
+/* ── Apple-Grade Theme Popover ── */
+.theme-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--bg-elevated);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg), 0 20px 48px rgba(0, 0, 0, 0.45);
+  padding: 12px;
+  z-index: 120;
+  animation: popoverIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:root[data-theme="light"] .theme-popover {
+  background: rgba(255, 253, 253, 0.98);
+  border-color: #D9D9E0;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.theme-popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-popover__title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-popover__title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.theme-popover__sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.theme-popover__quick-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.theme-popover__quick-toggle:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+/* ── Theme Options List ── */
+.theme-popover__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 380px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 2px;
+}
+
+.theme-popover__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.theme-popover__item:hover {
+  background: var(--card-hover-bg);
+  transform: translateX(2px);
+}
+
+.theme-popover__item--active {
+  background: var(--card-hover-bg);
+  border-color: var(--accent);
+}
+
+.theme-popover__swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border-width: 2px;
+  border-style: solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-popover__swatch-core {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.theme-popover__details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.theme-popover__name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.theme-popover__name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-popover__desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-popover__badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-tertiary);
+}
+
+:root[data-theme="light"] .theme-popover__badge {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary);
+}
+
+.theme-popover__check {
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
