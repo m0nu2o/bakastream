@@ -88,9 +88,9 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
         return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
       }
       if (type === 'tv' || season !== undefined) {
-        return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=f43b4c`;
+        return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=e50914&secondaryColor=121318&iconColor=e50914&icons=vid`;
       }
-      return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=f43b4c`;
+      return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=e50914&secondaryColor=121318&iconColor=e50914&icons=vid`;
     },
   },
   {
@@ -237,7 +237,7 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
       }
       if (malId) {
         const epNum = type === 'movie' ? 1 : (episode || 1);
-        return `https://vidlink.pro/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?primaryColor=f43b4c&secondaryColor=12121c&iconColor=f43b4c`;
+        return `https://vidlink.pro/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?primaryColor=e50914&secondaryColor=121318&iconColor=e50914&icons=vid`;
       }
       if (type === 'movie') {
         return `https://vidsrc.su/embed/movie/${id}${isDub ? '?dub=1' : ''}`;

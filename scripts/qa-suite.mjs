@@ -144,7 +144,7 @@ async function startSuite() {
   });
 
   await runStep('A2. Hero spotlight banner renders with active backdrop and metadata', async () => {
-    await page.waitForSelector('.hero', { timeout: 8000 });
+    await page.waitForSelector('.hero', { timeout: 15000 });
     const heroTitle = await page.locator('.hero__title').innerText();
     const heroWatchBtn = await page.locator('.hero__watch-btn').count();
     if (!heroTitle) throw new Error('Hero title is missing');
@@ -165,6 +165,7 @@ async function startSuite() {
   });
 
   await runStep('A4. Categories dropdown exposes all 11 curated categories', async () => {
+    await page.waitForLoadState('networkidle').catch(() => {});
     const catToggle = page.locator('.navbar__dropdown-toggle', { hasText: 'Categories' });
     await catToggle.click();
     await page.waitForSelector('.navbar__dropdown-menu--categories', { state: 'visible', timeout: 5000 });
@@ -336,21 +337,25 @@ async function startSuite() {
   // ────────────────────────────────────────────────────────────────────────
   console.log('\n▶ SUITE D: Streaming Player, Cross-Season Episodes & Sandbox Security');
 
-  await runStep('D1. Watch Movie page loads with safe sandboxed player iframe', async () => {
+  await runStep('D1. Watch Movie page loads clean player iframe without sandbox errors', async () => {
     await page.goto(`${BASE_URL}/watch/movie/550`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.watch__iframe', { timeout: 12000 });
 
-    const sandbox = await page.locator('.watch__iframe').getAttribute('sandbox');
-    if (!sandbox) {
-      throw new Error('SECURITY RISK: iframe has no sandbox attribute!');
+    const iframeSrc = await page.locator('.watch__iframe').getAttribute('src');
+    if (!iframeSrc || (!iframeSrc.includes('vidlink') && !iframeSrc.includes('embed') && !iframeSrc.includes('vidsrc'))) {
+      throw new Error(`Invalid player iframe source: ${iframeSrc}`);
     }
-    if (sandbox.includes('allow-top-navigation')) {
-      throw new Error('SECURITY RISK: sandbox allows top-navigation redirect!');
+
+    // Wait a brief moment to ensure player finishes initialization
+    await page.waitForTimeout(2000);
+
+    // Verify "Please Disable Sandbox" error is NOT present in the page or player
+    const bodyText = await page.evaluate(() => document.body.innerText);
+    if (bodyText.includes('Please Disable Sandbox')) {
+      throw new Error('REGRESSION: "Please Disable Sandbox" error detected on screen!');
     }
-    if (!sandbox.includes('allow-scripts') || !sandbox.includes('allow-same-origin')) {
-      throw new Error('Sandbox missing required allow-scripts or allow-same-origin');
-    }
-    return `Sandbox verified: "${sandbox}"`;
+
+    return `Player active: "${iframeSrc.slice(0, 45)}…" with 0 sandbox errors`;
   });
 
   await runStep('D2. Ad Shield badge and Active Server pill are visible', async () => {

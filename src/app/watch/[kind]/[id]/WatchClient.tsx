@@ -314,7 +314,7 @@ function EmbedStage({
   }, [embedUrl, activeServer]);
 
   // ── Enhanced Ad Shield ──────────────────────────────────────
-  // Blocks: popup windows, top-level navigation hijacks, visibility-based popunders
+  // Blocks: popup windows, top-level navigation hijacks, visibility-based popunders, and focus loss
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -333,26 +333,36 @@ function EmbedStage({
       }
     };
 
-    // 3. Block visibility-based ad triggers (ads that trigger when tab becomes hidden)
-    const handleVisibility = () => {
-      // No-op override — prevents some ad scripts that fire on visibility change
+    // 3. Keep focus locked to BakaStream if an iframe attempts an unfocus/new-tab deflection
+    const handleBlur = () => {
+      if (document.activeElement instanceof HTMLIFrameElement) {
+        setTimeout(() => {
+          window.focus();
+        }, 100);
+      }
     };
 
-    // 4. Block keyboard-triggered navigation (some ads use keyboard events)
+    // 4. Block visibility-based ad triggers (ads that trigger when tab becomes hidden)
+    const handleVisibility = () => {
+      // No-op override — prevents ad scripts that fire on visibility change
+    };
+
+    // 5. Block keyboard-triggered navigation
     const handleKeyBlock = (e: KeyboardEvent) => {
       if (document.activeElement instanceof HTMLIFrameElement) {
-        // Only block Escape which some ad scripts use to trigger navigation
         if (e.key === 'F11') e.preventDefault();
       }
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('blur', handleBlur);
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('keydown', handleKeyBlock);
 
     return () => {
       window.open = originalOpen;
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('blur', handleBlur);
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('keydown', handleKeyBlock);
     };
@@ -460,13 +470,12 @@ function EmbedStage({
         )}
       </div>
 
-      {/* ── Video Embed with Safe Sandboxing (blocks redirects, popunders, and top-level hijacks) ── */}
+      {/* ── Video Embed with Ad Shield Protection (blocks redirects, popunders, and top-level hijacks) ── */}
       <iframe
         key={embedUrl}
         src={embedUrl}
         title="Stream player"
         className="watch__iframe"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         referrerPolicy="origin"
