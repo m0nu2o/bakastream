@@ -77,6 +77,7 @@ export default function ThemeToggle() {
                 <button
                   key={opt.id}
                   type="button"
+                  data-theme-id={opt.id}
                   className={`theme-popover__item ${isSelected ? 'theme-popover__item--active' : ''}`}
                   onClick={() => {
                     setTheme(opt.id);
