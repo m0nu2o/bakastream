@@ -148,7 +148,7 @@
   transform: scale(1.15);
   background: var(--accent);
   border-color: #ffffff;
-  box-shadow: 0 0 35px rgba(209, 77, 114, 0.75);
+  box-shadow: 0 0 35px rgba(247, 0, 99, 0.75);
 }
 
 .watching-banner__play-icon {

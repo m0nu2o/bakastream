@@ -52,12 +52,12 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(209, 77, 114, 0.15);
-  border: 1px solid rgba(209, 77, 114, 0.3);
+  background: rgba(247, 0, 99, 0.15);
+  border: 1px solid rgba(247, 0, 99, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--brand-red, #d14d72);
+  color: var(--brand-red, #f70063);
   flex-shrink: 0;
 }
 
@@ -129,8 +129,8 @@
 }
 
 .season-selector__search-box:focus-within {
-  border-color: var(--brand-red, #d14d72);
-  box-shadow: 0 0 10px rgba(209, 77, 114, 0.25);
+  border-color: var(--brand-red, #f70063);
+  box-shadow: 0 0 10px rgba(247, 0, 99, 0.25);
 }
 
 .season-selector__search-icon {
@@ -206,9 +206,9 @@
 }
 
 .season-selector__view-btn--active {
-  background: rgba(209, 77, 114, 0.2) !important;
+  background: rgba(247, 0, 99, 0.2) !important;
   color: var(--accent-secondary, #ffabab) !important;
-  border: 1px solid rgba(209, 77, 114, 0.45);
+  border: 1px solid rgba(247, 0, 99, 0.45);
 }
 
 :root[data-theme="light"] .season-selector__view-btn--active {
@@ -270,17 +270,17 @@
 }
 
 .season-selector__season-tab--active {
-  background: linear-gradient(135deg, rgba(209, 77, 114, 0.28) 0%, rgba(209, 77, 114, 0.12) 100%) !important;
-  border-color: var(--brand-red, #d14d72) !important;
+  background: linear-gradient(135deg, rgba(247, 0, 99, 0.28) 0%, rgba(247, 0, 99, 0.12) 100%) !important;
+  border-color: var(--brand-red, #f70063) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 14px rgba(209, 77, 114, 0.35);
+  box-shadow: 0 0 14px rgba(247, 0, 99, 0.35);
 }
 
 :root[data-theme="light"] .season-selector__season-tab--active {
   background: #fef2f4 !important;
-  border-color: #d14d72 !important;
-  color: #b23a5d !important;
-  box-shadow: 0 2px 10px rgba(209, 77, 114, 0.2);
+  border-color: #f70063 !important;
+  color: #b80047 !important;
+  box-shadow: 0 2px 10px rgba(247, 0, 99, 0.2);
 }
 
 .season-selector__season-badge-pill {
@@ -288,9 +288,9 @@
   font-weight: 800;
   padding: 0.08rem 0.35rem;
   border-radius: 4px;
-  background: rgba(209, 77, 114, 0.18);
-  border: 1px solid rgba(209, 77, 114, 0.3);
-  color: var(--brand-red, #d14d72);
+  background: rgba(247, 0, 99, 0.18);
+  border: 1px solid rgba(247, 0, 99, 0.3);
+  color: var(--brand-red, #f70063);
 }
 
 .season-selector__season-tab--active .season-selector__season-badge-pill {
@@ -396,10 +396,10 @@
 }
 
 .season-selector__range-tab--active {
-  background: var(--brand-red, #d14d72) !important;
-  border-color: var(--brand-red, #d14d72) !important;
+  background: var(--brand-red, #f70063) !important;
+  border-color: var(--brand-red, #f70063) !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(209, 77, 114, 0.35);
+  box-shadow: 0 2px 8px rgba(247, 0, 99, 0.35);
 }
 
 .season-selector__range-current-dot {
@@ -483,16 +483,16 @@
 
 .season-ep-box:hover .season-ep-box__play-icon {
   opacity: 1;
-  color: var(--brand-red, #d14d72);
+  color: var(--brand-red, #f70063);
 }
 
 /* Active Episode Box */
 .season-ep-box--current {
-  background: linear-gradient(135deg, #d14d72 0%, #b23a5d 100%) !important;
+  background: linear-gradient(135deg, #f70063 0%, #b80047 100%) !important;
   border-color: var(--accent-secondary, #ffabab) !important;
   color: #ffffff !important;
   box-shadow:
-    0 0 16px rgba(209, 77, 114, 0.45),
+    0 0 16px rgba(247, 0, 99, 0.45),
     inset 0 0 10px rgba(255, 255, 255, 0.15) !important;
   transform: scale(1.04) !important;
 }
@@ -558,9 +558,9 @@
 }
 
 .season-ep-card--current {
-  background: linear-gradient(135deg, rgba(209, 77, 114, 0.22) 0%, rgba(209, 77, 114, 0.08) 100%) !important;
-  border-color: var(--brand-red, #d14d72) !important;
-  box-shadow: 0 0 16px rgba(209, 77, 114, 0.25) !important;
+  background: linear-gradient(135deg, rgba(247, 0, 99, 0.22) 0%, rgba(247, 0, 99, 0.08) 100%) !important;
+  border-color: var(--brand-red, #f70063) !important;
+  box-shadow: 0 0 16px rgba(247, 0, 99, 0.25) !important;
 }
 
 .season-ep-card__thumb-box {
@@ -610,7 +610,7 @@
   font-weight: 900;
   padding: 0.12rem 0.4rem;
   border-radius: 3px;
-  background: var(--brand-red, #d14d72);
+  background: var(--brand-red, #f70063);
   color: #ffffff;
 }
 
@@ -667,7 +667,7 @@
   padding: 0.12rem 0.45rem;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.08);
-  color: var(--brand-red, #d14d72);
+  color: var(--brand-red, #f70063);
   flex-shrink: 0;
 }
 
@@ -823,12 +823,12 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--brand-red, #d14d72);
+  background: var(--brand-red, #f70063);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 4px 16px rgba(209, 77, 114, 0.55);
+  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.55);
   transform: scale(0.9);
   transition: transform 0.2s ease;
 }
@@ -910,7 +910,7 @@
 
 .season-selector__spinner {
   animation: spin 1s linear infinite;
-  color: var(--brand-red, #d14d72);
+  color: var(--brand-red, #f70063);
 }
 
 @keyframes spin {
@@ -937,7 +937,7 @@
   border-radius: 7px;
   font-size: 0.75rem;
   font-weight: 700;
-  background: var(--brand-red, #d14d72);
+  background: var(--brand-red, #f70063);
   color: #ffffff;
   border: none;
   cursor: pointer;

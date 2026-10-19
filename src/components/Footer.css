@@ -49,7 +49,7 @@
 
 .footer-top__logo:hover .bakastream-logo-icon {
   transform: scale(1.08) rotate(-1.5deg);
-  filter: drop-shadow(0 0 10px rgba(209, 77, 114, 0.7));
+  filter: drop-shadow(0 0 10px rgba(247, 0, 99, 0.7));
 }
 
 .footer-top__logo-text {
@@ -64,7 +64,7 @@
 }
 
 .footer-top__logo-accent {
-  background: linear-gradient(135deg, #ffabab, #d14d72);
+  background: linear-gradient(135deg, #ffabab, #f70063);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-right: 1px;
@@ -100,7 +100,7 @@
 }
 
 .footer-top__link:hover {
-  color: var(--brand-red, #d14d72);
+  color: var(--brand-red, #f70063);
   transform: translateY(-1px);
 }
 
@@ -109,7 +109,7 @@
 }
 
 :root[data-theme="light"] .footer-top__link:hover {
-  color: var(--brand-red, #d14d72);
+  color: var(--brand-red, #f70063);
 }
 
 /* ── Bottom Strip Bar (Signature Reference Screenshot Style) ── */
@@ -210,11 +210,11 @@
 }
 
 .footer-strip__circle-btn:hover {
-  background: var(--brand-red, #d14d72);
-  border-color: var(--brand-red, #d14d72);
+  background: var(--brand-red, #f70063);
+  border-color: var(--brand-red, #f70063);
   color: #ffffff;
   transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 6px 16px rgba(209, 77, 114, 0.45);
+  box-shadow: 0 6px 16px rgba(247, 0, 99, 0.45);
 }
 
 /* Right side: Copyright */

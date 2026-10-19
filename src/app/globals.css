@@ -4,12 +4,12 @@
 
 :root,
 :root[data-theme="dark"] {
-  --accent: #d14d72;
-  --accent-strong: #b23a5d;
-  --accent-hover: #df5c82;
+  --accent: #f70063;
+  --accent-strong: #b80047;
+  --accent-hover: #ff1a75;
   --accent-secondary: #ffabab;
   --accent-subtle: #fcc8d1;
-  --brand-red: #d14d72;
+  --brand-red: #f70063;
 
   --bg-primary: #121318;
   --bg-secondary: #171820;
@@ -21,7 +21,7 @@
   --text-tertiary: #6e7285;
 
   --border-color: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(209, 77, 114, 0.25);
+  --border-strong: rgba(247, 0, 99, 0.25);
   --overlay-bg: rgba(10, 11, 15, 0.82);
   --card-bg: #1a1c25;
   --card-hover-bg: #222531;
@@ -31,11 +31,11 @@
 
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(255, 255, 255, 0.18);
-  --scrollbar-thumb-hover: #d14d72;
+  --scrollbar-thumb-hover: #f70063;
 
   --success: #34d399;
   --warning: #f5c518;
-  --danger: #d14d72;
+  --danger: #f70063;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -44,7 +44,7 @@
 
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 35px rgba(209, 77, 114, 0.4);
+  --shadow-glow: 0 0 35px rgba(247, 0, 99, 0.4);
 
   --header-height: 60px;
 
@@ -70,12 +70,12 @@
 }
 
 :root[data-theme="light"] {
-  --accent: #d14d72;
-  --accent-strong: #b23a5d;
-  --accent-hover: #df5c82;
+  --accent: #f70063;
+  --accent-strong: #b80047;
+  --accent-hover: #ff1a75;
   --accent-secondary: #ffabab;
   --accent-subtle: #fcc8d1;
-  --brand-red: #d14d72;
+  --brand-red: #f70063;
 
   --bg-primary: #fef2f4;
   --bg-secondary: #ffffff;
@@ -86,22 +86,22 @@
   --text-secondary: #56566a;
   --text-tertiary: #8b8b9e;
 
-  --border-color: rgba(209, 77, 114, 0.12);
-  --border-strong: rgba(209, 77, 114, 0.25);
+  --border-color: rgba(247, 0, 99, 0.12);
+  --border-strong: rgba(247, 0, 99, 0.25);
   --overlay-bg: rgba(20, 20, 30, 0.6);
   --card-bg: #ffffff;
   --card-hover-bg: #fff5f7;
 
-  --input-bg: rgba(209, 77, 114, 0.04);
-  --input-border: rgba(209, 77, 114, 0.16);
+  --input-bg: rgba(247, 0, 99, 0.04);
+  --input-border: rgba(247, 0, 99, 0.16);
 
   --scrollbar-track: transparent;
   --scrollbar-thumb: #e2c0c7;
-  --scrollbar-thumb-hover: #d14d72;
+  --scrollbar-thumb-hover: #f70063;
 
-  --shadow-md: 0 8px 24px rgba(209, 77, 114, 0.08);
-  --shadow-lg: 0 16px 48px rgba(209, 77, 114, 0.14);
-  --shadow-glow: 0 0 40px rgba(209, 77, 114, 0.2);
+  --shadow-md: 0 8px 24px rgba(247, 0, 99, 0.08);
+  --shadow-lg: 0 16px 48px rgba(247, 0, 99, 0.14);
+  --shadow-glow: 0 0 40px rgba(247, 0, 99, 0.2);
 }
 
 * {
@@ -238,12 +238,12 @@ img {
 .btn--primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 4px 16px rgba(209, 77, 114, 0.35);
+  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.35);
 }
 .btn--primary:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(209, 77, 114, 0.45);
+  box-shadow: 0 6px 24px rgba(247, 0, 99, 0.45);
 }
 .btn--secondary {
   background: rgba(255, 255, 255, 0.14);
@@ -310,9 +310,9 @@ img {
   letter-spacing: 0.02em;
 }
 .badge--accent {
-  background: rgba(209, 77, 114, 0.16);
+  background: rgba(247, 0, 99, 0.16);
   color: var(--accent);
-  border: 1px solid rgba(209, 77, 114, 0.3);
+  border: 1px solid rgba(247, 0, 99, 0.3);
 }
 .badge--muted {
   background: rgba(255, 255, 255, 0.08);

@@ -79,10 +79,10 @@
 }
 
 .watch__toggle-btn--active {
-  background: var(--brand-red, #d14d72) !important;
+  background: var(--brand-red, #f70063) !important;
   color: #fff !important;
-  border-color: var(--brand-red, #d14d72) !important;
-  box-shadow: 0 0 10px rgba(209, 77, 114, 0.35);
+  border-color: var(--brand-red, #f70063) !important;
+  box-shadow: 0 0 10px rgba(247, 0, 99, 0.35);
 }
 
 :root[data-theme="light"] .watch__toggle-btn {
@@ -247,7 +247,7 @@
   background: #000000;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.75),
-    0 0 45px rgba(209, 77, 114, 0.12);
+    0 0 45px rgba(247, 0, 99, 0.12);
   display: block;
   transition: box-shadow 0.3s ease;
 }
@@ -389,7 +389,7 @@
   color: var(--text-primary);
 }
 .watch__episode-link--current {
-  background: rgba(209, 77, 114, 0.12);
+  background: rgba(247, 0, 99, 0.12);
   color: var(--accent);
   font-weight: 600;
 }

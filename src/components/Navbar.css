@@ -64,7 +64,7 @@
 
 .navbar__logo:hover .bakastream-logo-icon {
   transform: scale(1.06);
-  filter: drop-shadow(0 0 16px rgba(209, 77, 114, 0.75));
+  filter: drop-shadow(0 0 16px rgba(247, 0, 99, 0.75));
 }
 
 .navbar__logo-text-box {
@@ -88,7 +88,7 @@
 }
 
 .navbar__logo-accent {
-  background: linear-gradient(135deg, #ffabab 0%, #d14d72 100%);
+  background: linear-gradient(135deg, #ffabab 0%, #f70063 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
@@ -150,18 +150,18 @@
 
 .navbar__link--active {
   color: #ffffff !important;
-  background: rgba(209, 77, 114, 0.15) !important;
+  background: rgba(247, 0, 99, 0.15) !important;
   font-weight: 700;
 }
 
 .navbar__link--active .navbar__link-icon {
-  color: var(--accent, #d14d72);
+  color: var(--accent, #f70063);
   opacity: 1;
 }
 
 :root[data-theme="light"] .navbar__link--active {
-  color: var(--accent, #d14d72) !important;
-  background: rgba(209, 77, 114, 0.1) !important;
+  color: var(--accent, #f70063) !important;
+  background: rgba(247, 0, 99, 0.1) !important;
 }
 
 /* ── 3. Dropdown Menus (Categories & Genres) ── */
@@ -271,9 +271,9 @@
 }
 
 .navbar__dropdown-pill:hover {
-  background: rgba(209, 77, 114, 0.1);
+  background: rgba(247, 0, 99, 0.1);
   color: #ffffff;
-  border-color: rgba(209, 77, 114, 0.25);
+  border-color: rgba(247, 0, 99, 0.25);
   transform: translateX(2px);
 }
 
@@ -296,7 +296,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent, #d14d72);
+  background: var(--accent, #f70063);
   opacity: 0.6;
   flex-shrink: 0;
   transition: opacity 0.15s ease;
@@ -304,7 +304,7 @@
 
 .navbar__dropdown-pill:hover .navbar__dropdown-dot {
   opacity: 1;
-  box-shadow: 0 0 8px var(--accent, #d14d72);
+  box-shadow: 0 0 8px var(--accent, #f70063);
 }
 
 .navbar__dropdown-label {
@@ -346,8 +346,8 @@
 .navbar__search-capsule:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  border-color: rgba(209, 77, 114, 0.5);
-  box-shadow: 0 0 16px rgba(209, 77, 114, 0.25);
+  border-color: rgba(247, 0, 99, 0.5);
+  box-shadow: 0 0 16px rgba(247, 0, 99, 0.25);
 }
 
 :root[data-theme="light"] .navbar__search-capsule {
@@ -359,7 +359,7 @@
 :root[data-theme="light"] .navbar__search-capsule:hover {
   background: rgba(0, 0, 0, 0.08);
   color: #12121c;
-  border-color: rgba(209, 77, 114, 0.4);
+  border-color: rgba(247, 0, 99, 0.4);
 }
 
 .navbar__search-text {
@@ -423,7 +423,7 @@
 .mobile-nav__link:hover,
 .mobile-nav__link--active {
   color: #ffffff;
-  background: rgba(209, 77, 114, 0.12);
+  background: rgba(247, 0, 99, 0.12);
 }
 
 :root[data-theme="light"] .mobile-nav__link:hover,

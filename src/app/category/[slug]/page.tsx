@@ -73,7 +73,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           padding: '2.5rem 1.5rem 2rem',
           position: 'relative',
           borderRadius: '20px',
-          background: 'linear-gradient(180deg, rgba(209, 77, 114, 0.08) 0%, rgba(16, 16, 26, 0.4) 100%)',
+          background: 'linear-gradient(180deg, rgba(247, 0, 99, 0.08) 0%, rgba(16, 16, 26, 0.4) 100%)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
           maxWidth: '1200px',
@@ -89,9 +89,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             width: '64px',
             height: '64px',
             borderRadius: '18px',
-            background: 'rgba(209, 77, 114, 0.15)',
-            border: '1px solid rgba(209, 77, 114, 0.35)',
-            boxShadow: '0 0 24px rgba(209, 77, 114, 0.35)',
+            background: 'rgba(247, 0, 99, 0.15)',
+            border: '1px solid rgba(247, 0, 99, 0.35)',
+            boxShadow: '0 0 24px rgba(247, 0, 99, 0.35)',
             fontSize: '32px',
             marginBottom: '1rem',
           }}
@@ -151,9 +151,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               borderRadius: '999px',
               fontSize: '0.74rem',
               fontWeight: '700',
-              background: 'rgba(209, 77, 114, 0.15)',
-              border: '1px solid rgba(209, 77, 114, 0.3)',
-              color: 'var(--accent, #d14d72)',
+              background: 'rgba(247, 0, 99, 0.15)',
+              border: '1px solid rgba(247, 0, 99, 0.3)',
+              color: 'var(--accent, #f70063)',
             }}
           >
             🛡️ Ad Shield Protected
