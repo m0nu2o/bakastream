@@ -2,19 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-const THEME_STORAGE_KEY = 'bakastream-theme-v8';
+const THEME_STORAGE_KEY = 'bakastream-theme-v9';
+const LEGACY_STORAGE_KEY_V8 = 'bakastream-theme-v8';
 const LEGACY_STORAGE_KEY_V7 = 'bakastream-theme-v7';
 const LEGACY_STORAGE_KEY_V6 = 'bakastream-theme-v6';
 const OLD_STORAGE_KEY = 'bakastream-theme';
 
-export type ThemeId =
-  | 'dark'
-  | 'midnight'
-  | 'cyberpunk'
-  | 'emerald'
-  | 'sakura'
-  | 'oceanic'
-  | 'light';
+export type ThemeId = 'dark' | 'midnight' | 'light';
 
 export interface ThemeOption {
   id: ThemeId;
@@ -30,7 +24,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'dark',
     name: 'Cinematic Obsidian',
-    badge: 'DEFAULT',
+    badge: 'CINEMA',
     category: 'dark',
     accent: '#F70063',
     bg: '#0B0C10',
@@ -38,48 +32,12 @@ export const THEME_OPTIONS: ThemeOption[] = [
   },
   {
     id: 'midnight',
-    name: 'OLED Pure Black',
+    name: 'Midnight OLED',
     badge: 'OLED',
     category: 'dark',
     accent: '#F70063',
     bg: '#000000',
-    description: 'True pitch black with high-contrast crimson highlights',
-  },
-  {
-    id: 'cyberpunk',
-    name: 'Cyberpunk Neon',
-    badge: 'NEON',
-    category: 'dark',
-    accent: '#B026FF',
-    bg: '#0B0816',
-    description: 'Deep synthwave violet with electric purple glow',
-  },
-  {
-    id: 'emerald',
-    name: 'Tokyo Emerald',
-    badge: 'TOKYO',
-    category: 'dark',
-    accent: '#00F59B',
-    bg: '#08100C',
-    description: 'Dark carbon matrix with luminous cyber emerald',
-  },
-  {
-    id: 'sakura',
-    name: 'Sakura Twilight',
-    badge: 'SAKURA',
-    category: 'dark',
-    accent: '#FF5376',
-    bg: '#120B14',
-    description: 'Deep plum twilight with gentle cherry blossom pink',
-  },
-  {
-    id: 'oceanic',
-    name: 'Oceanic Abyss',
-    badge: 'ABYSS',
-    category: 'dark',
-    accent: '#00D2FF',
-    bg: '#080E18',
-    description: 'Deep abyssal navy with vibrant electric cyan glow',
+    description: 'True pitch black contrast engineered for OLED screens',
   },
   {
     id: 'light',
@@ -88,19 +46,11 @@ export const THEME_OPTIONS: ThemeOption[] = [
     category: 'light',
     accent: '#F70063',
     bg: '#F8F9FA',
-    description: 'Crisp Apple-grade off-white studio surface',
+    description: 'Apple-grade crisp light studio surface with refined contrast',
   },
 ];
 
-const VALID_THEMES = new Set<ThemeId>([
-  'dark',
-  'midnight',
-  'cyberpunk',
-  'emerald',
-  'sakura',
-  'oceanic',
-  'light',
-]);
+const VALID_THEMES = new Set<ThemeId>(['dark', 'midnight', 'light']);
 
 export function useTheme() {
   const [theme, setThemeState] = useState<ThemeId>('dark');
@@ -111,6 +61,7 @@ export function useTheme() {
     try {
       const stored = (
         window.localStorage.getItem(THEME_STORAGE_KEY) ||
+        window.localStorage.getItem(LEGACY_STORAGE_KEY_V8) ||
         window.localStorage.getItem(LEGACY_STORAGE_KEY_V7) ||
         window.localStorage.getItem(LEGACY_STORAGE_KEY_V6) ||
         window.localStorage.getItem(OLD_STORAGE_KEY)

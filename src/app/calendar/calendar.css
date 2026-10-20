@@ -365,11 +365,7 @@
   border-top-left-radius: 13px;
   border-top-right-radius: 13px;
   overflow: hidden;
-  background: #111118;
-}
-
-:root[data-theme="light"] .calendar-card__poster-box {
-  background: #eaeaf2;
+  background: var(--bg-secondary);
 }
 
 .calendar-card__poster-link {
@@ -418,7 +414,7 @@
   align-items: center;
   justify-content: center;
   color: var(--text-tertiary);
-  background: linear-gradient(135deg, #181824, #222234);
+  background: var(--bg-tertiary);
 }
 
 /* Category Badge (Top-Left - Theme Native) */
@@ -432,19 +428,13 @@
   letter-spacing: 0.05em;
   padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(11, 12, 16, 0.78);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-:root[data-theme="light"] .calendar-card__category-badge {
-  background: rgba(255, 255, 255, 0.9);
-  color: #111827;
-  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Countdown Pill (Bottom of Poster) */
@@ -460,14 +450,14 @@
   gap: 5px;
   padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(11, 12, 16, 0.82);
+  background: var(--bg-elevated);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   font-size: 11px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-card__clock-icon {

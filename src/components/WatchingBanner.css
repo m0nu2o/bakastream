@@ -68,9 +68,9 @@
   box-sizing: border-box;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-  background: #191924;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  background: var(--card-bg);
   transition: all 0.3s ease;
 }
 
@@ -102,7 +102,7 @@
 .watching-banner__fallback-bg {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #1c1c28 0%, #2b2b3d 100%);
+  background: var(--bg-tertiary);
 }
 
 .watching-banner__overlay-grad {
@@ -148,7 +148,7 @@
   transform: scale(1.15);
   background: var(--accent);
   border-color: #ffffff;
-  box-shadow: 0 0 35px rgba(247, 0, 99, 0.75);
+  box-shadow: 0 0 35px var(--accent-subtle);
 }
 
 .watching-banner__play-icon {
@@ -162,10 +162,10 @@
   left: 0;
   right: 0;
   padding: 16px 28px;
-  background: rgba(18, 18, 26, 0.82);
+  background: var(--bg-elevated);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -184,7 +184,7 @@
 .watching-banner__title {
   font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.3px;
   white-space: nowrap;
@@ -203,8 +203,8 @@
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.1);
-  color: #d0d0df;
+  background: var(--input-bg);
+  color: var(--text-secondary);
 }
 
 .watching-banner__badge--hd {
@@ -215,7 +215,7 @@
 
 .watching-banner__overview {
   font-size: 12.5px;
-  color: #9898aa;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.45;
   white-space: nowrap;
@@ -236,39 +236,7 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #ffffff;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   LIGHT MODE OVERRIDES FOR WATCHING BANNER
-   ───────────────────────────────────────────────────────────── */
-
-:root[data-theme="light"] .watching-banner {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.09);
-}
-
-:root[data-theme="light"] .watching-banner__bottom-bar {
-  background: rgba(255, 255, 255, 0.9);
-  border-top-color: rgba(0, 0, 0, 0.08);
-}
-
-:root[data-theme="light"] .watching-banner__title {
-  color: #12121c;
-}
-
-:root[data-theme="light"] .watching-banner__overview {
-  color: #555568;
-}
-
-:root[data-theme="light"] .watching-banner__badge {
-  background: rgba(0, 0, 0, 0.06);
-  color: #333348;
-}
-
-:root[data-theme="light"] .watching-banner__stat {
-  color: #15151e;
+  color: var(--text-primary);
 }
 
 /* Responsive */

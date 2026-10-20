@@ -388,14 +388,14 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1.25rem 1.25rem max(1.75rem, env(safe-area-inset-bottom, 1.75rem));
-  background: #0d0e17;
+  background: var(--bg-primary);
   animation: fade-in 0.2s ease;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 :root[data-theme="light"] .mobile-nav {
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 .mobile-nav__links {
@@ -456,16 +456,16 @@
   font-size: 0.82rem;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  background: #161724;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 :root[data-theme="light"] .mobile-nav__genre {
-  background: #f4f4f9;
-  border-color: rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  border-color: var(--border-color);
 }
 
 .mobile-nav__footnote {
