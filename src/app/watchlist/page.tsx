@@ -15,9 +15,11 @@ import {
   Search,
   Filter,
   Layers,
+  ArrowUpDown,
 } from 'lucide-react';
 import MediaCard from '@/components/MediaCard';
 import ShelfSelector from '@/components/ShelfSelector';
+import FilterDropdown from '@/components/FilterDropdown';
 import StateView from '@/components/StateView';
 import {
   useWatchlist,
@@ -130,27 +132,33 @@ export default function WatchlistPage() {
 
           {tab !== 'continue' && (
             <div className="watchlist-filters">
-              <select
+              <FilterDropdown
+                label="Format"
                 value={mediaTypeFilter}
-                onChange={(e) => setMediaTypeFilter(e.target.value as 'all' | 'movie' | 'tv')}
-                className="watchlist-select"
-                aria-label="Filter by type"
-              >
-                <option value="all">All Formats</option>
-                <option value="movie">Movies</option>
-                <option value="tv">Series & Anime</option>
-              </select>
+                defaultValue="all"
+                options={[
+                  { value: 'all', label: 'All Formats' },
+                  { value: 'movie', label: 'Movies' },
+                  { value: 'tv', label: 'Series & Anime' },
+                ]}
+                onChange={(val) => setMediaTypeFilter(val as 'all' | 'movie' | 'tv')}
+                icon={Layers}
+                placeholder="All Formats"
+              />
 
-              <select
+              <FilterDropdown
+                label="Sort"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'recent' | 'rating' | 'az')}
-                className="watchlist-select"
-                aria-label="Sort by"
-              >
-                <option value="recent">Recently Added</option>
-                <option value="rating">Highest Rated</option>
-                <option value="az">A–Z Alphabetical</option>
-              </select>
+                defaultValue="recent"
+                options={[
+                  { value: 'recent', label: 'Recently Added' },
+                  { value: 'rating', label: 'Highest Rated' },
+                  { value: 'az', label: 'A–Z Alphabetical' },
+                ]}
+                onChange={(val) => setSortBy(val as 'recent' | 'rating' | 'az')}
+                icon={ArrowUpDown}
+                placeholder="Recently Added"
+              />
             </div>
           )}
         </div>

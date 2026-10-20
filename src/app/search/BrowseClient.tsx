@@ -3,8 +3,18 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Search as SearchIcon, SlidersHorizontal, Sparkles } from 'lucide-react';
+import {
+  Search as SearchIcon,
+  SlidersHorizontal,
+  Sparkles,
+  X,
+  Tag,
+  Calendar,
+  ArrowUpDown,
+  RotateCcw,
+} from 'lucide-react';
 import StreamingResultCard from '@/components/MediaCard';
+import FilterDropdown from '@/components/FilterDropdown';
 import type { Genre, MediaSummary } from '@/types';
 import styles from './BrowseFilters.module.css';
 
@@ -84,7 +94,42 @@ export default function BrowseClient({ results, genres, page, totalPages = 500 }
   const activeSort = params.get('sort') || 'popularity.desc';
   const years = Array.from({ length: 36 }, (_, i) => String(new Date().getFullYear() - i));
 
-  const hasActiveFilters = activeType !== 'all' || Boolean(activeGenre) || Boolean(activeYear);
+  const activeFilterCount =
+    (activeType !== 'all' ? 1 : 0) +
+    (Boolean(activeGenre) ? 1 : 0) +
+    (Boolean(activeYear) ? 1 : 0) +
+    (activeSort !== 'popularity.desc' ? 1 : 0);
+
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const clearAllFilters = () => {
+    const next = new URLSearchParams(params.toString());
+    next.delete('type');
+    next.delete('genre');
+    next.delete('year');
+    next.delete('sort');
+    next.delete('page');
+
+    const targetPath =
+      pathname.startsWith('/category/') ||
+      pathname === '/movies' ||
+      pathname === '/tv' ||
+      pathname === '/anime'
+        ? pathname
+        : '/search';
+
+    startTransition(() => router.push(targetPath + (next.toString() ? `?${next.toString()}` : ''), { scroll: false }));
+  };
+
+  const genreOptions = [
+    { value: '', label: 'All Genres' },
+    ...genres.map(g => ({ value: String(g.id), label: g.name })),
+  ];
+
+  const yearOptions = [
+    { value: '', label: 'Any Year' },
+    ...years.map(y => ({ value: y, label: y })),
+  ];
 
   return (
     <div className={styles.wrap}>
@@ -98,13 +143,33 @@ export default function BrowseClient({ results, genres, page, totalPages = 500 }
             className={styles.searchInput}
             aria-label="Search query"
           />
+          {query && (
+            <button
+              type="button"
+              className={styles.searchClearBtn}
+              onClick={() => {
+                setQuery('');
+                updateParam('q', null);
+              }}
+              title="Clear search query"
+              aria-label="Clear search query"
+            >
+              <X size={15} />
+            </button>
+          )}
         </form>
         <button
-          className={styles.filterToggle}
+          className={`${styles.filterToggle} ${
+            showFilters || hasActiveFilters ? styles.filterToggleActive : ''
+          }`}
           onClick={() => setShowFilters(s => !s)}
           aria-expanded={showFilters}
         >
-          <SlidersHorizontal size={16} /> Filters
+          <SlidersHorizontal size={15} />
+          <span>Filters</span>
+          {activeFilterCount > 0 && (
+            <span className={styles.filterBadge}>{activeFilterCount}</span>
+          )}
         </button>
       </div>
 
@@ -163,45 +228,50 @@ export default function BrowseClient({ results, genres, page, totalPages = 500 }
             </>
           )}
 
+          {/* ── Custom Animated Picklists (FilterDropdown) ── */}
           <div className={styles.selectGroup}>
-            <select
-              className={styles.select}
+            <FilterDropdown
+              label="Genre"
               value={activeGenre}
-              onChange={e => updateParam('genre', e.target.value || null)}
-              aria-label="All Genres Select"
-            >
-              <option value="">More Genres…</option>
-              {genres.map(g => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className={styles.select}
+              options={genreOptions}
+              onChange={val => updateParam('genre', val || null)}
+              icon={Tag}
+              placeholder="All Genres"
+              hasSearch={genres.length > 8}
+            />
+
+            <FilterDropdown
+              label="Year"
               value={activeYear}
-              onChange={e => updateParam('year', e.target.value || null)}
-              aria-label="Year"
-            >
-              <option value="">Any Year</option>
-              {years.map(y => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-            <select
-              className={styles.select}
+              options={yearOptions}
+              onChange={val => updateParam('year', val || null)}
+              icon={Calendar}
+              placeholder="Any Year"
+              hasSearch={true}
+            />
+
+            <FilterDropdown
+              label="Sort"
               value={activeSort}
-              onChange={e => updateParam('sort', e.target.value || null)}
-              aria-label="Sort by"
-            >
-              {SORT_OPTIONS.map(s => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              defaultValue="popularity.desc"
+              options={SORT_OPTIONS}
+              onChange={val => updateParam('sort', val === 'popularity.desc' ? null : val)}
+              icon={ArrowUpDown}
+              placeholder="Most Popular"
+            />
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className={styles.resetFiltersBtn}
+                onClick={clearAllFilters}
+                title="Reset all filters"
+                aria-label="Reset all filters"
+              >
+                <RotateCcw size={12} className={styles.resetIcon} />
+                <span>Reset All</span>
+              </button>
+            )}
           </div>
         </div>
       )}
