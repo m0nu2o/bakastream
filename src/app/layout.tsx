@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ThemeThemeProvider from '@/components/ThemeThemeProvider';
 import BackToTop from '@/components/BackToTop';
+import MobileNavBottom from '@/components/MobileNavBottom';
 import './globals.css';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bakastream.vercel.app';
@@ -98,6 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         {children}
         <Footer />
+        <MobileNavBottom />
         <BackToTop />
 
         {GA_ID && (

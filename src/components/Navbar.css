@@ -88,7 +88,7 @@
 }
 
 .navbar__logo-accent {
-  background: linear-gradient(135deg, #FCE7F0 0%, #F70063 100%);
+  background: linear-gradient(135deg, var(--accent-secondary, #FCE7F0) 0%, var(--accent, #F70063) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
@@ -482,6 +482,26 @@
   }
   .navbar__burger {
     display: inline-flex;
+  }
+}
+
+@media (max-width: 560px) {
+  .navbar__inner {
+    gap: 0.5rem;
+    padding: 0 12px;
+  }
+  .navbar__search-capsule {
+    padding: 8px;
+    border-radius: 50%;
+  }
+  .navbar__search-text {
+    display: none;
+  }
+  .navbar__logo-main {
+    font-size: 1.1rem;
+  }
+  .navbar__actions {
+    gap: 0.4rem;
   }
 }
 

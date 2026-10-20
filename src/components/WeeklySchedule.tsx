@@ -39,12 +39,19 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<ScheduleCategory>('all');
   const [activeDay, setActiveDay] = useState<string>('today');
+  const [currentTime, setCurrentTime] = useState<number>(() => Date.now());
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Generate 7-day strip
   const dayTabs = useMemo<DayTab[]>(() => {
     const today = new Date();
-    const todayIso = today.toISOString().slice(0, 10);
     const tabs: DayTab[] = [
       { key: 'all', label: 'All Week', dateStr: '7 Days' },
       { key: 'today', label: 'Today', dateStr: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isToday: true },
@@ -111,8 +118,8 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
     });
   };
 
-  const formatCountdown = (timestamp: number, airTime?: string) => {
-    const diffMs = timestamp - Date.now();
+  const formatCountdown = (timestamp: number, now: number, airTime?: string) => {
+    const diffMs = timestamp - now;
     if (diffMs <= 0) return airTime ? `Aired at ${airTime}` : 'Aired Today';
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -243,7 +250,7 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
             ) : (
               displayItems.map((item, idx) => {
                 const mediaSummary = getMediaSummaryForEntry(item);
-                const countdown = formatCountdown(item.airTimestamp, item.airTime);
+                const countdown = formatCountdown(item.airTimestamp, currentTime, item.airTime);
                 const href = item.tmdbId
                   ? item.category === 'movie'
                     ? `/movie/${item.tmdbId}`

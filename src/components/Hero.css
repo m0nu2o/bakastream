@@ -414,7 +414,7 @@
 }
 
 :root[data-theme="light"] .hero__vdot--active {
-  background: #F70063;
+  background: var(--accent);
 }
 
 /* Responsive */

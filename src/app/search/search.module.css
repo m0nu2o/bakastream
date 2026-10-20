@@ -1,12 +1,21 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1.1rem;
-  padding: 0.5rem clamp(1rem, 4vw, 3.5rem) 2.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 2.5rem;
 }
-@media (min-width: 640px) {
+@media (min-width: 540px) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem 1rem 2.5rem;
+  }
+}
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 1.25rem;
+    padding: 0.5rem clamp(1rem, 4vw, 3.5rem) 2.5rem;
   }
 }
 .page {

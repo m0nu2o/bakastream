@@ -13,6 +13,11 @@ import {
   Tv,
   Clapperboard,
   Layers,
+  LayoutGrid,
+  List,
+  Play,
+  Radio,
+  SlidersHorizontal,
 } from 'lucide-react';
 import ShelfSelector from '@/components/ShelfSelector';
 import StateView from '@/components/StateView';
@@ -21,9 +26,10 @@ import type { MediaSummary } from '@/types';
 import './calendar.css';
 
 type CategoryFilter = 'all' | 'anime' | 'kdrama' | 'tv' | 'movie';
+type ViewMode = 'grid' | 'timeline';
 
 interface DayOption {
-  key: string;
+  key: string; // ISO date YYYY-MM-DD or 'all'
   label: string;
   subLabel: string;
   isToday?: boolean;
@@ -35,6 +41,7 @@ export default function CalendarPage() {
   const [category, setCategory] = useState<CategoryFilter>('all');
   const [selectedDayKey, setSelectedDayKey] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   // Fetch calendar entries
   useEffect(() => {
@@ -84,6 +91,17 @@ export default function CalendarPage() {
     return days;
   }, []);
 
+  // Calculate release counts per day
+  const dayCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0 };
+    for (const item of entries) {
+      if (category !== 'all' && item.category !== category) continue;
+      counts.all = (counts.all || 0) + 1;
+      counts[item.airDate] = (counts[item.airDate] || 0) + 1;
+    }
+    return counts;
+  }, [entries, category]);
+
   // Filter entries
   const filteredEntries = useMemo(() => {
     return entries.filter(item => {
@@ -102,7 +120,7 @@ export default function CalendarPage() {
     });
   }, [entries, category, selectedDayKey, searchQuery]);
 
-  // Group filtered entries by date
+  // Group filtered entries by date and sort items inside by airTimestamp / airTime
   const groupedByDate = useMemo(() => {
     const map = new Map<string, CalendarEntry[]>();
     for (const item of filteredEntries) {
@@ -110,19 +128,39 @@ export default function CalendarPage() {
       group.push(item);
       map.set(item.airDate, group);
     }
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+    // Sort each group by air timestamp so it's chronologically ordered
+    const sorted = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    for (const [, items] of sorted) {
+      items.sort((x, y) => x.airTimestamp - y.airTimestamp);
+    }
+    return sorted;
   }, [filteredEntries]);
 
-  const categoryTabs: Array<{ id: CategoryFilter; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
-    { id: 'all', label: 'All', icon: Layers },
-    { id: 'anime', label: 'Anime', icon: Sparkles },
+  const categoryTabs: Array<{
+    id: CategoryFilter;
+    label: string;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
+  }> = [
+    { id: 'all', label: 'All Releases', icon: Layers },
+    { id: 'anime', label: 'Anime Simulcasts', icon: Sparkles },
     { id: 'kdrama', label: 'K-Drama', icon: Tv },
     { id: 'tv', label: 'TV Series', icon: Clapperboard },
     { id: 'movie', label: 'Movies', icon: Film },
   ];
 
-  const formatCountdown = (timestamp: number, airTime?: string) => {
-    const diffMs = timestamp - Date.now();
+  const [currentTime, setCurrentTime] = useState<number>(() => Date.now());
+
+  // Update countdown timestamp on interval
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatCountdown = (timestamp: number, now: number, airTime?: string) => {
+    const diffMs = timestamp - now;
     if (diffMs <= 0) return airTime ? `Aired at ${airTime}` : 'Aired Today';
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -132,6 +170,13 @@ export default function CalendarPage() {
     }
     if (hours > 0) return `In ${hours}h ${mins}m`;
     return `In ${mins}m`;
+  };
+
+  const getAirStatus = (timestamp: number, now: number) => {
+    const diffMs = timestamp - now;
+    if (diffMs < 0) return { label: 'Aired', code: 'aired' as const };
+    if (diffMs < 2 * 60 * 60 * 1000) return { label: 'Airing Soon', code: 'soon' as const };
+    return { label: 'Upcoming', code: 'upcoming' as const };
   };
 
   const getMediaSummaryForEntry = (entry: CalendarEntry): MediaSummary => ({
@@ -152,35 +197,60 @@ export default function CalendarPage() {
       <header className="calendar-header">
         <div className="calendar-header__content">
           <div className="calendar-header__badge">
-            <CalendarIcon size={14} className="calendar-header__badge-icon" />
-            <span>Weekly Air Schedule</span>
+            <Radio size={13} className="calendar-header__badge-icon pulse" />
+            <span>Simulcast Air Schedule</span>
           </div>
-          <h1 className="calendar-header__title">Release Schedule</h1>
+          <h1 className="calendar-header__title">Broadcast Schedule</h1>
           <p className="calendar-header__subtitle">
-            Upcoming episodes for Anime simulcasts, K-Dramas, and weekly series airing this week.
+            Track weekly anime simulcasts, Korean dramas, and television premieres with real-time broadcast countdowns.
           </p>
         </div>
 
-        {/* Search within schedule */}
-        <div className="calendar-search-wrap">
-          <Search size={15} className="calendar-search-icon" />
-          <input
-            type="text"
-            placeholder="Search titles or genres…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="calendar-search-input"
-          />
-          {searchQuery && (
+        {/* Search & View Switcher Bar */}
+        <div className="calendar-header__actions">
+          <div className="calendar-search-wrap">
+            <Search size={14} className="calendar-search-icon" />
+            <input
+              type="text"
+              placeholder="Search title, Japanese romaji, or genre…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="calendar-search-input"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className="calendar-search-clear"
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search query"
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          <div className="calendar-view-toggle" role="group" aria-label="Layout view mode">
             <button
               type="button"
-              className="calendar-search-clear"
-              onClick={() => setSearchQuery('')}
-              aria-label="Clear search"
+              className={`calendar-view-btn ${viewMode === 'grid' ? 'calendar-view-btn--active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              aria-label="Grid card view"
+              title="Compact Grid view"
             >
-              ×
+              <LayoutGrid size={15} />
+              <span className="calendar-view-btn__text">Grid</span>
             </button>
-          )}
+            <button
+              type="button"
+              className={`calendar-view-btn ${viewMode === 'timeline' ? 'calendar-view-btn--active' : ''}`}
+              onClick={() => setViewMode('timeline')}
+              aria-label="Timeline list view"
+              title="Chronological Timeline view"
+            >
+              <List size={15} />
+              <span className="calendar-view-btn__text">Timeline</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -197,7 +267,7 @@ export default function CalendarPage() {
                 className={`calendar-category-pill ${isActive ? 'calendar-category-pill--active' : ''}`}
                 onClick={() => setCategory(tab.id)}
               >
-                <Icon size={15} />
+                <Icon size={14} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -205,11 +275,12 @@ export default function CalendarPage() {
         </div>
       </nav>
 
-      {/* ── DAY SELECTOR STRIP ── */}
+      {/* ── STICKY DAY SELECTOR STRIP ── */}
       <div className="calendar-days-container">
         <div className="calendar-days-scroll">
           {dayOptions.map(day => {
             const isSelected = selectedDayKey === day.key;
+            const count = dayCounts[day.key] ?? 0;
             return (
               <button
                 key={day.key}
@@ -221,7 +292,10 @@ export default function CalendarPage() {
                   <span className="calendar-day-btn__label">{day.label}</span>
                   {day.isToday && <span className="calendar-day-btn__dot" />}
                 </div>
-                <span className="calendar-day-btn__sub">{day.subLabel}</span>
+                <div className="calendar-day-btn__meta-row">
+                  <span className="calendar-day-btn__sub">{day.subLabel}</span>
+                  {count > 0 && <span className="calendar-day-btn__count">{count}</span>}
+                </div>
               </button>
             );
           })}
@@ -232,14 +306,14 @@ export default function CalendarPage() {
       {loading ? (
         <div className="calendar-loading">
           <span className="calendar-spinner" />
-          <p>Loading air schedule…</p>
+          <p>Fetching broadcast schedule…</p>
         </div>
       ) : filteredEntries.length === 0 ? (
         <StateView
           kind="empty"
-          title="No episodes scheduled"
-          message="No broadcasts scheduled for the selected filter. Try selecting 'All Week' or a different category."
-          actionLabel="View All Releases"
+          title="No releases scheduled"
+          message="No broadcasts match your active filter. Try selecting 'All Week' or clearing the search query."
+          actionLabel="Reset Filters"
           actionHref="/calendar"
         />
       ) : (
@@ -260,106 +334,220 @@ export default function CalendarPage() {
                     <h2 className="calendar-day-section__title">
                       {isToday ? `Today · ${dayLabel}` : dayLabel}
                     </h2>
-                    {isToday && <span className="calendar-badge calendar-badge--live">Airing Today</span>}
+                    {isToday && <span className="calendar-badge calendar-badge--live">Broadcasting Today</span>}
                   </div>
                   <span className="calendar-day-section__count">
-                    {dateEntries.length} {dateEntries.length === 1 ? 'Release' : 'Releases'}
+                    {dateEntries.length} {dateEntries.length === 1 ? 'Show Airing' : 'Shows Airing'}
                   </span>
                 </div>
 
-                <div className="calendar-grid">
-                  {dateEntries.map(item => {
-                    const mediaSummary = getMediaSummaryForEntry(item);
-                    const countdown = formatCountdown(item.airTimestamp, item.airTime);
-                    const href = item.tmdbId
-                      ? item.category === 'movie'
-                        ? `/movie/${item.tmdbId}`
-                        : `/tv/${item.tmdbId}`
-                      : `/search?q=${encodeURIComponent(item.title)}`;
+                {/* ── VIEW MODE 1: COMPACT PROPORTIONATE GRID ── */}
+                {viewMode === 'grid' ? (
+                  <div className="calendar-grid">
+                    {dateEntries.map(item => {
+                      const mediaSummary = getMediaSummaryForEntry(item);
+                      const countdown = formatCountdown(item.airTimestamp, currentTime, item.airTime);
+                      const href = item.tmdbId
+                        ? item.category === 'movie'
+                          ? `/movie/${item.tmdbId}`
+                          : `/tv/${item.tmdbId}`
+                        : `/search?q=${encodeURIComponent(item.title)}`;
 
-                    return (
-                      <article key={item.id} className="calendar-card">
-                        <div className="calendar-card__poster-box">
-                          <Link href={href} className="calendar-card__poster-link" aria-label={item.title}>
-                            {item.posterUrl ? (
-                              <Image
-                                src={item.posterUrl}
-                                alt={item.title}
-                                fill
-                                sizes="(max-width: 640px) 130px, 160px"
-                                className="calendar-card__img"
-                                loading="lazy"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="calendar-card__placeholder">
-                                <Film size={28} />
-                              </div>
-                            )}
+                      return (
+                        <article key={item.id} className="calendar-card">
+                          <div className="calendar-card__poster-box">
+                            <Link href={href} className="calendar-card__poster-link" aria-label={item.title}>
+                              {item.posterUrl ? (
+                                <Image
+                                  src={item.posterUrl}
+                                  alt={item.title}
+                                  fill
+                                  sizes="(max-width: 640px) 150px, (max-width: 1024px) 180px, 200px"
+                                  className="calendar-card__img"
+                                  loading="lazy"
+                                  unoptimized
+                                />
+                              ) : (
+                                <div className="calendar-card__placeholder">
+                                  <Film size={24} />
+                                </div>
+                              )}
 
-                            <div className="calendar-card__overlay" aria-hidden="true" />
-                          </Link>
+                              <div className="calendar-card__overlay" aria-hidden="true" />
+                            </Link>
 
-                          {/* Category Tag (Top-Left) */}
-                          <span className="calendar-card__category-badge">
-                            {item.category === 'kdrama' ? 'K-DRAMA' : item.category.toUpperCase()}
-                          </span>
-
-                          {/* Shelf Quick Action (Top-Right) */}
-                          <ShelfSelector content={mediaSummary} variant="card-badge" />
-
-                          {/* Air Time / Countdown Pill */}
-                          <div className="calendar-card__countdown-pill">
-                            <Clock size={11} className="calendar-card__clock-icon" />
-                            <span>{countdown}</span>
-                          </div>
-                        </div>
-
-                        {/* Content Body */}
-                        <div className="calendar-card__body">
-                          {/* Episode Pill */}
-                          <div className="calendar-card__ep-row">
-                            {item.episodeNumber ? (
-                              <span className="calendar-card__ep-badge">
-                                Ep {item.episodeNumber}
-                              </span>
-                            ) : (
-                              <span className="calendar-card__ep-badge">Premiere</span>
-                            )}
-                            {item.airTime && (
-                              <span className="calendar-card__air-time">
-                                {item.airTime}
-                              </span>
-                            )}
-                          </div>
-
-                          <Link href={href} className="calendar-card__title" title={item.title}>
-                            {item.title}
-                          </Link>
-
-                          {item.romajiTitle && item.romajiTitle !== item.title && (
-                            <p className="calendar-card__romaji" title={item.romajiTitle}>
-                              {item.romajiTitle}
-                            </p>
-                          )}
-
-                          <div className="calendar-card__footer">
-                            <span className="calendar-card__genre-tag">
-                              {item.genres[0] || (item.category === 'anime' ? 'Anime' : 'Drama')}
+                            {/* Category Tag (Top-Left) */}
+                            <span className="calendar-card__category-badge">
+                              {item.category === 'kdrama' ? 'K-DRAMA' : item.category.toUpperCase()}
                             </span>
 
-                            {item.rating ? (
-                              <span className="calendar-card__rating">
-                                <Star size={11} fill="#ffb800" stroke="#ffb800" />
-                                <span>{item.rating.toFixed(1)}</span>
-                              </span>
-                            ) : null}
+                            {/* Shelf Quick Action (Top-Right) */}
+                            <ShelfSelector content={mediaSummary} variant="card-badge" />
+
+                            {/* Countdown / Air Time Pill */}
+                            <div className="calendar-card__countdown-pill">
+                              <Clock size={10} className="calendar-card__clock-icon" />
+                              <span>{countdown}</span>
+                            </div>
+
+                            {/* Center Hover Play button */}
+                            <div className="calendar-card__play-overlay">
+                              <Link href={href} className="calendar-card__play-btn" aria-label={`View ${item.title}`}>
+                                <Play size={16} fill="currentColor" />
+                              </Link>
+                            </div>
                           </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
+
+                          {/* Content Body */}
+                          <div className="calendar-card__body">
+                            <div className="calendar-card__ep-row">
+                              {item.episodeNumber ? (
+                                <span className="calendar-card__ep-badge">
+                                  Ep {item.episodeNumber}
+                                </span>
+                              ) : (
+                                <span className="calendar-card__ep-badge">Premiere</span>
+                              )}
+                              {item.airTime && (
+                                <span className="calendar-card__air-time">
+                                  {item.airTime}
+                                </span>
+                              )}
+                            </div>
+
+                            <Link href={href} className="calendar-card__title" title={item.title}>
+                              {item.title}
+                            </Link>
+
+                            {item.romajiTitle && item.romajiTitle !== item.title && (
+                              <p className="calendar-card__romaji" title={item.romajiTitle}>
+                                {item.romajiTitle}
+                              </p>
+                            )}
+
+                            <div className="calendar-card__footer">
+                              <span className="calendar-card__genre-tag">
+                                {item.genres[0] || (item.category === 'anime' ? 'Anime' : 'Drama')}
+                              </span>
+
+                              {item.rating ? (
+                                <span className="calendar-card__rating">
+                                  <Star size={11} fill="#ffb800" stroke="#ffb800" />
+                                  <span>{item.rating.toFixed(1)}</span>
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* ── VIEW MODE 2: CHRONOLOGICAL TIMELINE / LIST VIEW ── */
+                  <div className="calendar-timeline">
+                    {dateEntries.map(item => {
+                      const mediaSummary = getMediaSummaryForEntry(item);
+                      const countdown = formatCountdown(item.airTimestamp, currentTime, item.airTime);
+                      const airStatus = getAirStatus(item.airTimestamp, currentTime);
+                      const href = item.tmdbId
+                        ? item.category === 'movie'
+                          ? `/movie/${item.tmdbId}`
+                          : `/tv/${item.tmdbId}`
+                        : `/search?q=${encodeURIComponent(item.title)}`;
+
+                      return (
+                        <article key={item.id} className="calendar-timeline-row">
+                          {/* Time & Airing Status Column */}
+                          <div className="calendar-timeline__time-col">
+                            <div className="calendar-timeline__time">
+                              <Clock size={13} className="calendar-timeline__clock-icon" />
+                              <span>{item.airTime || 'TBA'}</span>
+                            </div>
+                            <span className={`calendar-timeline__status-badge calendar-timeline__status-badge--${airStatus.code}`}>
+                              {countdown}
+                            </span>
+                          </div>
+
+                          {/* Thumbnail Poster */}
+                          <div className="calendar-timeline__thumb-box">
+                            <Link href={href} className="calendar-timeline__thumb-link" aria-label={item.title}>
+                              {item.posterUrl ? (
+                                <Image
+                                  src={item.posterUrl}
+                                  alt={item.title}
+                                  fill
+                                  sizes="70px"
+                                  className="calendar-timeline__thumb-img"
+                                  loading="lazy"
+                                  unoptimized
+                                />
+                              ) : (
+                                <div className="calendar-timeline__thumb-placeholder">
+                                  <Film size={20} />
+                                </div>
+                              )}
+                            </Link>
+                          </div>
+
+                          {/* Episode & Meta Info */}
+                          <div className="calendar-timeline__info-col">
+                            <div className="calendar-timeline__badges-row">
+                              <span className="calendar-timeline__category-tag">
+                                {item.category === 'kdrama' ? 'K-DRAMA' : item.category.toUpperCase()}
+                              </span>
+                              {item.episodeNumber ? (
+                                <span className="calendar-timeline__ep-badge">
+                                  Episode {item.episodeNumber}
+                                </span>
+                              ) : (
+                                <span className="calendar-timeline__ep-badge">Premiere</span>
+                              )}
+                              {item.rating ? (
+                                <span className="calendar-timeline__rating">
+                                  <Star size={11} fill="#ffb800" stroke="#ffb800" />
+                                  <span>{item.rating.toFixed(1)}</span>
+                                </span>
+                              ) : null}
+                            </div>
+
+                            <Link href={href} className="calendar-timeline__title" title={item.title}>
+                              {item.title}
+                            </Link>
+
+                            {item.romajiTitle && item.romajiTitle !== item.title && (
+                              <p className="calendar-timeline__romaji" title={item.romajiTitle}>
+                                {item.romajiTitle}
+                              </p>
+                            )}
+
+                            {item.overview && (
+                              <p className="calendar-timeline__overview">
+                                {item.overview}
+                              </p>
+                            )}
+
+                            <div className="calendar-timeline__genres">
+                              {item.genres.slice(0, 3).map((g, gi) => (
+                                <span key={gi} className="calendar-timeline__genre-pill">
+                                  {g}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Quick Action Buttons */}
+                          <div className="calendar-timeline__action-col">
+                            <ShelfSelector content={mediaSummary} variant="card-badge" />
+                            <Link href={href} className="calendar-timeline__watch-link" aria-label={`Watch ${item.title}`}>
+                              <Play size={13} fill="currentColor" />
+                              <span>View</span>
+                            </Link>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             );
           })}

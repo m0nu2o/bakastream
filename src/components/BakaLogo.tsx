@@ -27,23 +27,23 @@ export default function BakaLogo({ size = 32, className = '' }: BakaLogoProps) {
         style={{ width: '100%', height: '100%', overflow: 'visible' }}
       >
         <defs>
-          {/* World-class cinematic Rose Red palette gradient */}
+          {/* Dynamic theme-native palette gradient */}
           <linearGradient id="bakaCrimsonGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FF99C2" />
-            <stop offset="50%" stopColor="#F70063" />
-            <stop offset="100%" stopColor="#D40054" />
+            <stop offset="0%" stopColor="var(--accent-secondary, #FF99C2)" />
+            <stop offset="50%" stopColor="var(--accent, #F70063)" />
+            <stop offset="100%" stopColor="var(--accent-strong, #D40054)" />
           </linearGradient>
 
           {/* Aerodynamic highlight ribbon */}
           <linearGradient id="bakaHighlight" x1="8" y1="6" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-            <stop offset="40%" stopColor="#FFB3D1" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#F70063" stopOpacity="0" />
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="40%" stopColor="var(--accent-secondary, #FFB3D1)" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="var(--accent, #F70063)" stopOpacity="0" />
           </linearGradient>
 
           {/* Core play prism glow */}
           <filter id="bakaEmblemGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#F70063" floodOpacity="0.65" />
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="var(--accent, #F70063)" floodOpacity="0.5" />
           </filter>
         </defs>
 
@@ -52,8 +52,8 @@ export default function BakaLogo({ size = 32, className = '' }: BakaLogoProps) {
           cx="20"
           cy="20"
           r="19"
-          fill="#13141C"
-          stroke="rgba(255, 255, 255, 0.12)"
+          fill="var(--card-bg, #13141C)"
+          stroke="var(--border-strong, rgba(255, 255, 255, 0.12))"
           strokeWidth="1.2"
           strokeOpacity="0.8"
         />

@@ -57,7 +57,7 @@
 }
 
 .footer-top__logo-accent {
-  background: linear-gradient(135deg, #FCE7F0, #F70063);
+  background: linear-gradient(135deg, var(--accent-secondary, #FCE7F0), var(--accent, #F70063));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-right: 1px;

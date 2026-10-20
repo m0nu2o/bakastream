@@ -20,3 +20,12 @@
   transform: translateY(-3px);
   background: var(--accent-hover);
 }
+
+@media (max-width: 768px) {
+  .back-to-top {
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    right: 1rem;
+    width: 42px;
+    height: 42px;
+  }
+}
