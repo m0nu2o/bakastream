@@ -299,12 +299,14 @@
   transform: translateY(0) scale(0.96);
 }
 
+:root[data-mode="light"] .hero__arrow,
 :root[data-theme="light"] .hero__arrow {
   background: rgba(255, 255, 255, 0.85);
   border-color: rgba(0, 0, 0, 0.12);
   color: #12121c;
 }
 
+:root[data-mode="light"] .hero__arrow:hover,
 :root[data-theme="light"] .hero__arrow:hover {
   background: var(--accent);
   color: #ffffff;
@@ -341,10 +343,12 @@
    LIGHT MODE OVERRIDES FOR HERO
    ───────────────────────────────────────────────────────────── */
 
+:root[data-mode="light"] .hero,
 :root[data-theme="light"] .hero {
   background: #0b0b12;
 }
 
+:root[data-mode="light"] .hero__shade,
 :root[data-theme="light"] .hero__shade {
   background:
     linear-gradient(
@@ -364,38 +368,46 @@
     );
 }
 
+:root[data-mode="light"] .hero__title,
 :root[data-theme="light"] .hero__title {
   color: #ffffff;
   text-shadow: 0 4px 28px rgba(0, 0, 0, 0.85);
 }
 
+:root[data-mode="light"] .hero__meta,
 :root[data-theme="light"] .hero__meta {
   color: rgba(255, 255, 255, 0.85);
 }
 
+:root[data-mode="light"] .hero__meta-item--rating,
 :root[data-theme="light"] .hero__meta-item--rating {
   color: #ffffff;
 }
 
+:root[data-mode="light"] .hero__rating-denom,
 :root[data-theme="light"] .hero__rating-denom {
   color: rgba(255, 255, 255, 0.6);
 }
 
+:root[data-mode="light"] .hero__badge,
 :root[data-theme="light"] .hero__badge {
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.24);
   color: #ffffff;
 }
 
+:root[data-mode="light"] .hero__genre-tag,
 :root[data-theme="light"] .hero__genre-tag {
   color: rgba(255, 255, 255, 0.8);
 }
 
+:root[data-mode="light"] .hero__overview,
 :root[data-theme="light"] .hero__overview {
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
 }
 
+:root[data-mode="light"] .hero__info-btn,
 :root[data-theme="light"] .hero__info-btn {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.25);
@@ -404,15 +416,18 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
+:root[data-mode="light"] .hero__info-btn:hover,
 :root[data-theme="light"] .hero__info-btn:hover {
   background: rgba(255, 255, 255, 0.28);
   border-color: rgba(255, 255, 255, 0.45);
 }
 
+:root[data-mode="light"] .hero__vdot,
 :root[data-theme="light"] .hero__vdot {
   background: rgba(255, 255, 255, 0.35);
 }
 
+:root[data-mode="light"] .hero__vdot--active,
 :root[data-theme="light"] .hero__vdot--active {
   background: var(--accent);
 }

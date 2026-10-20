@@ -182,6 +182,7 @@
   transform: translateY(-1px);
 }
 
+:root[data-mode="light"] .weekly-schedule__day-tab:hover,
 :root[data-theme="light"] .weekly-schedule__day-tab:hover {
   border-color: rgba(0, 0, 0, 0.2);
 }
@@ -380,6 +381,7 @@
   border-color: rgba(255, 255, 255, 0.22);
 }
 
+:root[data-mode="light"] .schedule-card:hover,
 :root[data-theme="light"] .schedule-card:hover {
   border-color: rgba(0, 0, 0, 0.2);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
@@ -664,4 +666,48 @@
   background: var(--card-hover-bg);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* ── Universal Light Mode Enhancements ── */
+:root[data-mode="light"] .weekly-schedule__pills,
+:root[data-theme="light"] .weekly-schedule__pills {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root[data-mode="light"] .weekly-schedule__pill,
+:root[data-theme="light"] .weekly-schedule__pill {
+  color: #475569 !important;
+}
+
+:root[data-mode="light"] .weekly-schedule__pill:hover,
+:root[data-theme="light"] .weekly-schedule__pill:hover {
+  color: #0f172a !important;
+}
+
+:root[data-mode="light"] .weekly-schedule__pill--active,
+:root[data-theme="light"] .weekly-schedule__pill--active {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+}
+
+:root[data-mode="light"] .weekly-schedule__day-tab,
+:root[data-theme="light"] .weekly-schedule__day-tab {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root[data-mode="light"] .weekly-schedule__day-tab--active,
+:root[data-theme="light"] .weekly-schedule__day-tab--active {
+  border-color: var(--accent) !important;
+  box-shadow: 0 3px 10px var(--accent-subtle) !important;
+}
+
+:root[data-mode="light"] .schedule-card,
+:root[data-theme="light"] .schedule-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
 }

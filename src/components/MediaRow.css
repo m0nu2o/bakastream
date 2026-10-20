@@ -89,15 +89,18 @@
   right: 1rem;
 }
 
+:root[data-mode="light"] .media-row__title,
 :root[data-theme="light"] .media-row__title {
   color: #12121c;
 }
+:root[data-mode="light"] .media-row__arrow,
 :root[data-theme="light"] .media-row__arrow {
   background: rgba(255, 255, 255, 0.88);
   border-color: rgba(0, 0, 0, 0.12);
   color: #15151e;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
+:root[data-mode="light"] .media-row__arrow:hover,
 :root[data-theme="light"] .media-row__arrow:hover {
   background: var(--accent);
   border-color: var(--accent);

@@ -216,6 +216,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
+:root[data-mode="light"] .calendar-days-container,
 :root[data-theme="light"] .calendar-days-container {
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
@@ -263,6 +264,7 @@
   box-shadow: 0 3px 10px var(--accent-subtle);
 }
 
+:root[data-mode="light"] .calendar-day-btn--active,
 :root[data-theme="light"] .calendar-day-btn--active {
   background: var(--bg-primary) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -439,6 +441,7 @@
   border-color: var(--border-strong);
 }
 
+:root[data-mode="light"] .calendar-card:hover,
 :root[data-theme="light"] .calendar-card:hover {
   border-color: rgba(0, 0, 0, 0.2);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -998,4 +1001,76 @@
   .calendar-day-btn__sub {
     font-size: 0.68rem;
   }
+}
+
+/* ── Light Mode High-Contrast Overrides ── */
+:root[data-mode="light"] .calendar-search-input,
+:root[data-theme="light"] .calendar-search-input {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+:root[data-mode="light"] .calendar-search-input::placeholder,
+:root[data-theme="light"] .calendar-search-input::placeholder {
+  color: #64748b !important;
+}
+
+:root[data-mode="light"] .calendar-view-toggle,
+:root[data-theme="light"] .calendar-view-toggle {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+:root[data-mode="light"] .calendar-view-btn,
+:root[data-theme="light"] .calendar-view-btn {
+  color: #475569 !important;
+}
+
+:root[data-mode="light"] .calendar-view-btn--active,
+:root[data-theme="light"] .calendar-view-btn--active {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+}
+
+:root[data-mode="light"] .calendar-timeline-row,
+:root[data-theme="light"] .calendar-timeline-row {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root[data-mode="light"] .calendar-timeline-row:hover,
+:root[data-theme="light"] .calendar-timeline-row:hover {
+  background: #f8fafc !important;
+  border-color: var(--accent) !important;
+}
+
+:root[data-mode="light"] .calendar-timeline__status-badge--aired,
+:root[data-theme="light"] .calendar-timeline__status-badge--aired {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+:root[data-mode="light"] .calendar-timeline__category-tag,
+:root[data-theme="light"] .calendar-timeline__category-tag {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+:root[data-mode="light"] .calendar-timeline__genre-pill,
+:root[data-theme="light"] .calendar-timeline__genre-pill {
+  background: #ffffff !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+:root[data-mode="light"] .calendar-card,
+:root[data-theme="light"] .calendar-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
 }

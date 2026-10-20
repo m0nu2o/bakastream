@@ -73,15 +73,15 @@
   font-size: 0.84rem;
   font-weight: 600;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.09));
   cursor: pointer;
   transition: all 0.18s ease;
 }
 .chip:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: var(--card-hover-bg, rgba(255, 255, 255, 0.08));
+  border-color: var(--accent, rgba(255, 255, 255, 0.18));
   transform: translateY(-1px);
 }
 .chipActive {
@@ -116,25 +116,25 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   backdrop-filter: blur(10px);
 }
 .categoryChip:hover {
-  color: #ffffff;
-  background: rgba(247, 0, 99, 0.12);
-  border-color: rgba(247, 0, 99, 0.35);
+  color: var(--text-primary);
+  background: var(--accent-subtle, rgba(247, 0, 99, 0.12));
+  border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.2);
+  box-shadow: 0 4px 14px var(--accent-subtle);
 }
 .categoryChipActive {
   background: var(--accent, #F70063) !important;
   color: #ffffff !important;
   border-color: var(--accent-secondary, #FCE7F0) !important;
-  box-shadow: 0 4px 18px rgba(247, 0, 99, 0.45) !important;
+  box-shadow: 0 4px 18px var(--accent-subtle) !important;
 }
 .genreStrip {
   display: flex;
@@ -150,23 +150,23 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--card-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.09));
   cursor: pointer;
   transition: all 0.18s ease;
   white-space: nowrap;
 }
 .genrePill:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--text-primary);
+  background: var(--card-hover-bg, rgba(255, 255, 255, 0.09));
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 .genrePillActive {
   background: var(--accent, #F70063) !important;
   color: #ffffff !important;
   border-color: var(--accent-secondary, #FCE7F0) !important;
-  box-shadow: 0 4px 16px rgba(247, 0, 99, 0.45) !important;
+  box-shadow: 0 4px 16px var(--accent-subtle) !important;
 }
 .selectGroup {
   display: flex;
@@ -176,9 +176,9 @@
   margin-top: 0.3rem;
 }
 .select {
-  background: rgba(18, 18, 28, 0.85);
+  background: var(--card-bg, rgba(18, 18, 28, 0.85));
   color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-strong, rgba(255, 255, 255, 0.12));
   border-radius: var(--radius-md, 8px);
   padding: 0.45rem 0.85rem;
   font-size: 0.85rem;
@@ -188,10 +188,14 @@
   cursor: pointer;
   transition: all 0.15s ease;
 }
+.select option {
+  background: var(--card-bg, #181824);
+  color: var(--text-primary, #ffffff);
+}
 .select:hover,
 .select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(247, 0, 99, 0.25);
+  box-shadow: 0 0 10px var(--accent-subtle);
 }
 .grid {
   display: grid;
@@ -249,4 +253,147 @@
   color: var(--text-secondary);
   font-size: 0.92rem;
   line-height: 1.5;
+}
+
+/* ── Universal Light Mode High-Contrast Overrides ── */
+:global(:root[data-mode="light"]) .searchForm,
+:global(:root[data-theme="light"]) .searchForm {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+}
+
+:global(:root[data-mode="light"]) .searchInput,
+:global(:root[data-theme="light"]) .searchInput {
+  color: #0F172A !important;
+}
+
+:global(:root[data-mode="light"]) .searchInput::placeholder,
+:global(:root[data-theme="light"]) .searchInput::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+
+:global(:root[data-mode="light"]) .searchIcon,
+:global(:root[data-theme="light"]) .searchIcon {
+  color: #64748B !important;
+}
+
+:global(:root[data-mode="light"]) .filterToggle,
+:global(:root[data-theme="light"]) .filterToggle {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+:global(:root[data-mode="light"]) .filterToggle:hover,
+:global(:root[data-theme="light"]) .filterToggle:hover {
+  background: #F1F5F9 !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+:global(:root[data-mode="light"]) .chip,
+:global(:root[data-theme="light"]) .chip {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+:global(:root[data-mode="light"]) .chip:hover,
+:global(:root[data-theme="light"]) .chip:hover {
+  background: #F1F5F9 !important;
+  border-color: var(--accent) !important;
+  color: #0F172A !important;
+}
+
+:global(:root[data-mode="light"]) .chipActive,
+:global(:root[data-theme="light"]) .chipActive {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px var(--accent-subtle) !important;
+}
+
+:global(:root[data-mode="light"]) .sectionLabel,
+:global(:root[data-theme="light"]) .sectionLabel {
+  color: #1E293B !important;
+  font-weight: 800 !important;
+}
+
+:global(:root[data-mode="light"]) .categoryChip,
+:global(:root[data-theme="light"]) .categoryChip {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+:global(:root[data-mode="light"]) .categoryChip:hover,
+:global(:root[data-theme="light"]) .categoryChip:hover {
+  color: #0F172A !important;
+  background: #F1F5F9 !important;
+  border-color: var(--accent) !important;
+  transform: translateY(-2px);
+}
+
+:global(:root[data-mode="light"]) .categoryChipActive,
+:global(:root[data-theme="light"]) .categoryChipActive {
+  background: var(--accent) !important;
+  color: #FFFFFF !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 14px var(--accent-subtle) !important;
+}
+
+:global(:root[data-mode="light"]) .genrePill,
+:global(:root[data-theme="light"]) .genrePill {
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+}
+
+:global(:root[data-mode="light"]) .genrePill:hover,
+:global(:root[data-theme="light"]) .genrePill:hover {
+  color: #0F172A !important;
+  background: #F1F5F9 !important;
+  border-color: var(--accent) !important;
+}
+
+:global(:root[data-mode="light"]) .genrePillActive,
+:global(:root[data-theme="light"]) .genrePillActive {
+  background: var(--accent) !important;
+  color: #FFFFFF !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 14px var(--accent-subtle) !important;
+}
+
+:global(:root[data-mode="light"]) .select,
+:global(:root[data-theme="light"]) .select {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+:global(:root[data-mode="light"]) .select option,
+:global(:root[data-theme="light"]) .select option {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+:global(:root[data-mode="light"]) .select:hover,
+:global(:root[data-mode="light"]) .select:focus,
+:global(:root[data-theme="light"]) .select:hover,
+:global(:root[data-theme="light"]) .select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+:global(:root[data-mode="light"]) .pageLabel,
+:global(:root[data-theme="light"]) .pageLabel {
+  color: #334155 !important;
+  font-weight: 600 !important;
 }

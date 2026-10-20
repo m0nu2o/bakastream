@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTheme, THEME_OPTIONS, type ThemeId } from '../hooks/useTheme';
+import { useTheme, THEME_OPTIONS, type ThemeId, type ThemeMode } from '../hooks/useTheme';
 import { Palette, Check, Sun, Moon } from 'lucide-react';
 import './ThemeToggle.css';
 
 export default function ThemeToggle() {
-  const { theme, setTheme, toggle, mounted, isDark } = useTheme();
+  const { theme, mode, setTheme, setMode, toggle, mounted, isDark } = useTheme();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -42,23 +42,26 @@ export default function ThemeToggle() {
         aria-label="Select theme and appearance"
         aria-expanded={open}
         aria-haspopup="dialog"
-        title={`Theme: ${activeThemeObj.name}`}
+        title={`Theme: ${activeThemeObj.name} (${mode === 'dark' ? 'Dark' : 'Light'})`}
       >
         <Palette size={18} className="theme-toggle__icon" />
       </button>
 
       {open && (
         <div className="theme-popover" role="dialog" aria-label="Theme selector">
+          {/* Header */}
           <div className="theme-popover__header">
             <div className="theme-popover__title-wrap">
               <span className="theme-popover__title">Appearance</span>
-              <span className="theme-popover__sub">{THEME_OPTIONS.length} curated cinematic modes</span>
+              <span className="theme-popover__sub">
+                {activeThemeObj.name} · {mode === 'dark' ? 'Dark Mode' : 'Light Mode'}
+              </span>
             </div>
             <button
               type="button"
               className="theme-popover__quick-toggle"
               onClick={toggle}
-              title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'}
+              title={isDark ? 'Convert current theme to Light mode' : 'Convert current theme to Dark mode'}
               aria-label="Quick toggle light and dark"
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -66,9 +69,35 @@ export default function ThemeToggle() {
             </button>
           </div>
 
+          {/* Mode Switcher Segmented Control: Dark vs Light for every theme */}
+          <div className="theme-popover__mode-strip" role="group" aria-label="Appearance Mode">
+            <button
+              type="button"
+              className={`theme-popover__mode-btn ${isDark ? 'theme-popover__mode-btn--active' : ''}`}
+              onClick={() => setMode('dark')}
+              aria-pressed={isDark}
+            >
+              <Moon size={13} />
+              <span>Dark Mode</span>
+            </button>
+            <button
+              type="button"
+              className={`theme-popover__mode-btn ${!isDark ? 'theme-popover__mode-btn--active' : ''}`}
+              onClick={() => setMode('light')}
+              aria-pressed={!isDark}
+            >
+              <Sun size={13} />
+              <span>Light Mode</span>
+            </button>
+          </div>
+
+          {/* Theme Palettes List */}
           <div className="theme-popover__list">
             {THEME_OPTIONS.map(opt => {
               const isSelected = mounted && theme === opt.id;
+              const previewBg = isDark ? opt.bgDark : opt.bgLight;
+              const previewAccent = isDark ? opt.accent : opt.accentLight;
+
               return (
                 <button
                   key={opt.id}
@@ -77,20 +106,19 @@ export default function ThemeToggle() {
                   className={`theme-popover__item ${isSelected ? 'theme-popover__item--active' : ''}`}
                   onClick={() => {
                     setTheme(opt.id);
-                    setOpen(false);
                   }}
                   aria-pressed={isSelected}
                 >
                   <div
                     className="theme-popover__preview-pill"
                     style={{
-                      background: opt.bg,
-                      borderColor: isSelected ? opt.accent : 'var(--border-color)',
+                      background: previewBg,
+                      borderColor: isSelected ? previewAccent : 'var(--border-color)',
                     }}
                   >
                     <span
                       className="theme-popover__preview-accent"
-                      style={{ background: opt.accent }}
+                      style={{ background: previewAccent }}
                     />
                   </div>
 

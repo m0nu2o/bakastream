@@ -68,7 +68,7 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" data-mode="dark" suppressHydrationWarning>
       <head>
         <ThemeThemeProvider />
         <Script
