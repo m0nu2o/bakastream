@@ -8,6 +8,13 @@
 
 export type MediaType = 'movie' | 'tv';
 
+export type WatchlistStatus = 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped';
+
+export interface WatchlistItem extends MediaSummary {
+  status?: WatchlistStatus;
+  addedAt?: number;
+}
+
 export interface Genre {
   id: number;
   name: string;

@@ -8,7 +8,7 @@
  * together when the list changes.
  */
 
-import type { MediaSummary, MediaType } from '@/types';
+import type { MediaSummary, MediaType, WatchlistStatus, WatchlistItem } from '@/types';
 
 const WATCHLIST_KEY = 'bakastream:watchlist';
 const HISTORY_KEY = 'bakastream:history';
@@ -64,33 +64,105 @@ function readSnapshot<T>(key: string, fallback: T): T {
 }
 
 /** Stable empty references for useSyncExternalStore server snapshots. */
-export const EMPTY_WATCHLIST: MediaSummary[] = [];
+export const EMPTY_WATCHLIST: WatchlistItem[] = [];
 export const EMPTY_HISTORY: HistoryEntry[] = [];
 
-/* ── Watchlist ─────────────────────────────────────────────────────────── */
+/* ── Watchlist & Shelf Categorization ──────────────────────────────────── */
 
-export function getWatchlist(): MediaSummary[] {
-  return readSnapshot<MediaSummary[]>(WATCHLIST_KEY, EMPTY_WATCHLIST);
+let cachedNormalizedWatchlist: WatchlistItem[] = EMPTY_WATCHLIST;
+let cachedRawWatchlist: unknown = null;
+
+let cachedCounts: Record<WatchlistStatus | 'all', number> | null = null;
+let cachedCountsSource: unknown = null;
+
+export function getWatchlist(statusFilter?: WatchlistStatus): WatchlistItem[] {
+  const rawList = readSnapshot<WatchlistItem[]>(WATCHLIST_KEY, EMPTY_WATCHLIST);
+  if (rawList !== cachedRawWatchlist) {
+    cachedRawWatchlist = rawList;
+    cachedNormalizedWatchlist = rawList.map(item => ({
+      ...item,
+      status: item.status || 'plan_to_watch',
+    }));
+  }
+  if (!statusFilter) return cachedNormalizedWatchlist;
+  return cachedNormalizedWatchlist.filter(item => item.status === statusFilter);
 }
 
 export function isInWatchlist(type: MediaType, id: number): boolean {
   return getWatchlist().some(item => item.type === type && item.id === id);
 }
 
+export function getMediaStatus(type: MediaType, id: number): WatchlistStatus | null {
+  const found = getWatchlist().find(item => item.type === type && item.id === id);
+  return found ? (found.status || 'plan_to_watch') : null;
+}
+
+/**
+ * Assigns a media title to a specific shelf/category ('watching', 'plan_to_watch',
+ * 'completed', 'on_hold', 'dropped'). Passing null removes the title from all shelves.
+ */
+export function setMediaStatus(item: MediaSummary, status: WatchlistStatus | null): void {
+  const list = getWatchlist();
+  const index = list.findIndex(i => i.type === item.type && i.id === item.id);
+
+  if (status === null) {
+    if (index >= 0) {
+      list.splice(index, 1);
+      writeRaw(WATCHLIST_KEY, list);
+    }
+    return;
+  }
+
+  const updatedItem: WatchlistItem = {
+    ...(index >= 0 ? list[index] : item),
+    ...item,
+    status,
+    addedAt: index >= 0 && list[index].addedAt ? list[index].addedAt : Date.now(),
+  };
+
+  if (index >= 0) {
+    list[index] = updatedItem;
+  } else {
+    list.unshift(updatedItem);
+  }
+
+  writeRaw(WATCHLIST_KEY, list.slice(0, 300));
+}
+
 /** Adds/removes the title; returns true when it is now in the watchlist. */
 export function toggleWatchlist(item: MediaSummary): boolean {
-  const list = getWatchlist();
-  const exists = list.findIndex(i => i.type === item.type && i.id === item.id);
-  let added: boolean;
-  if (exists >= 0) {
-    list.splice(exists, 1);
-    added = false;
+  const currentStatus = getMediaStatus(item.type, item.id);
+  if (currentStatus) {
+    setMediaStatus(item, null);
+    return false;
   } else {
-    list.unshift(item);
-    added = true;
+    setMediaStatus(item, 'plan_to_watch');
+    return true;
   }
-  writeRaw(WATCHLIST_KEY, list.slice(0, 200));
-  return added;
+}
+
+export function getWatchlistCounts(): Record<WatchlistStatus | 'all', number> {
+  const list = getWatchlist();
+  if (list === cachedCountsSource && cachedCounts) {
+    return cachedCounts;
+  }
+  const counts: Record<WatchlistStatus | 'all', number> = {
+    all: list.length,
+    watching: 0,
+    plan_to_watch: 0,
+    completed: 0,
+    on_hold: 0,
+    dropped: 0,
+  };
+  for (const item of list) {
+    const s = item.status || 'plan_to_watch';
+    if (counts[s] !== undefined) {
+      counts[s]++;
+    }
+  }
+  cachedCountsSource = list;
+  cachedCounts = counts;
+  return counts;
 }
 
 /* ── Continue watching / history ───────────────────────────────────────── */

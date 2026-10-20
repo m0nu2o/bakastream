@@ -199,7 +199,7 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 6px 4px 16px;
+  padding: 10px 4px 18px;
   width: 100%;
   max-width: 100%;
   min-width: 0;

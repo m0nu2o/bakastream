@@ -245,6 +245,26 @@
   color: #FFFFFF;
 }
 
+.theme-popover__badge--cyberpunk {
+  background: rgba(176, 38, 255, 0.16);
+  color: #B026FF;
+}
+
+.theme-popover__badge--emerald {
+  background: rgba(0, 245, 155, 0.16);
+  color: #00F59B;
+}
+
+.theme-popover__badge--sakura {
+  background: rgba(255, 83, 118, 0.16);
+  color: #FF5376;
+}
+
+.theme-popover__badge--oceanic {
+  background: rgba(0, 210, 255, 0.16);
+  color: #00D2FF;
+}
+
 .theme-popover__badge--light {
   background: rgba(247, 0, 99, 0.1);
   color: #F70063;

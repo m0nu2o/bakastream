@@ -6,6 +6,7 @@ import TrendingShowcase from '@/components/TrendingShowcase';
 import WatchingBanner from '@/components/WatchingBanner';
 import CatalogSection from '@/components/CatalogSection';
 import GenreSpotlight from '@/components/GenreSpotlight';
+import WeeklySchedule from '@/components/WeeklySchedule';
 import StateView from '@/components/StateView';
 import { getHomeData } from '@/lib/tmdb/server';
 import type { Genre } from '@/types';
@@ -129,6 +130,9 @@ async function HomeContent() {
       {GENRE_SPOTLIGHT.map(id => (
         <GenreSpotlight key={id} genreId={id} name={genreName(id)} />
       ))}
+
+      {/* ── 8. WEEKLY RELEASE SCHEDULE (CALENDAR AT END OF HOME PAGE) ── */}
+      <WeeklySchedule isEmbedded={true} />
     </div>
   );
 }

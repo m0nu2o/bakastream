@@ -52,7 +52,7 @@ export default function ThemeToggle() {
           <div className="theme-popover__header">
             <div className="theme-popover__title-wrap">
               <span className="theme-popover__title">Appearance</span>
-              <span className="theme-popover__sub">3 curated cinematic modes</span>
+              <span className="theme-popover__sub">{THEME_OPTIONS.length} curated cinematic modes</span>
             </div>
             <button
               type="button"
@@ -98,7 +98,7 @@ export default function ThemeToggle() {
                     <div className="theme-popover__name-row">
                       <span className="theme-popover__name">{opt.name}</span>
                       <span className={`theme-popover__badge theme-popover__badge--${opt.id}`}>
-                        {opt.id === 'midnight' ? 'OLED' : opt.id === 'dark' ? 'CINEMA' : 'STUDIO'}
+                        {opt.badge}
                       </span>
                     </div>
                     <span className="theme-popover__desc">{opt.description}</span>

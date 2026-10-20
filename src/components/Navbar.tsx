@@ -12,6 +12,7 @@ import {
   Tv,
   Sparkles,
   Bookmark,
+  Calendar,
   ChevronDown,
   LayoutGrid,
   Layers,
@@ -29,6 +30,7 @@ const NAV_LINKS = [
   { href: '/movies', label: 'Movies', icon: Film },
   { href: '/tv', label: 'TV Shows', icon: Tv },
   { href: '/anime', label: 'Anime', icon: Sparkles },
+  { href: '/calendar', label: 'Schedule', icon: Calendar },
   { href: '/watchlist', label: 'Watchlist', icon: Bookmark },
 ];
 

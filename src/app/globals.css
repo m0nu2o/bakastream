@@ -104,6 +104,146 @@
   --shadow-glow: 0 0 35px rgba(247, 0, 99, 0.45);
 }
 
+:root[data-theme="cyberpunk"] {
+  --accent: #B026FF;
+  --accent-strong: #9400D3;
+  --accent-hover: #C55CFF;
+  --accent-secondary: #E0A6FF;
+  --accent-subtle: rgba(176, 38, 255, 0.2);
+  --brand-red: #B026FF;
+
+  --bg-primary: #0B0816;
+  --bg-secondary: #120D22;
+  --bg-tertiary: #19132F;
+  --bg-elevated: #20183B;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #A79EBF;
+  --text-tertiary: #756B8F;
+
+  --border-color: rgba(176, 38, 255, 0.16);
+  --border-strong: rgba(176, 38, 255, 0.4);
+  --overlay-bg: rgba(11, 8, 22, 0.94);
+  --card-bg: #140E26;
+  --card-hover-bg: #1C1435;
+
+  --input-bg: rgba(176, 38, 255, 0.06);
+  --input-border: rgba(176, 38, 255, 0.2);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(176, 38, 255, 0.25);
+  --scrollbar-thumb-hover: #B026FF;
+
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 35px rgba(176, 38, 255, 0.45);
+}
+
+:root[data-theme="emerald"] {
+  --accent: #00F59B;
+  --accent-strong: #00CC80;
+  --accent-hover: #33FFB0;
+  --accent-secondary: #85FFD3;
+  --accent-subtle: rgba(0, 245, 155, 0.18);
+  --brand-red: #00F59B;
+
+  --bg-primary: #08100C;
+  --bg-secondary: #0D1A14;
+  --bg-tertiary: #12241C;
+  --bg-elevated: #182E24;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #9EBAAE;
+  --text-tertiary: #678A7A;
+
+  --border-color: rgba(0, 245, 155, 0.14);
+  --border-strong: rgba(0, 245, 155, 0.38);
+  --overlay-bg: rgba(8, 16, 12, 0.94);
+  --card-bg: #0F1D17;
+  --card-hover-bg: #162920;
+
+  --input-bg: rgba(0, 245, 155, 0.05);
+  --input-border: rgba(0, 245, 155, 0.18);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0, 245, 155, 0.22);
+  --scrollbar-thumb-hover: #00F59B;
+
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 35px rgba(0, 245, 155, 0.45);
+}
+
+:root[data-theme="sakura"] {
+  --accent: #FF5376;
+  --accent-strong: #E6355B;
+  --accent-hover: #FF7592;
+  --accent-secondary: #FFAEBF;
+  --accent-subtle: rgba(255, 83, 118, 0.18);
+  --brand-red: #FF5376;
+
+  --bg-primary: #120B14;
+  --bg-secondary: #1A111D;
+  --bg-tertiary: #241728;
+  --bg-elevated: #2D1E33;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #BCA4BA;
+  --text-tertiary: #8A6D88;
+
+  --border-color: rgba(255, 83, 118, 0.15);
+  --border-strong: rgba(255, 83, 118, 0.38);
+  --overlay-bg: rgba(18, 11, 20, 0.94);
+  --card-bg: #1C1220;
+  --card-hover-bg: #271A2D;
+
+  --input-bg: rgba(255, 83, 118, 0.05);
+  --input-border: rgba(255, 83, 118, 0.18);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 83, 118, 0.22);
+  --scrollbar-thumb-hover: #FF5376;
+
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 35px rgba(255, 83, 118, 0.45);
+}
+
+:root[data-theme="oceanic"] {
+  --accent: #00D2FF;
+  --accent-strong: #00A6CC;
+  --accent-hover: #38DEFF;
+  --accent-secondary: #99EFFF;
+  --accent-subtle: rgba(0, 210, 255, 0.18);
+  --brand-red: #00D2FF;
+
+  --bg-primary: #080E18;
+  --bg-secondary: #0D1626;
+  --bg-tertiary: #121F35;
+  --bg-elevated: #182844;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #9AB2CF;
+  --text-tertiary: #637F9E;
+
+  --border-color: rgba(0, 210, 255, 0.15);
+  --border-strong: rgba(0, 210, 255, 0.38);
+  --overlay-bg: rgba(8, 14, 24, 0.94);
+  --card-bg: #0F1A2C;
+  --card-hover-bg: #16253E;
+
+  --input-bg: rgba(0, 210, 255, 0.05);
+  --input-border: rgba(0, 210, 255, 0.18);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0, 210, 255, 0.22);
+  --scrollbar-thumb-hover: #00D2FF;
+
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 35px rgba(0, 210, 255, 0.45);
+}
+
 :root[data-theme="light"] {
   --accent: #F70063;
   --accent-strong: #D40054;

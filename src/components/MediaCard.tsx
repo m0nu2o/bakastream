@@ -1,33 +1,38 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Star, Bookmark, BookmarkCheck, Film } from 'lucide-react';
+import { Play, Star, Film } from 'lucide-react';
 import type { MediaSummary } from '@/types';
 import { posterUrl } from '@/lib/tmdb/image';
 import { mediaUrl } from '@/utils/slug';
-import { toggleWatchlist } from '@/lib/storage';
-import { useIsInWatchlist } from '@/hooks/useStoredCollection';
+import ShelfSelector from '@/components/ShelfSelector';
 import './MediaCard.css';
 
 interface Props {
   content: MediaSummary;
   /** When provided, the play button opens the in-page player overlay. */
   onPlay?: (content: MediaSummary) => void;
+  /** Optional custom badge (e.g. for release calendar) */
+  customBadge?: string;
 }
 
-export default function MediaCard({ content, onPlay }: Props) {
+export default function MediaCard({ content, onPlay, customBadge }: Props) {
   const poster = posterUrl(content.posterPath, 'w500');
   const year = content.releaseDate ? content.releaseDate.slice(0, 4) : null;
   const rating = content.rating && content.rating > 0 ? content.rating.toFixed(1) : null;
-  const saved = useIsInWatchlist(content.type, content.id);
-
   const href = mediaUrl(content);
 
   return (
     <article className="media-card">
       <div className="media-card__poster-box">
-        <Link href={href} prefetch={true} aria-label={content.title} className="media-card__poster-link">
+        <Link
+          href={href}
+          prefetch={true}
+          aria-label={content.title}
+          className="media-card__poster-link"
+        >
           {poster ? (
             <Image
               src={poster}
@@ -42,12 +47,18 @@ export default function MediaCard({ content, onPlay }: Props) {
               <Film size={28} />
             </div>
           )}
+
+          {/* Smooth Dark Cinematic Vignette Overlay on Hover */}
+          <div className="media-card__overlay" aria-hidden="true" />
         </Link>
 
-        {/* Quality Indicator Pill */}
+        {/* Quality Indicator Pill (Top-Left) */}
         <div className="media-card__badge-pill">
-          {content.type === 'tv' ? 'TV' : 'HD'}
+          {customBadge || (content.type === 'tv' ? 'TV' : 'HD')}
         </div>
+
+        {/* Shelf & Watchlist Status Action (Top-Right - Completely separated from HD badge) */}
+        <ShelfSelector content={content} variant="card-badge" />
 
         {/* Center Hover Play Button */}
         <div className="media-card__play-overlay">
@@ -62,32 +73,21 @@ export default function MediaCard({ content, onPlay }: Props) {
                 onPlay(content);
               }}
             >
-              <Play size={18} fill="currentColor" />
+              <Play size={20} fill="currentColor" />
             </button>
           ) : (
-            <Link href={href} className="media-card__play-btn" aria-label={`Open ${content.title}`}>
-              <Play size={18} fill="currentColor" />
+            <Link
+              href={href}
+              className="media-card__play-btn"
+              aria-label={`Play ${content.title}`}
+            >
+              <Play size={20} fill="currentColor" />
             </Link>
           )}
         </div>
-
-        {/* Save to Watchlist Button */}
-        <button
-          type="button"
-          className={`media-card__save ${saved ? 'media-card__save--on' : ''}`}
-          aria-label={saved ? 'Remove from watchlist' : 'Save to watchlist'}
-          title={saved ? 'In Watchlist (Click to remove)' : 'Save to Watchlist'}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWatchlist(content);
-          }}
-        >
-          {saved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
-        </button>
       </div>
 
-      {/* Info Block (Inset container exactly like the reference design) */}
+      {/* Info Block (Inset container with clean typography and metadata) */}
       <div className="media-card__info">
         <Link href={href} prefetch={true} className="media-card__title" title={content.title}>
           {content.title}
@@ -98,7 +98,7 @@ export default function MediaCard({ content, onPlay }: Props) {
           </span>
           {rating ? (
             <span className="media-card__rating">
-              <Star size={11} className="media-card__star" fill="#ffb800" stroke="#ffb800" />
+              <Star size={11.5} className="media-card__star" fill="#ffb800" stroke="#ffb800" />
               <span>{rating}</span>
             </span>
           ) : null}
