@@ -47,3 +47,7 @@ cloudflared.exe
 *.zip
 mobile-audit-shots/
 mobile_*.png
+
+# Cloudflare OpenNext & Wrangler
+.open-next/
+.wrangler/
