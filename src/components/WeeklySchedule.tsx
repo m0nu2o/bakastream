@@ -49,18 +49,24 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
     return () => clearInterval(timer);
   }, []);
 
+  const todayIso = useMemo(() => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  }, []);
+
   // Generate 7-day strip
   const dayTabs = useMemo<DayTab[]>(() => {
     const today = new Date();
+    const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const tabs: DayTab[] = [
       { key: 'all', label: 'All Week', dateStr: '7 Days' },
-      { key: 'today', label: 'Today', dateStr: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isToday: true },
+      { key: todayDateStr, label: 'Today', dateStr: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isToday: true },
     ];
 
     for (let i = 1; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const iso = d.toISOString().slice(0, 10);
+      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const weekday = i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short' });
       const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       tabs.push({ key: iso, label: weekday, dateStr });
@@ -94,8 +100,6 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
     };
   }, [category]);
 
-  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
-
   // Filter entries
   const displayItems = useMemo(() => {
     return entries.filter(item => {
@@ -104,7 +108,7 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
 
       // Day filter
       if (activeDay === 'all') return true;
-      if (activeDay === 'today') return item.airDate === todayIso;
+      if (activeDay === 'today' || activeDay === todayIso) return item.airDate === todayIso;
       return item.airDate === activeDay;
     });
   }, [entries, category, activeDay, todayIso]);
