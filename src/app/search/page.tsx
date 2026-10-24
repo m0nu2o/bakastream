@@ -25,6 +25,7 @@ interface SearchProps {
     genre?: string;
     year?: string;
     page?: string;
+    sort?: string;
   }>;
 }
 
@@ -38,13 +39,14 @@ async function Results({ searchParams }: SearchProps) {
   const genre = sp.genre ? Number(sp.genre) : undefined;
   const year = sp.year ? Number(sp.year) : undefined;
   const page = Math.max(1, Number(sp.page) || 1);
+  const sort = sp.sort || undefined;
 
   let results: MediaSummary[] = [];
   let totalResults = 0;
   let error = false;
 
   try {
-    const data = await search({ query, type, genre, year, page });
+    const data = await search({ query, type, genre, year, page, sort });
     results = data.results;
     totalResults = data.totalResults;
   } catch {

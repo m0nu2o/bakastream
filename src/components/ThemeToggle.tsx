@@ -6,7 +6,7 @@ import { Palette, Check, Sun, Moon } from 'lucide-react';
 import './ThemeToggle.css';
 
 export default function ThemeToggle() {
-  const { theme, mode, setTheme, setMode, toggle, mounted, isDark } = useTheme();
+  const { theme, mode, setTheme, setMode, mounted, isDark } = useTheme();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -57,19 +57,9 @@ export default function ThemeToggle() {
                 {activeThemeObj.name} · {mode === 'dark' ? 'Dark Mode' : 'Light Mode'}
               </span>
             </div>
-            <button
-              type="button"
-              className="theme-popover__quick-toggle"
-              onClick={toggle}
-              title={isDark ? 'Convert current theme to Light mode' : 'Convert current theme to Dark mode'}
-              aria-label="Quick toggle light and dark"
-            >
-              {isDark ? <Sun size={14} /> : <Moon size={14} />}
-              <span>{isDark ? 'Light' : 'Dark'}</span>
-            </button>
           </div>
 
-          {/* Mode Switcher Segmented Control: Dark vs Light for every theme */}
+          {/* Mode Switcher Segmented Control: Dark vs Light */}
           <div className="theme-popover__mode-strip" role="group" aria-label="Appearance Mode">
             <button
               type="button"

@@ -66,10 +66,12 @@ export default function SeasonEpisodeSelector({
       };
     }
     const cleanName = s.name?.trim() ?? '';
-    const hasArcName = cleanName && !/^season\s+\d+$/i.test(cleanName);
+    // Strip redundant leading "S1 •", "Season 1:", "S01 -", etc. from arc names
+    const strippedArc = cleanName.replace(/^(?:season\s*\d+|s\d+)\s*[:•·\-|]\s*/i, '').trim();
+    const hasArcName = strippedArc.length > 0 && !/^season\s+\d+$/i.test(strippedArc);
     return {
       badge: `S${s.seasonNumber}`,
-      name: hasArcName ? `S${s.seasonNumber} · ${cleanName}` : `Season ${s.seasonNumber}`,
+      name: hasArcName ? `S${s.seasonNumber} · ${strippedArc}` : `Season ${s.seasonNumber}`,
       isSpecial: false,
     };
   };

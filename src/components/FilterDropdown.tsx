@@ -20,6 +20,7 @@ interface FilterDropdownProps {
   placeholder?: string;
   hasSearch?: boolean;
   ariaLabel?: string;
+  align?: 'left' | 'right';
 }
 
 export default function FilterDropdown({
@@ -32,6 +33,7 @@ export default function FilterDropdown({
   placeholder,
   hasSearch = false,
   ariaLabel,
+  align = 'left',
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -132,7 +134,7 @@ export default function FilterDropdown({
 
       {open && (
         <div
-          className={styles.menu}
+          className={`${styles.menu} ${align === 'right' ? styles.menuRight : ''}`}
           role="listbox"
           aria-labelledby={`filter-${id}`}
         >

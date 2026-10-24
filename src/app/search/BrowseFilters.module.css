@@ -189,46 +189,62 @@
     gap: 0.65rem;
   }
   .selectGroup {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.5rem;
-    padding-bottom: 2px;
+    width: 100%;
+    margin-top: 0.4rem;
   }
-  .selectGroup::-webkit-scrollbar { display: none; }
   .categoryGroup {
+    display: flex;
     overflow-x: auto;
     flex-wrap: nowrap;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
+    padding: 2px 0 6px;
+    gap: 0.45rem;
+    width: 100%;
   }
   .categoryGroup::-webkit-scrollbar { display: none; }
   .genreStrip {
+    display: flex;
     overflow-x: auto;
     flex-wrap: nowrap;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
+    padding: 2px 0 6px;
+    gap: 0.4rem;
+    width: 100%;
   }
   .genreStrip::-webkit-scrollbar { display: none; }
   .resetFiltersBtn {
-    margin-left: 0;
+    margin-left: auto;
     flex-shrink: 0;
   }
   .categoryChip {
-    padding: 0.4rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.38rem 0.75rem;
     font-size: 0.78rem;
-    border-radius: 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   .genrePill {
+    display: inline-flex;
+    align-items: center;
     padding: 0.35rem 0.75rem;
     font-size: 0.78rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   .chip {
     padding: 0.35rem 0.75rem;
     font-size: 0.8rem;
+    border-radius: 999px;
   }
 }
 .filterGroup {

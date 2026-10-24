@@ -225,7 +225,7 @@ function mapDetails(data: RawDetails, type: MediaType): MediaDetails {
     numberOfSeasons: data.number_of_seasons ?? null,
     numberOfEpisodes: data.number_of_episodes ?? null,
     seasons: (data.seasons ?? [])
-      .filter(s => !(s.season_number === 0 && s.episode_count === 0))
+      .filter(s => s.episode_count > 0)
       .map(s => ({
         seasonNumber: s.season_number,
         name: s.name,
@@ -421,8 +421,9 @@ export async function getAnime(
     const params: Record<string, string | number> = {
       page,
       with_genres: baseGenres,
+      with_original_language: 'ja',
       sort_by: 'popularity.desc',
-      'vote_count.gte': 50,
+      'vote_count.gte': 10,
     };
     if (year) params.primary_release_year = year;
     const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/movie', { params });
@@ -433,22 +434,24 @@ export async function getAnime(
     const params: Record<string, string | number> = {
       page,
       with_genres: baseGenres,
+      with_original_language: 'ja',
       sort_by: 'popularity.desc',
-      'vote_count.gte': 50,
+      'vote_count.gte': 10,
     };
     if (year) params.first_air_date_year = year;
     const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', { params });
     return data.results.map(mapSummary);
   }
 
-  // All: query both anime TV and anime movies (Animation genre, popular globally)
+  // All: query both anime TV and anime movies with Japanese origin
   const [tvData, movieData] = await Promise.allSettled([
     tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
       params: {
         page,
         with_genres: baseGenres,
+        with_original_language: 'ja',
         sort_by: 'popularity.desc',
-        'vote_count.gte': 30,
+        'vote_count.gte': 10,
         ...(year ? { first_air_date_year: year } : {}),
       },
     }),
@@ -456,8 +459,9 @@ export async function getAnime(
       params: {
         page,
         with_genres: baseGenres,
+        with_original_language: 'ja',
         sort_by: 'popularity.desc',
-        'vote_count.gte': 30,
+        'vote_count.gte': 10,
         ...(year ? { primary_release_year: year } : {}),
       },
     }),
@@ -526,15 +530,29 @@ export interface SearchFilters {
   genre?: number;
   year?: number;
   page?: number;
+  sort?: string;
 }
 
-export async function search({ query, type = 'all', genre, year, page = 1 }: SearchFilters) {
+export async function search({ query, type = 'all', genre, year, page = 1, sort }: SearchFilters) {
   const page_ = page > 500 ? 500 : page;
 
   // Browse mode: no query — discover endpoint handles filters natively.
   if (!query || !query.trim()) {
+    if (type === 'all') {
+      const [movies, tv] = await Promise.allSettled([
+        discover({ type: 'movie', genre, year, sortBy: sort, page: page_ }),
+        discover({ type: 'tv', genre, year, sortBy: sort, page: page_ }),
+      ]);
+      const mItems = movies.status === 'fulfilled' ? movies.value : [];
+      const tItems = tv.status === 'fulfilled' ? tv.value : [];
+      const combined = [...mItems, ...tItems].sort(
+        (a, b) => (b.popularity || 0) - (a.popularity || 0)
+      );
+      return { results: combined.slice(0, 20), page: page_, totalResults: 10000 };
+    }
+
     const mediaType: MediaType = type === 'tv' ? 'tv' : 'movie';
-    const items = await discover({ type: mediaType, genre, year, page: page_ });
+    const items = await discover({ type: mediaType, genre, year, sortBy: sort, page: page_ });
     return { results: items, page: page_, totalResults: items.length ? 10000 : 0 };
   }
 

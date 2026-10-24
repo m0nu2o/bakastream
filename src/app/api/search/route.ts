@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
   const genre = sp.get('genre') ? Number(sp.get('genre')) : undefined;
   const year = sp.get('year') ? Number(sp.get('year')) : undefined;
   const page = Math.max(1, Number(sp.get('page')) || 1);
+  const sort = sp.get('sort') || undefined;
 
   try {
-    const data = await search({ query, type, genre, year, page });
+    const data = await search({ query, type, genre, year, page, sort });
     return NextResponse.json(data, {
       headers: { 'cache-control': 'public, s-maxage=120, stale-while-revalidate=600' },
     });

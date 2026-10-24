@@ -314,20 +314,20 @@
 
 @media (max-width: 480px) {
   .theme-popover {
-    position: fixed;
-    top: auto;
-    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-    right: 12px;
-    left: 12px;
-    width: auto;
-    max-width: calc(100vw - 24px);
-    max-height: 60vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px var(--accent-subtle);
+    position: absolute;
+    top: calc(100% + 8px);
+    right: -4px;
+    left: auto;
+    bottom: auto;
+    width: 275px;
+    max-width: calc(100vw - 20px);
+    max-height: 400px;
+    padding: 10px;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 1px 1px var(--border-color);
   }
   .theme-popover__list {
-    max-height: none;
+    max-height: 250px;
   }
 }
 

@@ -21,6 +21,7 @@ import {
 import ThemeToggle from './ThemeToggle';
 import BakaLogo from '@/components/BakaLogo';
 import { getGenres } from '@/lib/tmdb/client';
+import { TMDB_STATIC_GENRES } from '@/lib/tmdb/genres';
 import { listCategories } from '@/lib/categories';
 import type { Genre } from '@/types';
 import './Navbar.css';
@@ -42,7 +43,7 @@ export default function Navbar() {
   const [mobileGenresOpen, setMobileGenresOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
-  const [genres, setGenres] = useState<Genre[]>([]);
+  const [genres, setGenres] = useState<Genre[]>(TMDB_STATIC_GENRES);
   const categories = listCategories();
 
   useEffect(() => {

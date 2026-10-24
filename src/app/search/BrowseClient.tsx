@@ -258,6 +258,7 @@ export default function BrowseClient({ results, genres, page, totalPages = 500 }
               onChange={val => updateParam('sort', val === 'popularity.desc' ? null : val)}
               icon={ArrowUpDown}
               placeholder="Most Popular"
+              align="right"
             />
 
             {hasActiveFilters && (

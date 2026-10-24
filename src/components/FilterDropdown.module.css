@@ -130,6 +130,12 @@
   transform-origin: top left;
 }
 
+.menuRight {
+  left: auto !important;
+  right: 0 !important;
+  transform-origin: top right !important;
+}
+
 @keyframes dropdownIn {
   from {
     opacity: 0;
