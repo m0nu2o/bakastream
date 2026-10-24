@@ -36,18 +36,13 @@ export default function WatchingBanner({ item, onPlay }: Props) {
   const rating =
     displayItem.rating != null && displayItem.rating > 0 ? displayItem.rating.toFixed(1) : null;
 
-  // Dynamic hashtags generated from honest metadata
-  const hashtagTitle = '#' + title.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15);
-  const hashtagType = mediaType === 'movie' ? '#Movie' : '#Series';
-  const hashtagYear = year ? `#${year}` : null;
-
   return (
     <section
       className="watching-section"
       aria-label={isHistory ? 'Continue Watching' : 'Featured Spotlight'}
     >
       <div className="watching-section__inner">
-        {/* Section Header with Honest Label and Dynamic Tags */}
+        {/* Section Header with Honest Label */}
         <div className="watching-section__header">
           <div className="watching-section__title-group">
             <span className="watching-section__title-icon">
@@ -56,14 +51,6 @@ export default function WatchingBanner({ item, onPlay }: Props) {
             <h2 className="watching-section__title">
               {isHistory ? 'Continue Watching' : 'Featured Spotlight'}
             </h2>
-          </div>
-
-          {/* Dynamic Hashtags */}
-          <div className="watching-section__tags" aria-hidden="true">
-            <span className="watching-section__tag">{hashtagTitle}</span>
-            <span className="watching-section__tag">{hashtagType}</span>
-            {hashtagYear && <span className="watching-section__tag">{hashtagYear}</span>}
-            <span className="watching-section__tag">#HD</span>
           </div>
         </div>
 

@@ -21,85 +21,71 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  margin-bottom: 14px;
   gap: 16px;
 }
 
 .catalog-section__title-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .catalog-section__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.catalog-section__title-underline-wrap {
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .catalog-section__title-link {
   text-decoration: none;
   color: inherit;
+  min-width: 0;
 }
 
 .catalog-section__title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.3px;
-  line-height: 1.2;
+  line-height: 1.25;
   transition: color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.catalog-section__underline {
-  display: block;
-  height: 3px;
-  width: 44px;
-  background: var(--accent);
-  border-radius: 2px;
-  margin-top: 4px;
-}
-
-/* Sort Controls */
-.catalog-section__controls {
+.catalog-section__header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.catalog-section__sort-label {
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  flex-shrink: 0;
 }
 
 .catalog-section__sort-buttons {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .catalog-section__sort-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 9999px;
   background: var(--input-bg);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
 .catalog-section__sort-btn:hover {
@@ -112,30 +98,33 @@
   background: var(--accent) !important;
   color: #ffffff !important;
   border-color: var(--accent) !important;
-  font-weight: 600;
-  box-shadow: 0 3px 10px var(--accent-subtle);
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--accent-subtle);
 }
 
 .catalog-section__see-all {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 500;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
-  margin-left: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .catalog-section__see-all:hover {
-  background: var(--card-hover-bg);
-  color: var(--text-primary);
-  border-color: var(--border-strong);
+  color: var(--accent-hover);
+  background: var(--accent-subtle);
+}
+
+/* Mobile Segmented Sort Strip */
+.catalog-section__mobile-sort {
+  display: none;
 }
 
 /* Carousel and Sleek Edge Navigation */
@@ -367,7 +356,7 @@
 
 @media (max-width: 768px) {
   .catalog-section {
-    padding: 16px 16px 24px;
+    padding: 16px 14px 22px;
   }
   .catalog-card {
     flex: 0 0 calc((100% - 24px) / 2.3);
@@ -376,10 +365,22 @@
   .catalog-section__edge-btn {
     display: none;
   }
-  .catalog-section__controls {
-    width: 100%;
+  .catalog-section__sort-buttons--desktop {
+    display: none !important;
+  }
+  .catalog-section__mobile-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+  .catalog-section__mobile-sort::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -389,6 +390,6 @@
     min-width: 135px;
   }
   .catalog-section__title {
-    font-size: 19px;
+    font-size: 18px;
   }
 }

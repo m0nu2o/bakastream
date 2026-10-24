@@ -52,10 +52,12 @@ export default function MediaCard({ content, onPlay, customBadge }: Props) {
           <div className="media-card__overlay" aria-hidden="true" />
         </Link>
 
-        {/* Quality Indicator Pill (Top-Left) */}
-        <div className="media-card__badge-pill">
-          {customBadge || (content.type === 'tv' ? 'TV' : 'HD')}
-        </div>
+        {/* Quality Indicator Pill (Top-Left) - only if custom badge is explicitly passed */}
+        {customBadge && (
+          <div className="media-card__badge-pill">
+            {customBadge}
+          </div>
+        )}
 
         {/* Shelf & Watchlist Status Action (Top-Right - Completely separated from HD badge) */}
         <ShelfSelector content={content} variant="card-badge" />

@@ -6,48 +6,65 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 36px clamp(1rem, 3.5vw, 36px) 28px;
+  padding: 24px clamp(1rem, 3.5vw, 36px) 24px;
   position: relative;
   box-sizing: border-box;
   overflow-x: clip;
 }
 
-/* ── 1. Metallic Pill Navigation Strip ── */
-.trending-showcase__nav-wrapper {
+/* ── 1. Section Header & Tabs ── */
+.trending-showcase__header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-bottom: 22px;
-  width: 100%;
-  max-width: 100%;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.trending-showcase__title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trending-showcase__title-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.trending-showcase__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
 }
 
 .trending-showcase__nav {
   display: inline-flex;
   align-items: center;
-  background: var(--bg-secondary);
-  padding: 5px;
+  background: var(--input-bg);
+  padding: 3px;
   border-radius: 9999px;
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-md);
-  gap: 4px;
-  max-width: 100%;
-  transition: all 0.3s ease;
+  gap: 3px;
 }
 
 .trending-showcase__tab {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
+  gap: 6px;
+  padding: 6px 14px;
   border-radius: 9999px;
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
@@ -58,32 +75,22 @@
 .trending-showcase__tab--active {
   background: var(--bg-elevated);
   color: var(--text-primary);
-  border-color: var(--border-strong);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-.trending-showcase__tab-icon {
-  flex-shrink: 0;
-  color: inherit;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .trending-showcase__tab--active .trending-showcase__tab-icon {
   color: var(--accent);
 }
 
-/* ── 2. Scrollable Genre Filter Pills ── */
+/* ── 2. Low-Profile Genre Filter Ribbon ── */
 .trending-showcase__genres-container {
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 4px 0 6px;
-  mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+  padding: 2px 0 6px;
 }
 
 .trending-showcase__genres-container::-webkit-scrollbar {
@@ -93,34 +100,28 @@
 .trending-showcase__genres-scroll {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 8px;
   min-width: max-content;
-  margin: 0 auto;
-  padding: 4px clamp(16px, 4vw, 36px);
+  padding: 0 2px;
 }
 
 .trending-showcase__genre-chip {
-  padding: 8px 18px;
+  padding: 5px 14px;
   border-radius: 9999px;
   background: var(--input-bg);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   white-space: nowrap;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .trending-showcase__genre-chip:hover {
-  background: var(--accent-subtle);
+  background: var(--card-hover-bg);
   color: var(--text-primary);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px var(--accent-subtle);
+  border-color: var(--border-strong);
 }
 
 .trending-showcase__genre-chip--active {
@@ -128,8 +129,7 @@
   color: #ffffff !important;
   border-color: var(--accent) !important;
   font-weight: 700;
-  box-shadow: 0 4px 18px var(--accent-subtle) !important;
-  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 2px 8px var(--accent-subtle) !important;
 }
 
 /* ── 3. Carousel Wrapper & Sleek Modern Edge Navigation ── */
@@ -415,24 +415,29 @@
 }
 
 @media (max-width: 640px) {
+  .trending-showcase {
+    padding: 16px 14px 18px;
+  }
+  .trending-showcase__header {
+    margin-bottom: 10px;
+    gap: 10px;
+  }
   .trending-showcase__nav {
     width: 100%;
-    max-width: 360px;
     justify-content: space-between;
-    padding: 3px;
-    gap: 3px;
+    padding: 2px;
+    gap: 2px;
   }
   .trending-showcase__tab {
     flex: 1 1 0;
     justify-content: center;
-    padding: 7px 8px;
+    padding: 6px 6px;
     font-size: 11.5px;
-    gap: 5px;
-    min-height: 38px;
+    gap: 4px;
+    min-height: 34px;
   }
-  .trending-showcase__tab-icon {
-    width: 14px;
-    height: 14px;
+  .trending-showcase__genres-container {
+    margin-bottom: 12px;
   }
   .trending-showcase__genre-chip {
     padding: 5px 12px;

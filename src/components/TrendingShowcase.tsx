@@ -130,8 +130,13 @@ export default function TrendingShowcase({
 
   return (
     <section className="trending-showcase" aria-label="Trending Showcase and Genre Discovery">
-      {/* ── 1. TRENDING NAVIGATION TABS (Pill Container) ── */}
-      <div className="trending-showcase__nav-wrapper">
+      {/* ── 1. TRENDING HEADER & SEGMENTED TABS ── */}
+      <div className="trending-showcase__header">
+        <div className="trending-showcase__title-wrap">
+          <Flame size={20} className="trending-showcase__title-icon" />
+          <h2 className="trending-showcase__title">Trending & Highlights</h2>
+        </div>
+
         <div className="trending-showcase__nav" role="tablist" aria-label="Catalog filters">
           <button
             className={`trending-showcase__tab ${activeTab === 'trends' ? 'trending-showcase__tab--active' : ''}`}
@@ -143,11 +148,11 @@ export default function TrendingShowcase({
             aria-selected={activeTab === 'trends'}
           >
             <Star
-              size={14}
+              size={13}
               className="trending-showcase__tab-icon"
               fill={activeTab === 'trends' ? 'currentColor' : 'none'}
             />
-            <span>Trends Now</span>
+            <span>Trends</span>
           </button>
           <button
             className={`trending-showcase__tab ${activeTab === 'popular' ? 'trending-showcase__tab--active' : ''}`}
@@ -158,7 +163,7 @@ export default function TrendingShowcase({
             role="tab"
             aria-selected={activeTab === 'popular'}
           >
-            <Flame size={14} className="trending-showcase__tab-icon" />
+            <Flame size={13} className="trending-showcase__tab-icon" />
             <span>Popular</span>
           </button>
           <button
@@ -170,8 +175,8 @@ export default function TrendingShowcase({
             role="tab"
             aria-selected={activeTab === 'recent'}
           >
-            <Clock size={14} className="trending-showcase__tab-icon" />
-            <span>Recently Added</span>
+            <Clock size={13} className="trending-showcase__tab-icon" />
+            <span>Recent</span>
           </button>
         </div>
       </div>

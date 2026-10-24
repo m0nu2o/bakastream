@@ -85,7 +85,7 @@ export default function Hero({ items, genres = [] }: Props) {
       {/* ── Main Hero Stage Content ── */}
       <div className="hero__content" key={`hero-content-${item.type}-${item.id}`}>
         <span className="hero__kicker">
-          <Clapperboard size={14} /> Featured {item.type === 'movie' ? 'Movie' : 'Series'}
+          Featured {item.type === 'movie' ? 'Movie' : 'Series'}
         </span>
 
         <h1 className="hero__title">{item.title}</h1>
@@ -105,7 +105,6 @@ export default function Hero({ items, genres = [] }: Props) {
           <span className="hero__badge hero__badge--type">
             {item.type === 'movie' ? 'Movie' : 'TV Series'}
           </span>
-          <span className="hero__badge hero__badge--hd">HD</span>
           <span className="hero__genre-tag">{genreList}</span>
         </div>
 

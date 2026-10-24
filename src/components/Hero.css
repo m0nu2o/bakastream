@@ -176,7 +176,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: linear-gradient(135deg, var(--accent, #F70063) 0%, var(--accent-strong, #D40054) 100%);
+  background: var(--accent, #E11D48);
   color: #ffffff;
   padding: 12px 28px;
   border-radius: 9999px;
@@ -184,12 +184,13 @@
   font-weight: 700;
   text-decoration: none;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(247, 0, 99, 0.5);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .hero__watch-btn:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 30px rgba(247, 0, 99, 0.7);
+  background: var(--accent-hover, #F43F5E);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 16px var(--accent-subtle);
 }
 
 .hero__watch-btn:active {
@@ -262,41 +263,58 @@
   box-shadow: 0 0 12px var(--accent);
 }
 
-/* Hero Slide Navigation Arrows */
+/* Hero Slide Navigation Arrows (Cinema-Grade Desktop Side Chevrons) */
 .hero__arrows {
   position: absolute;
-  bottom: clamp(3.5rem, 8vh, 6rem);
-  right: clamp(1.2rem, 4.5vw, 4rem);
-  display: flex;
-  gap: 10px;
+  inset: 0;
+  pointer-events: none;
   z-index: 10;
 }
 
 .hero__arrow {
-  width: 44px;
-  height: 44px;
+  pointer-events: auto;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(18, 18, 28, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 18, 28, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #ffffff;
   cursor: pointer;
+  opacity: 0;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+.hero:hover .hero__arrow {
+  opacity: 0.85;
+}
+
+.hero__arrow--prev {
+  left: clamp(1rem, 2.5vw, 2.5rem);
+}
+
+.hero__arrow--next {
+  right: clamp(1rem, 2.5vw, 2.5rem);
 }
 
 .hero__arrow:hover {
+  opacity: 1 !important;
   background: var(--accent);
   border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(247, 0, 99, 0.4);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6);
 }
 
 .hero__arrow:active {
-  transform: translateY(0) scale(0.96);
+  transform: translateY(-50%) scale(0.96);
 }
 
 :root[data-mode="light"] .hero__arrow,
@@ -452,8 +470,9 @@
     font-size: 13px;
     margin-bottom: 1.2rem;
   }
-  .hero__vertical-dots {
-    display: none;
+  .hero__vertical-dots,
+  .hero__arrows {
+    display: none !important;
   }
   .hero__actions {
     gap: 10px;

@@ -103,28 +103,24 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
   return (
     <section className="catalog-section" aria-label={title}>
       <div className="catalog-section__inner">
-        {/* Header Bar with Title, Red Underline and Sort Controls */}
+        {/* Header Bar with Title and Actions */}
         <div className="catalog-section__header">
           <div className="catalog-section__title-wrap">
-            <span className="catalog-section__icon">
+            <span className="catalog-section__icon" aria-hidden="true">
               {renderIcon()}
             </span>
-            <div className="catalog-section__title-underline-wrap">
-              {viewAllHref ? (
-                <Link href={viewAllHref} className="catalog-section__title-link">
-                  <h2 className="catalog-section__title">{title}</h2>
-                </Link>
-              ) : (
+            {viewAllHref ? (
+              <Link href={viewAllHref} className="catalog-section__title-link">
                 <h2 className="catalog-section__title">{title}</h2>
-              )}
-              <span className="catalog-section__underline" />
-            </div>
+              </Link>
+            ) : (
+              <h2 className="catalog-section__title">{title}</h2>
+            )}
           </div>
 
-          {/* Sort By controls: Sort By: Latest, A-Z, Year, Rate */}
-          <div className="catalog-section__controls">
-            <span className="catalog-section__sort-label">Sort By:</span>
-            <div className="catalog-section__sort-buttons">
+          <div className="catalog-section__header-actions">
+            {/* Desktop sort tabs */}
+            <div className="catalog-section__sort-buttons catalog-section__sort-buttons--desktop" role="group" aria-label="Sort options">
               <button
                 className={`catalog-section__sort-btn ${
                   activeSort === 'latest' ? 'catalog-section__sort-btn--active' : ''
@@ -136,12 +132,12 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
               </button>
               <button
                 className={`catalog-section__sort-btn ${
-                  activeSort === 'az' ? 'catalog-section__sort-btn--active' : ''
+                  activeSort === 'rate' ? 'catalog-section__sort-btn--active' : ''
                 }`}
-                onClick={() => setActiveSort('az')}
+                onClick={() => setActiveSort('rate')}
                 type="button"
               >
-                <span>A-Z</span>
+                <span>Top Rated</span>
               </button>
               <button
                 className={`catalog-section__sort-btn ${
@@ -154,21 +150,62 @@ export default function CatalogSection({ title, type, items, viewAllHref, onPlay
               </button>
               <button
                 className={`catalog-section__sort-btn ${
-                  activeSort === 'rate' ? 'catalog-section__sort-btn--active' : ''
+                  activeSort === 'az' ? 'catalog-section__sort-btn--active' : ''
                 }`}
-                onClick={() => setActiveSort('rate')}
+                onClick={() => setActiveSort('az')}
                 type="button"
               >
-                <span>Rate</span>
+                <span>A–Z</span>
               </button>
             </div>
+
             {viewAllHref && (
               <Link href={viewAllHref} className="catalog-section__see-all" aria-label={`View all ${title}`}>
                 <span>See all</span>
-                <ChevronRight size={13} />
+                <ChevronRight size={14} />
               </Link>
             )}
           </div>
+        </div>
+
+        {/* Mobile Segmented Sort Strip */}
+        <div className="catalog-section__mobile-sort" role="group" aria-label="Sort options">
+          <button
+            className={`catalog-section__sort-btn ${
+              activeSort === 'latest' ? 'catalog-section__sort-btn--active' : ''
+            }`}
+            onClick={() => setActiveSort('latest')}
+            type="button"
+          >
+            <span>Latest</span>
+          </button>
+          <button
+            className={`catalog-section__sort-btn ${
+              activeSort === 'rate' ? 'catalog-section__sort-btn--active' : ''
+            }`}
+            onClick={() => setActiveSort('rate')}
+            type="button"
+          >
+            <span>Top Rated</span>
+          </button>
+          <button
+            className={`catalog-section__sort-btn ${
+              activeSort === 'year' ? 'catalog-section__sort-btn--active' : ''
+            }`}
+            onClick={() => setActiveSort('year')}
+            type="button"
+          >
+            <span>Year</span>
+          </button>
+          <button
+            className={`catalog-section__sort-btn ${
+              activeSort === 'az' ? 'catalog-section__sort-btn--active' : ''
+            }`}
+            onClick={() => setActiveSort('az')}
+            type="button"
+          >
+            <span>A–Z</span>
+          </button>
         </div>
 
         {/* Carousel Area */}

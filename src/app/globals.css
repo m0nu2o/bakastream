@@ -4,12 +4,12 @@
 
 :root,
 :root[data-theme="dark"] {
-  --accent: #F70063;
-  --accent-strong: #D40054;
-  --accent-hover: #FF1A75;
-  --accent-secondary: #FF85B3;
-  --accent-subtle: rgba(247, 0, 99, 0.16);
-  --brand-red: #F70063;
+  --accent: #E11D48;
+  --accent-strong: #BE123C;
+  --accent-hover: #F43F5E;
+  --accent-secondary: #FB7185;
+  --accent-subtle: rgba(225, 29, 72, 0.16);
+  --brand-red: #E11D48;
 
   --bg-primary: #0B0C10;
   --bg-secondary: #12131A;
@@ -31,11 +31,11 @@
 
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(255, 255, 255, 0.18);
-  --scrollbar-thumb-hover: #F70063;
+  --scrollbar-thumb-hover: #E11D48;
 
   --success: #34d399;
   --warning: #f5c518;
-  --danger: #F70063;
+  --danger: #E11D48;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -44,7 +44,7 @@
 
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 35px rgba(247, 0, 99, 0.4);
+  --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
   --header-height: 60px;
 
@@ -273,7 +273,7 @@
   --shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.12);
 }
 
-/* 1. Sakura Crimson Light Mode */
+/* 1. Cinema Red Light Mode */
 :root[data-mode="light"][data-theme="dark"],
 :root[data-theme="light"] {
   --accent: #E11D48;
@@ -282,120 +282,49 @@
   --accent-secondary: #FB7185;
   --accent-subtle: rgba(225, 29, 72, 0.12);
   --brand-red: #E11D48;
-
-  --bg-primary: #FFF5F8;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #FDE8EF;
-  --bg-elevated: #FFFFFF;
-
-  --card-bg: #FFFFFF;
-  --card-hover-bg: #FFF0F5;
-  --border-color: #F8D5E2;
-  --border-strong: rgba(225, 29, 72, 0.3);
-  --shadow-glow: 0 0 35px rgba(225, 29, 72, 0.2);
 }
 
-/* 2. Cyberpunk Neon Light Mode */
+/* 2. Amethyst Violet Light Mode */
 :root[data-mode="light"][data-theme="cyberpunk"] {
   --accent: #9333EA;
   --accent-strong: #7E22CE;
   --accent-hover: #A855F7;
-  --accent-secondary: #0891B2;
+  --accent-secondary: #C084FC;
   --accent-subtle: rgba(147, 51, 234, 0.12);
   --brand-red: #9333EA;
-
-  --bg-primary: #F8F6FD;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #EFEAFB;
-  --bg-elevated: #FFFFFF;
-
-  --text-primary: #1E1B4B;
-  --text-secondary: #475569;
-  --text-tertiary: #818CF8;
-
-  --card-bg: #FFFFFF;
-  --card-hover-bg: #F4EFFD;
-  --border-color: #E6DEF8;
-  --border-strong: rgba(147, 51, 234, 0.32);
-  --shadow-glow: 0 0 35px rgba(147, 51, 234, 0.2);
 }
 
-/* 3. Solo Monarch Light Mode */
+/* 3. Deep Sapphire Light Mode */
 :root[data-mode="light"][data-theme="solo"] {
   --accent: #0284C7;
   --accent-strong: #0369A1;
   --accent-hover: #0EA5E9;
-  --accent-secondary: #00D2FF;
+  --accent-secondary: #38BDF8;
   --accent-subtle: rgba(2, 132, 199, 0.12);
   --brand-red: #0284C7;
-
-  --bg-primary: #F4F8FC;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #E5F0FA;
-  --bg-elevated: #FFFFFF;
-
-  --text-primary: #0F172A;
-  --text-secondary: #334155;
-  --text-tertiary: #64748B;
-
-  --card-bg: #FFFFFF;
-  --card-hover-bg: #EBF4FC;
-  --border-color: #D7E7F6;
-  --border-strong: rgba(2, 132, 199, 0.3);
-  --shadow-glow: 0 0 35px rgba(2, 132, 199, 0.2);
 }
 
-/* 4. Emerald Shinobi Light Mode */
+/* 4. Nordic Forest Light Mode */
 :root[data-mode="light"][data-theme="emerald"] {
   --accent: #059669;
   --accent-strong: #047857;
   --accent-hover: #10B981;
-  --accent-secondary: #00F5A0;
+  --accent-secondary: #34D399;
   --accent-subtle: rgba(5, 150, 105, 0.12);
   --brand-red: #059669;
-
-  --bg-primary: #F2FAF5;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #E3F6EC;
-  --bg-elevated: #FFFFFF;
-
-  --text-primary: #064E3B;
-  --text-secondary: #374151;
-  --text-tertiary: #6B7280;
-
-  --card-bg: #FFFFFF;
-  --card-hover-bg: #EAF8F1;
-  --border-color: #D3EFE0;
-  --border-strong: rgba(5, 150, 105, 0.3);
-  --shadow-glow: 0 0 35px rgba(5, 150, 105, 0.2);
 }
 
-/* 5. Flame Hashira Light Mode */
+/* 5. Warm Amber Light Mode */
 :root[data-mode="light"][data-theme="solar"] {
   --accent: #D97706;
   --accent-strong: #B45309;
   --accent-hover: #F59E0B;
-  --accent-secondary: #EA580C;
+  --accent-secondary: #FBBF24;
   --accent-subtle: rgba(217, 119, 6, 0.12);
   --brand-red: #D97706;
-
-  --bg-primary: #FAF6F0;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F5EAE0;
-  --bg-elevated: #FFFFFF;
-
-  --text-primary: #1C1917;
-  --text-secondary: #44403C;
-  --text-tertiary: #78716C;
-
-  --card-bg: #FFFFFF;
-  --card-hover-bg: #FAF0E6;
-  --border-color: #EEDECB;
-  --border-strong: rgba(217, 119, 6, 0.3);
-  --shadow-glow: 0 0 35px rgba(217, 119, 6, 0.2);
 }
 
-/* 6. Midnight Monochrome Light Mode */
+/* 6. Midnight OLED Light Mode */
 :root[data-mode="light"][data-theme="midnight"] {
   --accent: #E11D48;
   --accent-strong: #BE123C;
@@ -403,21 +332,6 @@
   --accent-secondary: #FDA4AF;
   --accent-subtle: rgba(225, 29, 72, 0.12);
   --brand-red: #E11D48;
-
-  --bg-primary: #F8F9FA;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F1F3F5;
-  --bg-elevated: #FFFFFF;
-
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-tertiary: #94A3B8;
-
-  --card-bg: #FFFFFF;
-  --card-hover-bg: #F3F4F6;
-  --border-color: #E2E8F0;
-  --border-strong: #CBD5E1;
-  --shadow-glow: 0 0 35px rgba(225, 29, 72, 0.2);
 }
 
 * {
