@@ -222,14 +222,38 @@
   box-shadow: 0 0 8px var(--accent);
 }
 
+.weekly-schedule__day-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
 .weekly-schedule__day-date {
   font-size: 10.5px;
   color: var(--text-tertiary);
 }
 
+.weekly-schedule__day-count {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 4px;
+  border-radius: 999px;
+  line-height: 1.25;
+}
+
 .weekly-schedule__day-tab--active .weekly-schedule__day-date {
   color: var(--accent);
   font-weight: 600;
+}
+
+.weekly-schedule__day-tab--active .weekly-schedule__day-count {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
 }
 
 /* ── Carousel Wrapper & Edge Buttons ── */

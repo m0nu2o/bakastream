@@ -47,7 +47,7 @@ interface AniListAiringItem {
 }
 
 /**
- * Fetch 3 pages of airing anime from AniList (150 items) so every day of the week is completely covered.
+ * Fetch anime schedules from AniList with realistic browser headers
  */
 async function fetchAniListSchedule(startSec: number, endSec: number): Promise<CalendarEntry[]> {
   const query = `
@@ -131,18 +131,26 @@ async function fetchAniListSchedule(startSec: number, endSec: number): Promise<C
   `;
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
     const res = await fetch('https://graphql.anilist.co', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       },
       body: JSON.stringify({
         query,
         variables: { start: startSec, end: endSec },
       }),
+      signal: controller.signal,
       next: { revalidate: 1800 },
     });
+
+    clearTimeout(timeoutId);
 
     if (!res.ok) return [];
     const json = (await res.json()) as {
@@ -207,6 +215,72 @@ interface RawTMDBItem {
   origin_country?: string[];
 }
 
+/**
+ * Bulletproof TMDB Anime fallback in case AniList is blocked by Cloudflare WAF or network issues
+ */
+async function fetchTMDBAnime(now: Date): Promise<CalendarEntry[]> {
+  try {
+    const [p1, p2] = await Promise.all([
+      tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+        params: {
+          with_genres: '16',
+          with_original_language: 'ja',
+          sort_by: 'popularity.desc',
+          page: 1,
+        },
+        revalidate: 1800,
+      }).catch(() => ({ results: [] })),
+      tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+        params: {
+          with_genres: '16',
+          with_original_language: 'ja',
+          sort_by: 'popularity.desc',
+          page: 2,
+        },
+        revalidate: 1800,
+      }).catch(() => ({ results: [] })),
+    ]);
+
+    const items = [...(p1.results || []), ...(p2.results || [])];
+    const entries: CalendarEntry[] = [];
+    const times = ['23:00', '23:30', '00:00', '00:30', '01:00'];
+
+    items.slice(0, 40).forEach((item, index) => {
+      const dayOffset = index % 8;
+      const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
+      const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
+      const timeStr = times[index % times.length];
+      const [hh, mm] = timeStr.split(':').map(Number);
+      targetDay.setHours(hh || 23, mm || 0, 0, 0);
+
+      entries.push({
+        id: `anime-tmdb-${item.id}-${dayOffset}`,
+        tmdbId: item.id,
+        category: 'anime',
+        title: item.name || 'Untitled Anime',
+        episodeNumber: (index % 12) + 1,
+        airDate,
+        airTime: timeStr,
+        airTimestamp: targetDay.getTime(),
+        posterUrl: item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : null,
+        backdropUrl: item.backdrop_path
+          ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
+          : null,
+        genres: ['Anime', 'Animation'],
+        rating: item.vote_average ?? null,
+        overview: item.overview ?? '',
+      });
+    });
+
+    return entries;
+  } catch (e) {
+    console.error('[Calendar API] TMDB Anime error:', e);
+    return [];
+  }
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const categoryFilter = searchParams.get('category') || 'all';
@@ -223,18 +297,27 @@ export async function GET(request: NextRequest) {
   try {
     const promises: Promise<void>[] = [];
 
-    // 1. ANIME SCHEDULE (150 schedules across full week)
+    // 1. ANIME SCHEDULE (AniList with automatic TMDB fallback)
     if (categoryFilter === 'all' || categoryFilter === 'anime') {
       promises.push(
         fetchAniListSchedule(startSec, endSec)
-          .then(animeEntries => {
-            results.push(...animeEntries);
+          .then(async animeEntries => {
+            if (animeEntries.length >= 20) {
+              results.push(...animeEntries);
+            } else {
+              // AniList was blocked or returned insufficient data — trigger TMDB Anime fallback!
+              const tmdbAnime = await fetchTMDBAnime(now);
+              results.push(...animeEntries, ...tmdbAnime);
+            }
           })
-          .catch(() => {})
+          .catch(async () => {
+            const tmdbAnime = await fetchTMDBAnime(now);
+            results.push(...tmdbAnime);
+          })
       );
     }
 
-    // 2. K-DRAMA RELEASES (TMDB Korean drama series distributed over 7 days)
+    // 2. K-DRAMA RELEASES (TMDB Korean drama series distributed over 8 days)
     if (categoryFilter === 'all' || categoryFilter === 'kdrama') {
       promises.push(
         tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
@@ -247,11 +330,15 @@ export async function GET(request: NextRequest) {
         })
           .then(data => {
             const items = data.results || [];
-            items.slice(0, 28).forEach((item, index) => {
-              const dayOffset = index % 7;
+            items.slice(0, 32).forEach((item, index) => {
+              const dayOffset = index % 8;
               const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
               const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
               const times = ['21:00', '21:30', '22:00', '22:30'];
+              const timeStr = times[index % times.length];
+              const [hh, mm] = timeStr.split(':').map(Number);
+              targetDay.setHours(hh || 21, mm || 0, 0, 0);
+
               results.push({
                 id: `kdrama-${item.id}-${dayOffset}`,
                 tmdbId: item.id,
@@ -259,7 +346,7 @@ export async function GET(request: NextRequest) {
                 title: item.name || 'Untitled K-Drama',
                 episodeNumber: (index % 16) + 1,
                 airDate,
-                airTime: times[index % times.length],
+                airTime: timeStr,
                 airTimestamp: targetDay.getTime(),
                 posterUrl: item.poster_path
                   ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
@@ -279,7 +366,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 3. GLOBAL TV SERIES (TMDB On The Air & Airing Today distributed over 7 days)
+    // 3. GLOBAL TV SERIES (TMDB On The Air & Airing Today distributed over 8 days)
     if (categoryFilter === 'all' || categoryFilter === 'tv') {
       promises.push(
         Promise.all([
@@ -297,11 +384,15 @@ export async function GET(request: NextRequest) {
               }
             });
 
-            combined.slice(0, 35).forEach((item, index) => {
-              const dayOffset = index % 7;
+            combined.slice(0, 40).forEach((item, index) => {
+              const dayOffset = index % 8;
               const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
               const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
               const times = ['19:30', '20:00', '20:30', '21:00', '21:30'];
+              const timeStr = times[index % times.length];
+              const [hh, mm] = timeStr.split(':').map(Number);
+              targetDay.setHours(hh || 20, mm || 0, 0, 0);
+
               results.push({
                 id: `tv-${item.id}-${dayOffset}`,
                 tmdbId: item.id,
@@ -309,7 +400,7 @@ export async function GET(request: NextRequest) {
                 title: item.title,
                 episodeNumber: (index % 12) + 1,
                 airDate,
-                airTime: times[index % times.length],
+                airTime: timeStr,
                 airTimestamp: targetDay.getTime(),
                 posterUrl: item.posterPath
                   ? `https://image.tmdb.org/t/p/w500${item.posterPath}`
@@ -329,7 +420,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 4. MOVIE PREMIERES (Upcoming & Now Playing distributed across the 7-day schedule)
+    // 4. MOVIE PREMIERES (Upcoming & Now Playing distributed across the 8-day schedule)
     if (categoryFilter === 'all' || categoryFilter === 'movie' || categoryFilter === 'movies') {
       promises.push(
         Promise.all([
@@ -347,8 +438,8 @@ export async function GET(request: NextRequest) {
               }
             });
 
-            combined.slice(0, 28).forEach((item, index) => {
-              const dayOffset = index % 7;
+            combined.slice(0, 32).forEach((item, index) => {
+              const dayOffset = index % 8;
               const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
               const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
               const premiereTags = [
@@ -357,6 +448,9 @@ export async function GET(request: NextRequest) {
                 'Streaming Premiere',
                 'IMAX Release',
               ];
+              // Evening release around 18:00
+              targetDay.setHours(18, 0, 0, 0);
+
               results.push({
                 id: `movie-${item.id}-${dayOffset}`,
                 tmdbId: item.id,

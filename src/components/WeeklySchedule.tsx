@@ -38,7 +38,7 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<ScheduleCategory>('all');
-  const [activeDay, setActiveDay] = useState<string>('today');
+  const [activeDay, setActiveDay] = useState<string>('all');
   const [currentTime, setCurrentTime] = useState<number>(() => Date.now());
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -75,12 +75,12 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
     return tabs;
   }, []);
 
-  // Fetch calendar entries
+  // Fetch calendar entries once on mount
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
 
-    fetch(`/api/calendar?category=${category}`)
+    fetch('/api/calendar?category=all')
       .then(res => res.json())
       .then(data => {
         if (cancelled) return;
@@ -98,7 +98,18 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [category]);
+  }, []);
+
+  // Calculate item counts per day for the selected category
+  const dayCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0 };
+    for (const item of entries) {
+      if (category !== 'all' && item.category !== category) continue;
+      counts.all = (counts.all || 0) + 1;
+      counts[item.airDate] = (counts[item.airDate] || 0) + 1;
+    }
+    return counts;
+  }, [entries, category]);
 
   // Filter entries
   const displayItems = useMemo(() => {
@@ -204,6 +215,7 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
           <div className="weekly-schedule__days-scroll">
             {dayTabs.map(day => {
               const isSelected = activeDay === day.key;
+              const count = dayCounts[day.key] ?? 0;
               return (
                 <button
                   key={day.key}
@@ -215,7 +227,10 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
                     <span className="weekly-schedule__day-name">{day.label}</span>
                     {day.isToday && <span className="weekly-schedule__live-dot" />}
                   </div>
-                  <span className="weekly-schedule__day-date">{day.dateStr}</span>
+                  <div className="weekly-schedule__day-meta-row">
+                    <span className="weekly-schedule__day-date">{day.dateStr}</span>
+                    {count > 0 && <span className="weekly-schedule__day-count">{count}</span>}
+                  </div>
                 </button>
               );
             })}

@@ -43,12 +43,12 @@ export default function CalendarPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-  // Fetch calendar entries
+  // Fetch calendar entries once on mount
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
 
-    fetch(`/api/calendar?category=${category}`)
+    fetch('/api/calendar?category=all')
       .then(res => res.json())
       .then(data => {
         if (cancelled) return;
@@ -66,7 +66,7 @@ export default function CalendarPage() {
     return () => {
       cancelled = true;
     };
-  }, [category]);
+  }, []);
 
   // Generate 7-day pill strip relative to today
   const dayOptions = useMemo<DayOption[]>(() => {
@@ -325,7 +325,9 @@ export default function CalendarPage() {
               month: 'short',
               day: 'numeric',
             });
-            const isToday = new Date().toISOString().slice(0, 10) === date;
+            const now = new Date();
+            const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const isToday = todayIso === date;
 
             return (
               <section key={date} className="calendar-day-section">
