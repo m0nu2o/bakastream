@@ -416,14 +416,15 @@ export async function getAnime(
   genre?: number,
   year?: number
 ) {
+  const baseGenres = genre ? `16,${genre}` : 16;
   if (type === 'movie') {
     const params: Record<string, string | number> = {
       page,
-      with_genres: genre ? `16,${genre}` : 16,
-      with_original_language: 'ja',
+      with_genres: baseGenres,
       sort_by: 'popularity.desc',
+      'vote_count.gte': 50,
     };
-    if (year) params.primary_release_date_year = year;
+    if (year) params.primary_release_year = year;
     const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/movie', { params });
     return data.results.map(mapSummary);
   }
@@ -431,32 +432,33 @@ export async function getAnime(
   if (type === 'tv') {
     const params: Record<string, string | number> = {
       page,
-      with_genres: genre ? `16,${genre}` : 16,
-      with_original_language: 'ja',
+      with_genres: baseGenres,
       sort_by: 'popularity.desc',
+      'vote_count.gte': 50,
     };
     if (year) params.first_air_date_year = year;
     const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', { params });
     return data.results.map(mapSummary);
   }
 
+  // All: query both anime TV and anime movies (Animation genre, popular globally)
   const [tvData, movieData] = await Promise.allSettled([
     tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
       params: {
         page,
-        with_genres: genre ? `16,${genre}` : 16,
-        with_original_language: 'ja',
+        with_genres: baseGenres,
         sort_by: 'popularity.desc',
+        'vote_count.gte': 30,
         ...(year ? { first_air_date_year: year } : {}),
       },
     }),
     tmdbFetch<{ results: RawMedia[] }>('/discover/movie', {
       params: {
         page,
-        with_genres: genre ? `16,${genre}` : 16,
-        with_original_language: 'ja',
+        with_genres: baseGenres,
         sort_by: 'popularity.desc',
-        ...(year ? { primary_release_date_year: year } : {}),
+        'vote_count.gte': 30,
+        ...(year ? { primary_release_year: year } : {}),
       },
     }),
   ]);

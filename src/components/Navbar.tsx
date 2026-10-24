@@ -81,6 +81,10 @@ export default function Navbar() {
       .catch(() => setGenres([]));
   }, [genres.length]);
 
+  useEffect(() => {
+    loadGenres();
+  }, [loadGenres]);
+
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
@@ -277,9 +281,8 @@ export default function Navbar() {
               </div>
             )}
           </nav>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0.5rem', borderTop: '1px solid var(--border-color)' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Theme &amp; Appearance</span>
-            <ThemeToggle />
+          <div style={{ display: 'flex', alignItems: 'center', padding: '1rem 0.5rem', borderTop: '1px solid var(--border-color)' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>Use the palette icon in the top bar to change themes.</span>
           </div>
           <p className="mobile-nav__footnote">Movies &amp; series. Metadata by TMDB.</p>
         </div>

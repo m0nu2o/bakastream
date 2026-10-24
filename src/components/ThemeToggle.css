@@ -316,12 +316,18 @@
   .theme-popover {
     position: fixed;
     top: auto;
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     right: 12px;
     left: 12px;
     width: auto;
     max-width: calc(100vw - 24px);
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px var(--accent-subtle);
+  }
+  .theme-popover__list {
+    max-height: none;
   }
 }
 
