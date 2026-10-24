@@ -387,14 +387,23 @@
 @media (max-width: 768px) {
   .trending-showcase {
     padding: 20px 16px 16px;
+    max-width: 100%;
+    overflow: hidden;
   }
   .trending-showcase__genres-container {
     mask-image: none;
     -webkit-mask-image: none;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .trending-showcase__genres-scroll {
     justify-content: flex-start;
     padding: 0 4px;
+    margin: 0;
+    min-width: min-content;
   }
   .trending-showcase__card {
     flex: 0 0 calc((100% - 24px) / 2.3);

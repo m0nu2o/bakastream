@@ -116,6 +116,10 @@
   margin-bottom: 2rem;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .watchlist-tabs-scroll {
@@ -123,8 +127,12 @@
   align-items: center;
   gap: 0.5rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding: 4px 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .watchlist-tabs-scroll::-webkit-scrollbar {
@@ -183,6 +191,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 1.5rem 1.2rem;
+}
+
+@media (max-width: 480px) {
+  .watchlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
 }
 
 @media (min-width: 1024px) {

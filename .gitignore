@@ -45,3 +45,5 @@ public/sw.js
 
 cloudflared.exe
 *.zip
+mobile-audit-shots/
+mobile_*.png

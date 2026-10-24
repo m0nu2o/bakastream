@@ -429,14 +429,31 @@
   .lumina-bar {
     padding: 0.55rem 0.65rem;
     gap: 0.5rem;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .lumina-bar__main {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    max-width: 100%;
   }
   .lumina-bar__left {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
   }
   .lumina-bar__servers {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
     flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding-bottom: 2px;
@@ -451,6 +468,9 @@
   }
   .lumina-bar__right {
     width: 100%;
+    max-width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 }

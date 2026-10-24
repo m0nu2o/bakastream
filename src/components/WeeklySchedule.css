@@ -89,6 +89,7 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .weekly-schedule__pills {
@@ -99,6 +100,14 @@
   border: 1px solid var(--border-color);
   padding: 3px;
   border-radius: 999px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.weekly-schedule__pills::-webkit-scrollbar {
+  display: none;
 }
 
 .weekly-schedule__pill {

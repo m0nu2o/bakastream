@@ -178,6 +178,10 @@
 
 .detail-section {
   padding: 2rem clamp(1rem, 4vw, 3.5rem) 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .detail-section__title {
   font-size: 1.3rem;
@@ -189,8 +193,12 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 0.75rem;
   scrollbar-width: thin;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 .cast-card {
   flex: 0 0 104px;
