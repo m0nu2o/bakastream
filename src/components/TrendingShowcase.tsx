@@ -38,7 +38,6 @@ export default function TrendingShowcase({
 }: Props) {
   const [activeTab, setActiveTab] = useState<'trends' | 'popular' | 'recent'>('trends');
   const [selectedGenre, setSelectedGenre] = useState<number>(0);
-  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [genreData, setGenreData] = useState<Record<number, MediaSummary[]>>({});
   const [loadingGenre, setLoadingGenre] = useState(false);
 

@@ -33,7 +33,7 @@ export default function LuminaServerDeck({
   mediaCategory,
   selectedAudioTrack = 'sub',
   onSelectAudioTrack,
-  hasHindiDub = false,
+  hasHindiDub: _hasHindiDub = false,
   autoSwitch = true,
   onToggleAutoSwitch,
 }: LuminaServerDeckProps) {
@@ -41,8 +41,6 @@ export default function LuminaServerDeck({
   const isHindiSelected = selectedAudioTrack === 'hindi' || selectedAudioTrack === 'dub-hi';
   const isDubSelected = selectedAudioTrack === 'dub' || selectedAudioTrack === 'dub-en';
   const isSubSelected = !isHindiSelected && !isDubSelected;
-
-  const activeServer = servers.find(s => s.id === activeServerId) ?? servers[0];
 
   return (
     <div className="lumina-bar" aria-label="Streaming Server and Audio Controls">

@@ -13,7 +13,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import type { MediaSummary, WatchlistStatus } from '@/types';
-import { setMediaStatus, getMediaStatus } from '@/lib/storage';
+import { setMediaStatus } from '@/lib/storage';
 import { useMediaStatus } from '@/hooks/useStoredCollection';
 import './ShelfSelector.css';
 
@@ -25,7 +25,7 @@ export interface ShelfOption {
   icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
 }
 
-export const SHELF_OPTIONS: ShelfOption[] = [
+const SHELF_OPTIONS: ShelfOption[] = [
   {
     id: 'watching',
     label: 'Currently Watching',

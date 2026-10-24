@@ -45,7 +45,7 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
   const isDub = req.subOrDub === 'dub';
 
   // Determine canonical requested server (or intelligent default)
-  let requestedServerId = req.server ? getCanonicalServerId(req.server) : null;
+  const requestedServerId = req.server ? getCanonicalServerId(req.server) : null;
 
   // 0. Primary High-Speed Engine: nextgen-anime.vercel.app for Anime & Donghua
   const shouldTryNextgen =
@@ -63,7 +63,7 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
       const nextgenUrl = `https://nextgen-anime.vercel.app/api/anime/stream?title=${encodeURIComponent(cleanTitle)}&episode=${epNum}&dub=${isDub}`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1200);
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
       const res = await fetch(nextgenUrl, { signal: controller.signal });
       clearTimeout(timeoutId);
 

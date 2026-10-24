@@ -414,11 +414,33 @@ export default function VideoPlayer({
     selectSidecarSubtitle,
   ]);
 
-  const toggleFullscreen = useCallback(() => {
+  const toggleFullscreen = useCallback(async () => {
     const el = containerRef.current;
     if (!el) return;
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    else el.requestFullscreen().catch(() => {});
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => {});
+      try {
+        if (screen.orientation && 'unlock' in screen.orientation) {
+          screen.orientation.unlock();
+        }
+      } catch {
+        // safe ignore
+      }
+    } else {
+      try {
+        if (el.requestFullscreen) {
+          await el.requestFullscreen();
+        } else if ((el as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
+          await (el as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen();
+        }
+        const orientation = screen.orientation as unknown as { lock?: (o: string) => Promise<void> };
+        if (orientation && typeof orientation.lock === 'function') {
+          await orientation.lock('landscape').catch(() => {});
+        }
+      } catch (err) {
+        console.warn('Native video fullscreen/orientation lock rejected:', err);
+      }
+    }
   }, []);
 
   const togglePiP = useCallback(async () => {

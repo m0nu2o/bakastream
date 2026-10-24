@@ -5,13 +5,14 @@
  */
 
 import type { Genre, MediaSummary, SeasonDetailInfo } from '@/types';
+import type { PlaybackInfo } from '@/lib/providers/types';
 
 interface CacheEntry<T> {
   data: T;
   expiresAt: number;
 }
 
-const memoryCache = new Map<string, CacheEntry<any>>();
+const memoryCache = new Map<string, CacheEntry<unknown>>();
 
 function getFromCache<T>(key: string): T | null {
   const entry = memoryCache.get(key);
@@ -116,7 +117,7 @@ export async function resolveStream(body: {
   resumeAt?: number;
 }) {
   const cacheKey = `stream:${body.type}:${body.id}:${body.season ?? 0}:${body.episode ?? 0}:${body.server ?? 'auto'}:${body.language ?? ''}:${body.subOrDub ?? ''}`;
-  const cached = getFromCache<any>(cacheKey);
+  const cached = getFromCache<PlaybackInfo>(cacheKey);
   if (cached !== null) {
     return cached;
   }

@@ -15,6 +15,9 @@ import {
   FastForward,
   Rewind,
   Maximize,
+  Minimize,
+  RotateCcw,
+  Smartphone,
 } from 'lucide-react';
 import VideoPlayer from '@/components/player/VideoPlayer';
 import LuminaServerDeck from '@/components/player/LuminaServerDeck';
@@ -308,6 +311,8 @@ function EmbedStage({
   const [failed, setFailed] = useState(false);
   const [autoSwitching, setAutoSwitching] = useState(false);
   const [switchMessage, setSwitchMessage] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPseudoLandscape, setIsPseudoLandscape] = useState(false);
   const triedServersRef = useRef<string[]>([activeServer]);
   const activeServerObj = compatibleServers.find(s => s.id === activeServer);
 
@@ -329,7 +334,90 @@ function EmbedStage({
     }
   }, []);
 
-  const broadcastToIframe = useCallback((command: string, value?: any) => {
+  useEffect(() => {
+    const handleFsChange = () => {
+      const fs = Boolean(
+        document.fullscreenElement ||
+        (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
+      );
+      setIsFullscreen(fs);
+      if (!fs && !isPseudoLandscape) {
+        document.body.classList.remove('bakastream-lock-scroll');
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+      document.body.classList.remove('bakastream-lock-scroll');
+    };
+  }, [isPseudoLandscape]);
+
+  const toggleLandscapeFullscreen = useCallback(async () => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const currentlyActive = isFullscreen || isPseudoLandscape;
+
+    if (currentlyActive) {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen().catch(() => {});
+      } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+        await (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+      }
+      try {
+        if (screen.orientation && 'unlock' in screen.orientation) {
+          screen.orientation.unlock();
+        }
+      } catch {
+        // safe ignore
+      }
+      setIsPseudoLandscape(false);
+      setIsFullscreen(false);
+      document.body.classList.remove('bakastream-lock-scroll');
+      showHud('Exit Fullscreen');
+    } else {
+      let fsSuccess = false;
+      try {
+        if (stage.requestFullscreen) {
+          await stage.requestFullscreen();
+          fsSuccess = true;
+        } else if ((stage as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
+          await (stage as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen();
+          fsSuccess = true;
+        }
+      } catch (err) {
+        console.warn('Native fullscreen request rejected:', err);
+      }
+
+      try {
+        const orientation = screen.orientation as unknown as { lock?: (o: string) => Promise<void> };
+        if (orientation && typeof orientation.lock === 'function') {
+          await orientation.lock('landscape').catch(() => {});
+        }
+      } catch {
+        // safe ignore
+      }
+
+      const isMobilePortrait =
+        typeof window !== 'undefined' &&
+        window.innerWidth < window.innerHeight &&
+        window.innerWidth <= 768;
+
+      if (!fsSuccess || isMobilePortrait) {
+        setIsPseudoLandscape(true);
+        document.body.classList.add('bakastream-lock-scroll');
+        showHud('Landscape Viewing Mode');
+      } else {
+        showHud('Landscape Fullscreen');
+      }
+    }
+  }, [isFullscreen, isPseudoLandscape, showHud]);
+
+  const broadcastToIframe = useCallback((command: string, value?: unknown) => {
     const iframe = iframeRef.current;
     if (!iframe || !iframe.contentWindow) return;
 
@@ -428,13 +516,7 @@ function EmbedStage({
 
       if (key === 'f') {
         e.preventDefault();
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => {});
-          showHud('⛶ Exit Fullscreen');
-        } else {
-          stageRef.current?.requestFullscreen().catch(() => {});
-          showHud('⛶ Fullscreen');
-        }
+        toggleLandscapeFullscreen();
         return;
       }
     };
@@ -481,7 +563,7 @@ function EmbedStage({
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       if (hudTimeoutRef.current) clearTimeout(hudTimeoutRef.current);
     };
-  }, [broadcastToIframe, showHud]);
+  }, [broadcastToIframe, showHud, toggleLandscapeFullscreen]);
 
   // Reset tried servers when embedUrl changes (new server chosen manually)
   useEffect(() => {
@@ -614,7 +696,24 @@ function EmbedStage({
   }
 
   return (
-    <div className="watch__stage" ref={stageRef}>
+    <div
+      className={`watch__stage ${isFullscreen ? 'watch__stage--fullscreen' : ''} ${isPseudoLandscape ? 'watch__stage--pseudo-landscape' : ''}`}
+      ref={stageRef}
+    >
+      {/* Floating Exit Landscape / Fullscreen button for touch & mobile */}
+      {(isFullscreen || isPseudoLandscape) && (
+        <button
+          type="button"
+          onClick={toggleLandscapeFullscreen}
+          className="watch__exit-landscape-btn"
+          aria-label="Exit Landscape Mode"
+          title="Exit Landscape Mode"
+        >
+          <RotateCcw size={15} />
+          <span>Exit Landscape</span>
+        </button>
+      )}
+
       {isPreview && <div className="watch__preview-banner">{notice}</div>}
 
       {/* ── Apple-Grade Player HUD Toast ── */}
@@ -632,7 +731,7 @@ function EmbedStage({
         </div>
       )}
 
-      {/* ── Top Bar: Active Server Pill + Ad Shield (Compact) ── */}
+      {/* ── Top Bar: Active Server Pill + Ad Shield + Landscape / Fullscreen Toggle ── */}
       <div className="watch__toolbar">
         <div className="watch__active-server-pill">
           <span className="watch__server-dot" />
@@ -653,6 +752,26 @@ function EmbedStage({
             🇮🇳 Hindi Original
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={toggleLandscapeFullscreen}
+          className="watch__landscape-btn"
+          title="Toggle Landscape & Fullscreen mode"
+          aria-label="Toggle Landscape & Fullscreen mode"
+        >
+          {isFullscreen || isPseudoLandscape ? (
+            <>
+              <Minimize size={14} className="watch__landscape-icon" />
+              <span>Exit Landscape</span>
+            </>
+          ) : (
+            <>
+              <Smartphone size={14} className="watch__landscape-icon" />
+              <span>Landscape / Fullscreen</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* ── Video Embed with Ad Shield Protection (blocks redirects, popunders, and top-level hijacks) ── */}

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import type { EpisodeInfo, SeasonInfo, MediaSummary } from '@/types';
 import MediaCard from '@/components/MediaCard';
-import { posterUrl, stillUrl } from '@/lib/tmdb/image';
+import { stillUrl } from '@/lib/tmdb/image';
 import './SeasonEpisodeSelector.css';
 
 export interface SeasonEpisodeSelectorProps {
@@ -86,6 +86,11 @@ export default function SeasonEpisodeSelector({
   const [loadingSeason, setLoadingSeason] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [currentTimestamp] = useState<number>(() => Date.now());
+
+  const releasedEpisodeCount = useMemo(() => {
+    return episodes.filter(e => !e.airDate || new Date(e.airDate).getTime() <= currentTimestamp).length;
+  }, [episodes, currentTimestamp]);
 
   // Cache seasons fetched on client to prevent refetching
   const seasonCache = useRef<Record<number, EpisodeInfo[]>>({});
@@ -228,6 +233,7 @@ export default function SeasonEpisodeSelector({
   const currentActiveSeasonObj = orderedSeasons.find(s => s.seasonNumber === activeSeasonNum);
   const activeSeasonInfo = currentActiveSeasonObj ? getSeasonDisplayInfo(currentActiveSeasonObj) : null;
   const totalSeriesEpisodes = orderedSeasons.reduce((acc, s) => acc + s.episodeCount, 0);
+  const upcomingEpisodeCount = episodes.length - releasedEpisodeCount;
 
   return (
     <section className="season-selector" aria-label="Seasons and Episodes">
@@ -241,7 +247,7 @@ export default function SeasonEpisodeSelector({
             <h2 className="season-selector__title">Seasons & Episodes</h2>
             <p className="season-selector__subtitle">
               {activeSeasonInfo
-                ? `${activeSeasonInfo.name} · ${episodes.length} Episodes`
+                ? `${activeSeasonInfo.name} · ${episodes.length} Episodes (${releasedEpisodeCount} Released${upcomingEpisodeCount > 0 ? `, ${upcomingEpisodeCount} Upcoming` : ''})`
                 : orderedSeasons.length > 1
                   ? `${regularCount} Seasons · ${totalSeriesEpisodes.toLocaleString()} Total Episodes`
                   : `${episodes.length} Episodes Available`}
@@ -388,6 +394,7 @@ export default function SeasonEpisodeSelector({
           {displayedEpisodes.map(ep => {
             const isCurrent =
               activeSeasonNum === currentSeason && ep.episodeNumber === currentEpisode;
+            const isUpcoming = ep.airDate ? new Date(ep.airDate).getTime() > currentTimestamp : false;
             const epNumFormatted =
               ep.episodeNumber > 0 && ep.episodeNumber < 10
                 ? `0${ep.episodeNumber}`
@@ -397,13 +404,15 @@ export default function SeasonEpisodeSelector({
               <Link
                 key={ep.id}
                 href={`/watch/tv/${mediaId}/${activeSeasonNum}/${ep.episodeNumber}`}
-                className={`season-ep-box ${isCurrent ? 'season-ep-box--current' : ''}`}
-                title={`Episode ${ep.episodeNumber}: ${ep.name}${ep.runtime ? ` (${ep.runtime}m)` : ''}`}
+                className={`season-ep-box ${isCurrent ? 'season-ep-box--current' : ''} ${isUpcoming ? 'season-ep-box--upcoming' : ''}`}
+                title={`Episode ${ep.episodeNumber}: ${ep.name}${isUpcoming ? ` (Upcoming · Airs ${ep.airDate})` : ep.runtime ? ` (${ep.runtime}m)` : ''}`}
               >
                 <div className="season-ep-box__inner">
                   <span className="season-ep-box__num">{epNumFormatted}</span>
                   {isCurrent ? (
                     <span className="season-ep-box__active-badge">PLAYING</span>
+                  ) : isUpcoming ? (
+                    <span className="season-ep-box__upcoming-badge">SOON</span>
                   ) : (
                     <Play size={8} className="season-ep-box__play-icon" />
                   )}
@@ -418,13 +427,14 @@ export default function SeasonEpisodeSelector({
           {displayedEpisodes.map(ep => {
             const isCurrent =
               activeSeasonNum === currentSeason && ep.episodeNumber === currentEpisode;
+            const isUpcoming = ep.airDate ? new Date(ep.airDate).getTime() > currentTimestamp : false;
             const still = stillUrl(ep.stillPath, 'w300');
 
             return (
               <Link
                 key={ep.id}
                 href={`/watch/tv/${mediaId}/${activeSeasonNum}/${ep.episodeNumber}`}
-                className={`season-ep-card ${isCurrent ? 'season-ep-card--current' : ''}`}
+                className={`season-ep-card ${isCurrent ? 'season-ep-card--current' : ''} ${isUpcoming ? 'season-ep-card--upcoming' : ''}`}
               >
                 <div className="season-ep-card__thumb-box">
                   {still ? (
@@ -443,15 +453,29 @@ export default function SeasonEpisodeSelector({
                       <span className="season-ep-card__current-pill">NOW PLAYING</span>
                     </div>
                   )}
-                  <div className="season-ep-card__play-overlay">
-                    <Play size={16} fill="currentColor" />
-                  </div>
+                  {isUpcoming && !isCurrent && (
+                    <div className="season-ep-card__upcoming-overlay">
+                      <span className="season-ep-card__upcoming-pill">UPCOMING</span>
+                    </div>
+                  )}
+                  {!isUpcoming && (
+                    <div className="season-ep-card__play-overlay">
+                      <Play size={16} fill="currentColor" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="season-ep-card__content">
                   <div className="season-ep-card__title-row">
-                    <span className="season-ep-card__ep-badge">EP {ep.episodeNumber}</span>
+                    <span className={`season-ep-card__ep-badge ${isUpcoming ? 'season-ep-card__ep-badge--upcoming' : ''}`}>
+                      EP {ep.episodeNumber}
+                    </span>
                     <h3 className="season-ep-card__name">{ep.name}</h3>
+                    {isUpcoming && (
+                      <span className="season-ep-card__upcoming-tag">
+                        Upcoming (Airs {ep.airDate})
+                      </span>
+                    )}
                   </div>
 
                   <div className="season-ep-card__meta-row">

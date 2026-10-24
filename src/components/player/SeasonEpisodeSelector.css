@@ -526,6 +526,70 @@
   margin-top: 2px;
 }
 
+/* Upcoming Episode Box */
+.season-ep-box--upcoming {
+  opacity: 0.72;
+  border-style: dashed !important;
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  background: rgba(251, 191, 36, 0.04) !important;
+}
+
+.season-ep-box--upcoming:hover {
+  opacity: 1;
+  border-color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.1) !important;
+}
+
+.season-ep-box__upcoming-badge {
+  font-size: 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.08rem 0.25rem;
+  border-radius: 3px;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  margin-top: 2px;
+}
+
+/* Upcoming Card Mode */
+.season-ep-card--upcoming {
+  opacity: 0.78;
+}
+
+.season-ep-card--upcoming:hover {
+  opacity: 1;
+}
+
+.season-ep-card__upcoming-overlay {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+}
+
+.season-ep-card__upcoming-pill {
+  font-size: 0.6rem;
+  font-weight: 800;
+  background: rgba(245, 158, 11, 0.9);
+  color: #000000;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.season-ep-card__ep-badge--upcoming {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #f59e0b !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.season-ep-card__upcoming-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #f59e0b;
+  margin-left: 0.5rem;
+}
+
 /* ── 5. Detailed List / Card Mode ── */
 .season-selector__list {
   display: flex;
