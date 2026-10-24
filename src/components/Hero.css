@@ -263,58 +263,43 @@
   box-shadow: 0 0 12px var(--accent);
 }
 
-/* Hero Slide Navigation Arrows (Cinema-Grade Desktop Side Chevrons) */
+/* Hero Slide Navigation Arrows (Cinema-Grade Grouped Chevrons) */
 .hero__arrows {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
+  bottom: clamp(3.5rem, 8vh, 6rem);
+  right: clamp(1.2rem, 4.5vw, 4rem);
+  display: flex;
+  gap: 10px;
   z-index: 10;
 }
 
 .hero__arrow {
-  pointer-events: auto;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(18, 18, 28, 0.6);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(18, 18, 28, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: #ffffff;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
-}
-
-.hero:hover .hero__arrow {
-  opacity: 0.85;
-}
-
-.hero__arrow--prev {
-  left: clamp(1rem, 2.5vw, 2.5rem);
-}
-
-.hero__arrow--next {
-  right: clamp(1rem, 2.5vw, 2.5rem);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .hero__arrow:hover {
-  opacity: 1 !important;
   background: var(--accent);
   border-color: var(--accent);
-  transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--accent-subtle);
 }
 
 .hero__arrow:active {
-  transform: translateY(-50%) scale(0.96);
+  transform: translateY(0) scale(0.96);
 }
 
 :root[data-mode="light"] .hero__arrow,
@@ -470,9 +455,26 @@
     font-size: 13px;
     margin-bottom: 1.2rem;
   }
-  .hero__vertical-dots,
-  .hero__arrows {
+  .hero__vertical-dots {
     display: none !important;
+  }
+  /* On mobile, position slide controls at the top-right so they NEVER collide with action buttons! */
+  .hero__arrows {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    bottom: auto;
+    display: flex !important;
+    gap: 8px;
+    z-index: 15;
+  }
+  .hero__arrow {
+    width: 38px;
+    height: 38px;
+    background: rgba(14, 14, 22, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
   }
   .hero__actions {
     gap: 10px;

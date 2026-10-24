@@ -4,12 +4,12 @@
 
 :root,
 :root[data-theme="dark"] {
-  --accent: #E11D48;
-  --accent-strong: #BE123C;
-  --accent-hover: #F43F5E;
+  --accent: #F70063;
+  --accent-strong: #D10052;
+  --accent-hover: #FF1A75;
   --accent-secondary: #FB7185;
-  --accent-subtle: rgba(225, 29, 72, 0.16);
-  --brand-red: #E11D48;
+  --accent-subtle: rgba(247, 0, 99, 0.2);
+  --brand-red: #F70063;
 
   --bg-primary: #0B0C10;
   --bg-secondary: #12131A;
@@ -31,11 +31,11 @@
 
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(255, 255, 255, 0.18);
-  --scrollbar-thumb-hover: #E11D48;
+  --scrollbar-thumb-hover: #F70063;
 
   --success: #34d399;
   --warning: #f5c518;
-  --danger: #E11D48;
+  --danger: #F70063;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -210,12 +210,12 @@
 }
 
 :root[data-theme="midnight"] {
-  --accent: #E11D48;
-  --accent-strong: #BE123C;
-  --accent-hover: #FB7185;
-  --accent-secondary: #FDA4AF;
-  --accent-subtle: rgba(225, 29, 72, 0.2);
-  --brand-red: #E11D48;
+  --accent: #F70063;
+  --accent-strong: #D10052;
+  --accent-hover: #FF1A75;
+  --accent-secondary: #FB7185;
+  --accent-subtle: rgba(247, 0, 99, 0.25);
+  --brand-red: #F70063;
 
   --bg-primary: #000000;
   --bg-secondary: #08080C;
@@ -237,11 +237,11 @@
 
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(255, 255, 255, 0.16);
-  --scrollbar-thumb-hover: #E11D48;
+  --scrollbar-thumb-hover: #F70063;
 
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.75);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.9);
-  --shadow-glow: 0 0 35px rgba(225, 29, 72, 0.45);
+  --shadow-glow: 0 0 35px rgba(247, 0, 99, 0.45);
 }
 
 /* ── Universal Light Mode Base Surfaces & Typography ── */
@@ -342,9 +342,24 @@
 
 html {
   overflow-x: clip;
+}
+
+html,
+body,
+header,
+.site-header,
+.hero,
+.trending-showcase,
+.catalog-section,
+.footer,
+.theme-popover,
+.lumina-bar,
+.watch__toolbar {
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {
@@ -353,9 +368,6 @@ body {
   min-height: 100vh;
   overflow-x: clip;
   overscroll-behavior-y: none;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
 }
 
 @media (max-width: 768px) {

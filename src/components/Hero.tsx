@@ -44,6 +44,21 @@ export default function Hero({ items, genres = [] }: Props) {
     [items.length]
   );
 
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      go(diff > 0 ? 1 : -1);
+    }
+    touchStartX.current = null;
+  };
+
   if (!items.length) return null;
   const item = items[Math.min(index, items.length - 1)];
   const backdrop =
@@ -65,6 +80,8 @@ export default function Hero({ items, genres = [] }: Props) {
       aria-label="Featured Showcase"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* ── Dynamic High-Res Backdrop Image ── */}
       {backdrop && (

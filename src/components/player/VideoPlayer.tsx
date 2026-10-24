@@ -636,14 +636,23 @@ export default function VideoPlayer({
     return () => document.removeEventListener('fullscreenchange', onFs);
   }, []);
 
-  /* auto-hide controls */
+  /* auto-hide controls: Only auto-hide when video is actively PLAYING */
   const wakeControls = useCallback(() => {
     setShowControls(true);
     if (hideTimer.current) clearTimeout(hideTimer.current);
-    if (!settingsOpen) {
-      hideTimer.current = setTimeout(() => setShowControls(false), 2600);
+    if (playing && !settingsOpen) {
+      hideTimer.current = setTimeout(() => setShowControls(false), 3500);
     }
-  }, [settingsOpen]);
+  }, [playing, settingsOpen]);
+
+  useEffect(() => {
+    if (!playing) {
+      setShowControls(true);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    } else {
+      wakeControls();
+    }
+  }, [playing, wakeControls]);
 
   useEffect(() => {
     wakeControls();
@@ -674,8 +683,9 @@ export default function VideoPlayer({
   return (
     <div
       ref={containerRef}
-      className={`videoplayer ${showControls || settingsOpen ? 'videoplayer--controls' : 'videoplayer--hidden'}`}
+      className={`videoplayer ${showControls || !playing || settingsOpen ? 'videoplayer--controls' : 'videoplayer--hidden'} ${playing ? 'videoplayer--playing' : 'videoplayer--paused'}`}
       onMouseMove={wakeControls}
+      onMouseEnter={wakeControls}
       onTouchStart={wakeControls}
       onClick={e => {
         if ((e.target as HTMLElement).tagName === 'VIDEO') togglePlay();

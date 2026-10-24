@@ -65,18 +65,33 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 6;
+  z-index: 10;
   padding: 1.75rem 1rem 0.6rem;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.85));
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.88));
   opacity: 1;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+  cursor: default;
 }
 .videoplayer--hidden .videoplayer__controls {
   opacity: 0;
   pointer-events: none;
 }
-.videoplayer--hidden {
+/* When hovering over the player or when paused/active, ensure controls stay visible */
+.videoplayer:hover .videoplayer__controls,
+.videoplayer--controls .videoplayer__controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Only hide cursor if actively playing AND user has been idle */
+.videoplayer--hidden.videoplayer--playing {
   cursor: none;
+}
+.videoplayer,
+.videoplayer:hover,
+.videoplayer--paused,
+.videoplayer--controls {
+  cursor: default;
 }
 
 .videoplayer__seek {
