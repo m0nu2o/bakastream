@@ -7,5 +7,10 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  "vars": {
+    "TMDB_API_KEY": "493425cbd908e787bf8746644c42bf66",
+    "TMDB_BASE_URL": "https://api.themoviedb.org/3",
+    "NOVA_API_URL": "https://8streamapi.vercel.app"
   }
 }
