@@ -33,12 +33,21 @@ export async function getMalIdForAnime(title: string): Promise<number | null> {
   }`;
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
     const res = await fetch('https://graphql.anilist.co', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      },
       body: JSON.stringify({ query, variables: { search: cleanTitle } }),
+      signal: controller.signal,
       next: { revalidate: 86400 }, // Cache mapping for 24 hours
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) return null;
     const json = (await res.json()) as {

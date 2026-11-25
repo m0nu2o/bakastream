@@ -524,6 +524,76 @@ export async function getKDrama(page = 1) {
   return data.results.map(mapSummary);
 }
 
+export async function getCDrama(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
+    params: {
+      page,
+      with_original_language: 'zh',
+      without_genres: 16,
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getDonghua(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
+    params: {
+      page,
+      with_genres: 16,
+      with_original_language: 'zh',
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getHollywoodMovies(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/movie', {
+    params: {
+      page,
+      with_original_language: 'en',
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getWesternTV(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
+    params: {
+      page,
+      with_original_language: 'en',
+      without_genres: 16,
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getCartoons(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
+    params: {
+      page,
+      with_genres: 16,
+      with_original_language: 'en',
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getInternationalMovies(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/movie', {
+    params: {
+      page,
+      with_original_language: 'fr|es|de|it|ko|ja|zh|tr|pt|ru|th',
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
 export interface SearchFilters {
   query?: string;
   type?: 'all' | MediaType;
@@ -581,14 +651,20 @@ export async function search({ query, type = 'all', genre, year, page = 1, sort 
   return { results, page: data.page, totalResults: data.total_results };
 }
 
-/** Compact rows for the home page; each section degrades independently. */
+/** Full home catalog across global regions, formats, and merged genres. */
 export interface HomeData {
   featured: MediaSummary[];
   trending: MediaSummary[];
+  hollywoodMovies: MediaSummary[];
   hindiMovies: MediaSummary[];
   hindiTV: MediaSummary[];
   hindiSerials: MediaSummary[];
   kdrama: MediaSummary[];
+  cdrama: MediaSummary[];
+  donghua: MediaSummary[];
+  westernTV: MediaSummary[];
+  cartoons: MediaSummary[];
+  internationalMovies: MediaSummary[];
   popularMovies: MediaSummary[];
   popularTV: MediaSummary[];
   topRatedMovies: MediaSummary[];
@@ -601,10 +677,16 @@ export interface HomeData {
 export async function getHomeData(): Promise<HomeData> {
   const [
     trending,
+    hollywoodMovies,
     hindiMovies,
     hindiTV,
     hindiSerials,
     kdrama,
+    cdrama,
+    donghua,
+    westernTV,
+    cartoons,
+    internationalMovies,
     popularMovies,
     popularTV,
     topRatedMovies,
@@ -612,12 +694,19 @@ export async function getHomeData(): Promise<HomeData> {
     recentlyAdded,
     anime,
     movieGenres,
+    tvGenres,
   ] = await Promise.allSettled([
     getTrending('all'),
+    getHollywoodMovies(),
     getHindiMovies(),
     getHindiTV(),
     getHindiSerials(),
     getKDrama(),
+    getCDrama(),
+    getDonghua(),
+    getWesternTV(),
+    getCartoons(),
+    getInternationalMovies(),
     getMovieList('popular'),
     getTVList('popular'),
     getMovieList('top_rated'),
@@ -625,24 +714,36 @@ export async function getHomeData(): Promise<HomeData> {
     getRecentlyAdded(),
     getAnime(),
     getGenres('movie'),
+    getGenres('tv'),
   ]);
 
   const ok = <T>(r: PromiseSettledResult<T>, fallback: T): T =>
     r.status === 'fulfilled' ? r.value : fallback;
 
+  const genreMap = new Map<number, Genre>();
+  [...ok(movieGenres, [] as Genre[]), ...ok(tvGenres, [] as Genre[])].forEach(g => {
+    if (!genreMap.has(g.id)) genreMap.set(g.id, g);
+  });
+
   return {
     featured: ok(trending, [] as MediaSummary[]).slice(0, 6),
     trending: ok(trending, [] as MediaSummary[]).slice(0, 20),
+    hollywoodMovies: ok(hollywoodMovies, [] as MediaSummary[]).slice(0, 20),
     hindiMovies: ok(hindiMovies, [] as MediaSummary[]).slice(0, 20),
     hindiTV: ok(hindiTV, [] as MediaSummary[]).slice(0, 20),
     hindiSerials: ok(hindiSerials, [] as MediaSummary[]).slice(0, 20),
     kdrama: ok(kdrama, [] as MediaSummary[]).slice(0, 20),
+    cdrama: ok(cdrama, [] as MediaSummary[]).slice(0, 20),
+    donghua: ok(donghua, [] as MediaSummary[]).slice(0, 20),
+    westernTV: ok(westernTV, [] as MediaSummary[]).slice(0, 20),
+    cartoons: ok(cartoons, [] as MediaSummary[]).slice(0, 20),
+    internationalMovies: ok(internationalMovies, [] as MediaSummary[]).slice(0, 20),
     popularMovies: ok(popularMovies, [] as MediaSummary[]).slice(0, 20),
     popularTV: ok(popularTV, [] as MediaSummary[]).slice(0, 20),
     topRatedMovies: ok(topRatedMovies, [] as MediaSummary[]).slice(0, 20),
     topRatedTV: ok(topRatedTV, [] as MediaSummary[]).slice(0, 20),
     recentlyAdded: ok(recentlyAdded, [] as MediaSummary[]).slice(0, 20),
     anime: ok(anime, [] as MediaSummary[]).slice(0, 20),
-    genres: ok(movieGenres, [] as Genre[]),
+    genres: Array.from(genreMap.values()),
   };
 }

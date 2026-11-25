@@ -29,7 +29,7 @@ export default function MediaCard({ content, onPlay, customBadge }: Props) {
       <div className="media-card__poster-box">
         <Link
           href={href}
-          prefetch={true}
+          prefetch={false}
           aria-label={content.title}
           className="media-card__poster-link"
         >
@@ -91,7 +91,7 @@ export default function MediaCard({ content, onPlay, customBadge }: Props) {
 
       {/* Info Block (Inset container with clean typography and metadata) */}
       <div className="media-card__info">
-        <Link href={href} prefetch={true} className="media-card__title" title={content.title}>
+        <Link href={href} prefetch={false} className="media-card__title" title={content.title}>
           {content.title}
         </Link>
         <div className="media-card__meta">

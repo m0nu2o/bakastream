@@ -56,7 +56,11 @@ export async function GET(
       params: query,
       revalidate: entry.revalidate,
     });
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': `public, s-maxage=${entry.revalidate}, stale-while-revalidate=${entry.revalidate * 2}`,
+      },
+    });
   } catch (err) {
     if (err instanceof TMDBError) {
       return NextResponse.json({ error: err.message }, { status: err.status });

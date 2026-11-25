@@ -106,6 +106,7 @@ export default function EpisodeBrowser({ tvId, seasons }: Props) {
               <Link
                 key={ep.id}
                 href={watchTVUrl(tvId, ep.seasonNumber, ep.episodeNumber)}
+                prefetch={false}
                 className={`ep-card ${ep.episodeNumber % 2 === 0 ? 'ep-card--alt' : ''}`}
               >
                 <div className="ep-card__thumb">

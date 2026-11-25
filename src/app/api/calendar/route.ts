@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTVList, getMovieList, tmdbFetch } from '@/lib/tmdb/server';
+import { getTVList, getMovieList, tmdbFetch, mapSummary } from '@/lib/tmdb/server';
 import type { MediaSummary } from '@/types';
 
 export const revalidate = 1800; // Cache for 30 minutes
@@ -7,7 +7,7 @@ export const revalidate = 1800; // Cache for 30 minutes
 export interface CalendarEntry {
   id: string;
   tmdbId?: number;
-  category: 'anime' | 'kdrama' | 'tv' | 'movie';
+  category: 'anime' | 'kdrama' | 'cdrama' | 'tv' | 'movie';
   title: string;
   romajiTitle?: string;
   episodeNumber?: number | null;
@@ -46,87 +46,37 @@ interface AniListAiringItem {
   };
 }
 
+function formatYMD(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 /**
- * Fetch anime schedules from AniList with realistic browser headers
+ * Fetch up to 5 pages (250 airing episodes) from AniList with realistic browser headers.
  */
 async function fetchAniListSchedule(startSec: number, endSec: number): Promise<CalendarEntry[]> {
+  const fields = `
+    id
+    airingAt
+    episode
+    media {
+      id
+      idMal
+      title { english romaji native }
+      coverImage { large extraLarge }
+      bannerImage
+      genres
+      averageScore
+      description
+      status
+    }
+  `;
   const query = `
     query ($start: Int, $end: Int) {
-      p1: Page(page: 1, perPage: 50) {
-        airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) {
-          id
-          airingAt
-          episode
-          media {
-            id
-            idMal
-            title {
-              english
-              romaji
-              native
-            }
-            coverImage {
-              large
-              extraLarge
-            }
-            bannerImage
-            genres
-            averageScore
-            description
-            status
-          }
-        }
-      }
-      p2: Page(page: 2, perPage: 50) {
-        airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) {
-          id
-          airingAt
-          episode
-          media {
-            id
-            idMal
-            title {
-              english
-              romaji
-              native
-            }
-            coverImage {
-              large
-              extraLarge
-            }
-            bannerImage
-            genres
-            averageScore
-            description
-            status
-          }
-        }
-      }
-      p3: Page(page: 3, perPage: 50) {
-        airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) {
-          id
-          airingAt
-          episode
-          media {
-            id
-            idMal
-            title {
-              english
-              romaji
-              native
-            }
-            coverImage {
-              large
-              extraLarge
-            }
-            bannerImage
-            genres
-            averageScore
-            description
-            status
-          }
-        }
-      }
+      p1: Page(page: 1, perPage: 50) { airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) { ${fields} } }
+      p2: Page(page: 2, perPage: 50) { airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) { ${fields} } }
+      p3: Page(page: 3, perPage: 50) { airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) { ${fields} } }
+      p4: Page(page: 4, perPage: 50) { airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) { ${fields} } }
+      p5: Page(page: 5, perPage: 50) { airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) { ${fields} } }
     }
   `;
 
@@ -154,22 +104,20 @@ async function fetchAniListSchedule(startSec: number, endSec: number): Promise<C
 
     if (!res.ok) return [];
     const json = (await res.json()) as {
-      data?: {
-        p1?: { airingSchedules?: AniListAiringItem[] };
-        p2?: { airingSchedules?: AniListAiringItem[] };
-        p3?: { airingSchedules?: AniListAiringItem[] };
-      };
+      data?: Record<string, { airingSchedules?: AniListAiringItem[] }>;
     };
 
     const schedules: AniListAiringItem[] = [
       ...(json.data?.p1?.airingSchedules || []),
       ...(json.data?.p2?.airingSchedules || []),
       ...(json.data?.p3?.airingSchedules || []),
+      ...(json.data?.p4?.airingSchedules || []),
+      ...(json.data?.p5?.airingSchedules || []),
     ];
 
     return schedules.map(item => {
       const airDateObj = new Date(item.airingAt * 1000);
-      const airDate = `${airDateObj.getFullYear()}-${String(airDateObj.getMonth() + 1).padStart(2, '0')}-${String(airDateObj.getDate()).padStart(2, '0')}`;
+      const airDate = formatYMD(airDateObj);
       const airTime = airDateObj.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
@@ -190,7 +138,7 @@ async function fetchAniListSchedule(startSec: number, endSec: number): Promise<C
         posterUrl: item.media.coverImage?.extraLarge || item.media.coverImage?.large || null,
         backdropUrl: item.media.bannerImage || null,
         genres: item.media.genres || ['Anime'],
-        rating: item.media.averageScore ? (item.media.averageScore / 10) : null,
+        rating: item.media.averageScore ? item.media.averageScore / 10 : null,
         overview: item.media.description?.replace(/<[^>]*>/g, '') || '',
         status: item.media.status,
       };
@@ -215,16 +163,89 @@ interface RawTMDBItem {
   origin_country?: string[];
 }
 
+function dedupeRaw(lists: RawTMDBItem[][]): RawTMDBItem[] {
+  const seen = new Set<number>();
+  const out: RawTMDBItem[] = [];
+  for (const list of lists) {
+    for (const item of list) {
+      if (item && !seen.has(item.id)) {
+        seen.add(item.id);
+        out.push(item);
+      }
+    }
+  }
+  return out;
+}
+
+function buildTMDBEntry(
+  item: {
+    id: number;
+    title?: string;
+    name?: string;
+    poster_path?: string | null;
+    backdrop_path?: string | null;
+    posterPath?: string | null;
+    backdropPath?: string | null;
+    vote_average?: number;
+    rating?: number | null;
+    overview?: string;
+  },
+  category: CalendarEntry['category'],
+  genres: string[],
+  now: Date,
+  index: number,
+  times: string[],
+  episodeMod: number | null
+): CalendarEntry {
+  const dayOffset = index % 8;
+  const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
+  const airDate = formatYMD(targetDay);
+  const timeStr = times[index % times.length];
+  const [hh, mm] = timeStr.split(':').map(Number);
+  targetDay.setHours(Number.isFinite(hh) ? hh : 18, Number.isFinite(mm) ? mm : 0, 0, 0);
+
+  const rawPoster = item.poster_path ?? item.posterPath ?? null;
+  const rawBackdrop = item.backdrop_path ?? item.backdropPath ?? null;
+  const posterUrl = rawPoster
+    ? rawPoster.startsWith('http')
+      ? rawPoster
+      : `https://image.tmdb.org/t/p/w500${rawPoster}`
+    : null;
+  const backdropUrl = rawBackdrop
+    ? rawBackdrop.startsWith('http')
+      ? rawBackdrop
+      : `https://image.tmdb.org/t/p/w1280${rawBackdrop}`
+    : null;
+
+  return {
+    id: `${category}-${item.id}-${dayOffset}`,
+    tmdbId: item.id,
+    category,
+    title: item.title || item.name || 'Untitled',
+    episodeNumber: episodeMod ? (index % episodeMod) + 1 : null,
+    airDate,
+    airTime: timeStr,
+    airTimestamp: targetDay.getTime(),
+    posterUrl,
+    backdropUrl,
+    genres,
+    rating: item.rating ?? item.vote_average ?? null,
+    overview: item.overview ?? '',
+  };
+}
+
 /**
- * Bulletproof TMDB Anime fallback in case AniList is blocked by Cloudflare WAF or network issues
+ * Bulletproof TMDB Anime fallback/supplement (currently airing + ongoing Japanese animation).
  */
-async function fetchTMDBAnime(now: Date): Promise<CalendarEntry[]> {
+async function fetchTMDBAnime(now: Date, minAirDate: string, maxAirDate: string): Promise<CalendarEntry[]> {
   try {
-    const [p1, p2] = await Promise.all([
+    const [airingP1, airingP2, popP1, popP2] = await Promise.all([
       tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
         params: {
           with_genres: '16',
           with_original_language: 'ja',
+          'air_date.gte': minAirDate,
+          'air_date.lte': maxAirDate,
           sort_by: 'popularity.desc',
           page: 1,
         },
@@ -234,47 +255,34 @@ async function fetchTMDBAnime(now: Date): Promise<CalendarEntry[]> {
         params: {
           with_genres: '16',
           with_original_language: 'ja',
+          'air_date.gte': minAirDate,
+          'air_date.lte': maxAirDate,
           sort_by: 'popularity.desc',
           page: 2,
         },
         revalidate: 1800,
       }).catch(() => ({ results: [] })),
+      tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+        params: { with_genres: '16', with_original_language: 'ja', sort_by: 'popularity.desc', page: 1 },
+        revalidate: 1800,
+      }).catch(() => ({ results: [] })),
+      tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+        params: { with_genres: '16', with_original_language: 'ja', sort_by: 'popularity.desc', page: 2 },
+        revalidate: 1800,
+      }).catch(() => ({ results: [] })),
     ]);
 
-    const items = [...(p1.results || []), ...(p2.results || [])];
-    const entries: CalendarEntry[] = [];
+    const items = dedupeRaw([
+      airingP1.results || [],
+      airingP2.results || [],
+      popP1.results || [],
+      popP2.results || [],
+    ]);
     const times = ['23:00', '23:30', '00:00', '00:30', '01:00'];
 
-    items.slice(0, 40).forEach((item, index) => {
-      const dayOffset = index % 8;
-      const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
-      const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
-      const timeStr = times[index % times.length];
-      const [hh, mm] = timeStr.split(':').map(Number);
-      targetDay.setHours(hh || 23, mm || 0, 0, 0);
-
-      entries.push({
-        id: `anime-tmdb-${item.id}-${dayOffset}`,
-        tmdbId: item.id,
-        category: 'anime',
-        title: item.name || 'Untitled Anime',
-        episodeNumber: (index % 12) + 1,
-        airDate,
-        airTime: timeStr,
-        airTimestamp: targetDay.getTime(),
-        posterUrl: item.poster_path
-          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-          : null,
-        backdropUrl: item.backdrop_path
-          ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
-          : null,
-        genres: ['Anime', 'Animation'],
-        rating: item.vote_average ?? null,
-        overview: item.overview ?? '',
-      });
-    });
-
-    return entries;
+    return items.slice(0, 80).map((item, idx) =>
+      buildTMDBEntry(item, 'anime', ['Anime', 'Animation'], now, idx, times, 12)
+    );
   } catch (e) {
     console.error('[Calendar API] TMDB Anime error:', e);
     return [];
@@ -291,73 +299,64 @@ export async function GET(request: NextRequest) {
 
   const startSec = Math.floor(startOfDay.getTime() / 1000);
   const endSec = Math.floor(endOfRange.getTime() / 1000);
+  const minAirDate = formatYMD(startOfDay);
+  const maxAirDate = formatYMD(endOfRange);
 
   const results: CalendarEntry[] = [];
 
   try {
     const promises: Promise<void>[] = [];
 
-    // 1. ANIME SCHEDULE (AniList with automatic TMDB fallback)
+    // 1. ANIME SCHEDULE (Up to 250 AniList schedules + TMDB fallback)
     if (categoryFilter === 'all' || categoryFilter === 'anime') {
       promises.push(
         fetchAniListSchedule(startSec, endSec)
           .then(async animeEntries => {
-            if (animeEntries.length >= 20) {
+            if (animeEntries.length >= 30) {
               results.push(...animeEntries);
             } else {
-              // AniList was blocked or returned insufficient data — trigger TMDB Anime fallback!
-              const tmdbAnime = await fetchTMDBAnime(now);
+              const tmdbAnime = await fetchTMDBAnime(now, minAirDate, maxAirDate);
               results.push(...animeEntries, ...tmdbAnime);
             }
           })
           .catch(async () => {
-            const tmdbAnime = await fetchTMDBAnime(now);
+            const tmdbAnime = await fetchTMDBAnime(now, minAirDate, maxAirDate);
             results.push(...tmdbAnime);
           })
       );
     }
 
-    // 2. K-DRAMA RELEASES (TMDB Korean drama series distributed over 8 days)
+    // 2. K-DRAMA RELEASES (Currently airing Korean dramas + top ongoing — up to 64 across 8 days)
     if (categoryFilter === 'all' || categoryFilter === 'kdrama') {
       promises.push(
-        tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
-          params: {
-            with_original_language: 'ko',
-            sort_by: 'popularity.desc',
-            page: 1,
-          },
-          revalidate: 1800,
-        })
-          .then(data => {
-            const items = data.results || [];
-            items.slice(0, 32).forEach((item, index) => {
-              const dayOffset = index % 8;
-              const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
-              const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
-              const times = ['21:00', '21:30', '22:00', '22:30'];
-              const timeStr = times[index % times.length];
-              const [hh, mm] = timeStr.split(':').map(Number);
-              targetDay.setHours(hh || 21, mm || 0, 0, 0);
-
-              results.push({
-                id: `kdrama-${item.id}-${dayOffset}`,
-                tmdbId: item.id,
-                category: 'kdrama',
-                title: item.name || 'Untitled K-Drama',
-                episodeNumber: (index % 16) + 1,
-                airDate,
-                airTime: timeStr,
-                airTimestamp: targetDay.getTime(),
-                posterUrl: item.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-                  : null,
-                backdropUrl: item.backdrop_path
-                  ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
-                  : null,
-                genres: ['K-Drama', 'Romance', 'Drama'],
-                rating: item.vote_average ?? null,
-                overview: item.overview ?? '',
-              });
+        Promise.all([
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: {
+              with_original_language: 'ko',
+              without_genres: '16',
+              'air_date.gte': minAirDate,
+              'air_date.lte': maxAirDate,
+              sort_by: 'popularity.desc',
+              page: 1,
+            },
+            revalidate: 1800,
+          }).catch(() => ({ results: [] })),
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: { with_original_language: 'ko', without_genres: '16', sort_by: 'popularity.desc', page: 1 },
+            revalidate: 1800,
+          }).catch(() => ({ results: [] })),
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: { with_original_language: 'ko', without_genres: '16', sort_by: 'popularity.desc', page: 2 },
+            revalidate: 1800,
+          }).catch(() => ({ results: [] })),
+        ])
+          .then(([airing, p1, p2]) => {
+            const items = dedupeRaw([airing.results || [], p1.results || [], p2.results || []]);
+            const times = ['21:00', '21:30', '22:00', '22:30'];
+            items.slice(0, 64).forEach((item, idx) => {
+              results.push(
+                buildTMDBEntry(item, 'kdrama', ['K-Drama', 'Romance', 'Drama'], now, idx, times, 16)
+              );
             });
           })
           .catch(e => {
@@ -366,52 +365,73 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 3. GLOBAL TV SERIES (TMDB On The Air & Airing Today distributed over 8 days)
+    // 3. C-DRAMA RELEASES (Currently airing Chinese dramas + top ongoing — up to 48 across 8 days)
+    if (categoryFilter === 'all' || categoryFilter === 'cdrama') {
+      promises.push(
+        Promise.all([
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: {
+              with_original_language: 'zh',
+              without_genres: '16',
+              'air_date.gte': minAirDate,
+              'air_date.lte': maxAirDate,
+              sort_by: 'popularity.desc',
+              page: 1,
+            },
+            revalidate: 1800,
+          }).catch(() => ({ results: [] })),
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: { with_original_language: 'zh', without_genres: '16', sort_by: 'popularity.desc', page: 1 },
+            revalidate: 1800,
+          }).catch(() => ({ results: [] })),
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: { with_original_language: 'zh', without_genres: '16', sort_by: 'popularity.desc', page: 2 },
+            revalidate: 1800,
+          }).catch(() => ({ results: [] })),
+        ])
+          .then(([airing, p1, p2]) => {
+            const items = dedupeRaw([airing.results || [], p1.results || [], p2.results || []]);
+            const times = ['18:30', '19:00', '20:00', '20:30'];
+            items.slice(0, 48).forEach((item, idx) => {
+              results.push(
+                buildTMDBEntry(item, 'cdrama', ['C-Drama', 'Wuxia', 'Drama'], now, idx, times, 24)
+              );
+            });
+          })
+          .catch(e => {
+            console.error('[Calendar API] CDrama fetch error:', e);
+          })
+      );
+    }
+
+    // 4. GLOBAL & HINDI TV SERIES (Multiple pages of Airing Today + On The Air + Hindi Web Series — up to 100)
     if (categoryFilter === 'all' || categoryFilter === 'tv') {
       promises.push(
         Promise.all([
-          getTVList('on_the_air', 1).catch(() => []),
           getTVList('airing_today', 1).catch(() => []),
-          getTVList('popular', 1).catch(() => []),
+          getTVList('airing_today', 2).catch(() => []),
+          getTVList('on_the_air', 1).catch(() => []),
+          getTVList('on_the_air', 2).catch(() => []),
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/tv', {
+            params: { with_original_language: 'hi', sort_by: 'popularity.desc', page: 1 },
+            revalidate: 1800,
+          })
+            .then(d => (d.results || []).map(mapSummary))
+            .catch(() => [] as MediaSummary[]),
         ])
-          .then(([onAir, airingToday, popular]) => {
+          .then(([today1, today2, onAir1, onAir2, hindiSeries]) => {
             const seen = new Set<number>();
             const combined: MediaSummary[] = [];
-            [...onAir, ...airingToday, ...popular].forEach(item => {
+            [...today1, ...today2, ...onAir1, ...onAir2, ...hindiSeries].forEach(item => {
               if (!seen.has(item.id)) {
                 seen.add(item.id);
                 combined.push(item);
               }
             });
 
-            combined.slice(0, 40).forEach((item, index) => {
-              const dayOffset = index % 8;
-              const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
-              const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
-              const times = ['19:30', '20:00', '20:30', '21:00', '21:30'];
-              const timeStr = times[index % times.length];
-              const [hh, mm] = timeStr.split(':').map(Number);
-              targetDay.setHours(hh || 20, mm || 0, 0, 0);
-
-              results.push({
-                id: `tv-${item.id}-${dayOffset}`,
-                tmdbId: item.id,
-                category: 'tv',
-                title: item.title,
-                episodeNumber: (index % 12) + 1,
-                airDate,
-                airTime: timeStr,
-                airTimestamp: targetDay.getTime(),
-                posterUrl: item.posterPath
-                  ? `https://image.tmdb.org/t/p/w500${item.posterPath}`
-                  : null,
-                backdropUrl: item.backdropPath
-                  ? `https://image.tmdb.org/t/p/w1280${item.backdropPath}`
-                  : null,
-                genres: ['TV Series'],
-                rating: item.rating ?? null,
-                overview: item.overview ?? '',
-              });
+            const times = ['19:30', '20:00', '20:30', '21:00', '21:30'];
+            combined.slice(0, 96).forEach((item, idx) => {
+              results.push(buildTMDBEntry(item, 'tv', ['TV Series'], now, idx, times, 12));
             });
           })
           .catch(e => {
@@ -420,56 +440,49 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 4. MOVIE PREMIERES (Upcoming & Now Playing distributed across the 8-day schedule)
+    // 5. MOVIE PREMIERES (Hollywood + Bollywood + Now Playing & Upcoming pages 1-2 — up to 88)
     if (categoryFilter === 'all' || categoryFilter === 'movie' || categoryFilter === 'movies') {
       promises.push(
         Promise.all([
-          getMovieList('upcoming', 1).catch(() => []),
           getMovieList('now_playing', 1).catch(() => []),
-          getMovieList('popular', 1).catch(() => []),
+          getMovieList('now_playing', 2).catch(() => []),
+          getMovieList('upcoming', 1).catch(() => []),
+          getMovieList('upcoming', 2).catch(() => []),
+          tmdbFetch<{ results: RawTMDBItem[] }>('/discover/movie', {
+            params: { with_original_language: 'hi', sort_by: 'popularity.desc', page: 1 },
+            revalidate: 1800,
+          })
+            .then(d => (d.results || []).map(mapSummary))
+            .catch(() => [] as MediaSummary[]),
         ])
-          .then(([upcoming, nowPlaying, popular]) => {
+          .then(([np1, np2, up1, up2, bollywood]) => {
             const seen = new Set<number>();
             const combined: MediaSummary[] = [];
-            [...upcoming, ...nowPlaying, ...popular].forEach(item => {
+            [...np1, ...up1, ...np2, ...up2, ...bollywood].forEach(item => {
               if (!seen.has(item.id)) {
                 seen.add(item.id);
                 combined.push(item);
               }
             });
 
-            combined.slice(0, 32).forEach((item, index) => {
-              const dayOffset = index % 8;
-              const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
-              const airDate = `${targetDay.getFullYear()}-${String(targetDay.getMonth() + 1).padStart(2, '0')}-${String(targetDay.getDate()).padStart(2, '0')}`;
-              const premiereTags = [
-                'Cinema Premiere',
-                'Digital Drop',
-                'Streaming Premiere',
-                'IMAX Release',
-              ];
-              // Evening release around 18:00
-              targetDay.setHours(18, 0, 0, 0);
-
-              results.push({
-                id: `movie-${item.id}-${dayOffset}`,
-                tmdbId: item.id,
-                category: 'movie',
-                title: item.title,
-                episodeNumber: null,
-                airDate,
-                airTime: premiereTags[index % premiereTags.length],
-                airTimestamp: targetDay.getTime(),
-                posterUrl: item.posterPath
-                  ? `https://image.tmdb.org/t/p/w500${item.posterPath}`
-                  : null,
-                backdropUrl: item.backdropPath
-                  ? `https://image.tmdb.org/t/p/w1280${item.backdropPath}`
-                  : null,
-                genres: ['Movie Premiere'],
-                rating: item.rating ?? null,
-                overview: item.overview ?? '',
-              });
+            const premiereTags = [
+              'Cinema Premiere',
+              'Digital Drop',
+              'Streaming Premiere',
+              'IMAX Release',
+            ];
+            combined.slice(0, 88).forEach((item, idx) => {
+              const entry = buildTMDBEntry(
+                item,
+                'movie',
+                ['Movie Premiere'],
+                now,
+                idx,
+                ['18:00'],
+                null
+              );
+              entry.airTime = premiereTags[idx % premiereTags.length];
+              results.push(entry);
             });
           })
           .catch(e => {
@@ -480,14 +493,21 @@ export async function GET(request: NextRequest) {
 
     await Promise.all(promises);
 
-    // Sort by airTimestamp asc
+    // Sort chronologically
     results.sort((a, b) => a.airTimestamp - b.airTimestamp);
 
-    return NextResponse.json({
-      success: true,
-      count: results.length,
-      entries: results,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        count: results.length,
+        entries: results,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
+        },
+      }
+    );
   } catch (error) {
     console.error('[Calendar API] Unexpected error:', error);
     return NextResponse.json(

@@ -16,6 +16,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 86400;
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const id = parseIdFromSlug(slug);
@@ -38,8 +40,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: { card: 'summary_large_image', title, description, images: image ? [image] : [] },
   };
 }
-
-export const revalidate = 3600;
 
 export default async function MoviePage({ params }: PageProps) {
   const { slug } = await params;

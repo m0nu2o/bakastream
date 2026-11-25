@@ -96,7 +96,7 @@ export class VidLinkProvider implements StreamProvider {
       selectedLanguage,
       subOrDub,
       isAnime,
-      server: isHindiRequested ? 'smashy' : server,
+      server,
       isPreview: false,
       notice,
     };

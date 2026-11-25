@@ -59,10 +59,12 @@ export function seeAllUrl(type: 'movie' | 'tv'): string {
   return type === 'movie' ? '/movies' : '/tv';
 }
 
-/** Extract the TMDB id from `title-slug-12345` or plain numeric `12345`. */
+/** Extract the TMDB id from `title-slug-12345`, `12345-title-slug`, or plain numeric `12345`. */
 export function parseIdFromSlug(slug: string): number | null {
   if (!slug) return null;
   if (/^\d+$/.test(slug)) return Number(slug);
-  const m = slug.match(/-(\d+)$/);
-  return m ? Number(m[1]) : null;
+  const trailing = slug.match(/-(\d+)$/);
+  if (trailing) return Number(trailing[1]);
+  const leading = slug.match(/^(\d+)-/);
+  return leading ? Number(leading[1]) : null;
 }

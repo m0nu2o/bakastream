@@ -25,9 +25,20 @@ const GENRE_CHIPS = [
   { id: 80, label: 'Crime' },
   { id: 99, label: 'Documentary' },
   { id: 18, label: 'Drama' },
+  { id: 10751, label: 'Family' },
+  { id: 14, label: 'Fantasy' },
+  { id: 36, label: 'History' },
+  { id: 27, label: 'Horror' },
+  { id: 10402, label: 'Music' },
+  { id: 9648, label: 'Mystery' },
   { id: 10749, label: 'Romance' },
   { id: 878, label: 'Sci-Fi' },
   { id: 53, label: 'Thriller' },
+  { id: 10752, label: 'War' },
+  { id: 37, label: 'Western' },
+  { id: 10759, label: 'Action & Adventure', mediaType: 'tv' as const },
+  { id: 10765, label: 'Sci-Fi & Fantasy', mediaType: 'tv' as const },
+  { id: 10762, label: 'Kids', mediaType: 'tv' as const },
 ];
 
 export default function TrendingShowcase({
@@ -64,7 +75,10 @@ export default function TrendingShowcase({
     let cancelled = false;
     setLoadingGenre(true);
 
-    fetch(`/api/tmdb/discover/movie?with_genres=${selectedGenre}&sort_by=popularity.desc`)
+    const chip = GENRE_CHIPS.find(g => g.id === selectedGenre);
+    const endpoint = chip && 'mediaType' in chip && chip.mediaType === 'tv' ? 'tv' : 'movie';
+
+    fetch(`/api/tmdb/discover/${endpoint}?with_genres=${selectedGenre}&sort_by=popularity.desc`)
       .then(res => res.json())
       .then(data => {
         if (cancelled) return;

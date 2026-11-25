@@ -113,7 +113,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  prefetch={true}
+                  prefetch={false}
                   className={`navbar__link ${isActive(link.href) ? 'navbar__link--active' : ''}`}
                 >
                   <Icon size={14} className="navbar__link-icon" />
@@ -145,10 +145,10 @@ export default function Navbar() {
                   <div className="navbar__dropdown-header">Explore Categories</div>
                   <div className="navbar__dropdown-grid">
                     {categories.map(c => (
-                      <Link
+                        <Link
                         key={c.id}
                         href={`/category/${c.id}`}
-                        prefetch={true}
+                        prefetch={false}
                         className="navbar__dropdown-pill"
                         onClick={() => setCategoriesOpen(false)}
                       >
@@ -188,7 +188,7 @@ export default function Navbar() {
                       <Link
                         key={g.id}
                         href={genreHref(g)}
-                        prefetch={true}
+                        prefetch={false}
                         className="navbar__dropdown-pill"
                         onClick={() => setGenresOpen(false)}
                       >
@@ -203,7 +203,7 @@ export default function Navbar() {
           </nav>
 
           <div className="navbar__actions">
-            <Link href="/search" prefetch={true} className="navbar__search-capsule" aria-label="Search titles">
+            <Link href="/search" prefetch={false} className="navbar__search-capsule" aria-label="Search titles">
               <Search size={15} />
               <span className="navbar__search-text">Search…</span>
             </Link>
@@ -230,7 +230,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  prefetch={true}
+                  prefetch={false}
                   className={`mobile-nav__link ${isActive(link.href) ? 'mobile-nav__link--active' : ''}`}
                 >
                   <Icon size={22} />
@@ -253,7 +253,7 @@ export default function Navbar() {
             {mobileCategoriesOpen && (
               <div className="mobile-nav__genres">
                 {categories.map(c => (
-                  <Link key={c.id} href={`/category/${c.id}`} prefetch={true} className="mobile-nav__genre">
+                  <Link key={c.id} href={`/category/${c.id}`} prefetch={false} className="mobile-nav__genre">
                     {c.icon} {c.name}
                   </Link>
                 ))}
@@ -275,7 +275,7 @@ export default function Navbar() {
               <div className="mobile-nav__genres">
                 {genres.length === 0 && <span className="mobile-nav__genre-empty">Loading…</span>}
                 {genres.map(g => (
-                  <Link key={g.id} href={genreHref(g)} prefetch={true} className="mobile-nav__genre">
+                  <Link key={g.id} href={genreHref(g)} prefetch={false} className="mobile-nav__genre">
                     {g.name}
                   </Link>
                 ))}

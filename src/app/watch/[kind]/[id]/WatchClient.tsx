@@ -46,7 +46,7 @@ export default function WatchClient({ content, season, episode }: Props) {
   const initialLang = content.originalLanguage === 'hi' ? 'hindi' : 'english';
   const [subOrDub, setSubOrDub] = useState<'sub' | 'dub'>('sub');
   const isAnimeGenre = Boolean(content.genreIds?.includes(16));
-  const [server, setServer] = useState<string>(isAnimeGenre ? 'nextgen-anime' : 'vidlink');
+  const [server, setServer] = useState<string>(isAnimeGenre ? 'vidlink-anime' : 'vidsrc-pm');
   const [language, setLanguage] = useState<string>(initialLang);
   const [autoSwitch, setAutoSwitch] = useState<boolean>(true);
 
@@ -56,7 +56,7 @@ export default function WatchClient({ content, season, episode }: Props) {
   const isHindiOriginal = content.originalLanguage === 'hi';
 
   const compatibleServers = useMemo(() => {
-    return getLuminaServers(mediaCategory, isHindiOriginal).slice(0, 4);
+    return getLuminaServers(mediaCategory, isHindiOriginal).slice(0, 6);
   }, [mediaCategory, isHindiOriginal]);
 
   // AdShield: Intercept rogue popups at parent window level
@@ -179,7 +179,7 @@ export default function WatchClient({ content, season, episode }: Props) {
             'No configured provider could supply playback for this title. Please try another streaming server.'
           }
           actionLabel="Try another server"
-          onRetry={() => handleServerChange(isAnime ? 'nextgen-anime' : 'vidlink')}
+          onRetry={() => handleServerChange(isAnime ? 'vidlink-anime' : 'vidsrc-pm')}
         />
         <LuminaServerDeck
           servers={compatibleServers}
@@ -315,6 +315,10 @@ function EmbedStage({
   const [isPseudoLandscape, setIsPseudoLandscape] = useState(false);
   const triedServersRef = useRef<string[]>([activeServer]);
   const activeServerObj = compatibleServers.find(s => s.id === activeServer);
+  const serverSupportsSandbox = activeServerObj?.supportsSandbox ?? false;
+  const [sandboxOverride, setSandboxOverride] = useState<'auto' | 'on' | 'off'>('auto');
+  const applySandbox =
+    sandboxOverride === 'on' ? true : sandboxOverride === 'off' ? false : serverSupportsSandbox;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -665,7 +669,7 @@ function EmbedStage({
           onRetry={() => {
             triedServersRef.current = [];
             setFailed(false);
-            onServerChange(isAnime ? 'nextgen-anime' : 'vidlink');
+            onServerChange(isAnime ? 'vidlink-anime' : 'vidsrc-pm');
           }}
         />
         <LuminaServerDeck
@@ -742,10 +746,31 @@ function EmbedStage({
 
         <div
           className="watch__shield-badge"
-          title="BakaStream Ad Shield active — popups and navigation hijacks are blocked."
+          title={
+            applySandbox
+              ? 'Strict Browser Sandbox active — popups and redirects are blocked at the browser level.'
+              : 'Parent Ad Shield active (Sandbox bypassed so this server plays cleanly without sandbox popups).'
+          }
         >
-          <ShieldCheck size={13} className="watch__shield-icon" /> Ad Shield Active
+          <ShieldCheck size={13} className="watch__shield-icon" />{' '}
+          {applySandbox ? 'Strict Sandbox ON (0 Ads)' : 'Ad Shield Active'}
         </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            setSandboxOverride(prev => (prev === 'auto' ? (applySandbox ? 'off' : 'on') : 'auto'))
+          }
+          className="watch__landscape-btn"
+          title="Toggle iframe sandbox protection (Auto switches automatically per server to prevent 'Disable Sandbox' popups)"
+        >
+          {applySandbox ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
+          <span>
+            {sandboxOverride === 'auto'
+              ? `Sandbox: Auto (${applySandbox ? 'ON' : 'Bypass'})`
+              : `Sandbox: ${applySandbox ? 'Forced ON' : 'OFF'}`}
+          </span>
+        </button>
 
         {isHindiOriginal && (
           <div className="watch__shield-badge" title="Original Hindi language content">
@@ -774,13 +799,18 @@ function EmbedStage({
         </button>
       </div>
 
-      {/* ── Video Embed with Ad Shield Protection (blocks redirects, popunders, and top-level hijacks) ── */}
+      {/* ── Video Embed with Smart Sandbox & Ad Shield Protection ── */}
       <iframe
         ref={iframeRef}
-        key={embedUrl}
+        key={`${embedUrl}-${applySandbox ? 'sb' : 'nosb'}`}
         src={embedUrl}
         title="Stream player"
         className="watch__iframe"
+        sandbox={
+          applySandbox
+            ? 'allow-scripts allow-same-origin allow-forms allow-presentation allow-downloads'
+            : undefined
+        }
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         referrerPolicy="origin"

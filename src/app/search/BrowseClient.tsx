@@ -214,7 +214,7 @@ export default function BrowseClient({ results, genres, page, totalPages = 500 }
                 >
                   All Genres
                 </button>
-                {genres.slice(0, 12).map(g => (
+                {genres.map(g => (
                   <button
                     key={g.id}
                     type="button"

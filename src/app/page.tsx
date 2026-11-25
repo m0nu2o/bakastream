@@ -20,7 +20,23 @@ export const metadata: Metadata = {
 
 export const revalidate = 900; // refresh homepage data every 15 min
 
-const GENRE_SPOTLIGHT = [28, 35, 27, 16, 10749, 53]; // Action, Comedy, Horror, Animation, Romance, Thriller
+const GENRE_SPOTLIGHT = [
+  28,    // Action
+  12,    // Adventure
+  16,    // Animation
+  35,    // Comedy
+  80,    // Crime
+  99,    // Documentary
+  18,    // Drama
+  10751, // Family
+  14,    // Fantasy
+  27,    // Horror
+  9648,  // Mystery
+  10749, // Romance
+  878,   // Science Fiction
+  53,    // Thriller
+  10752, // War
+];
 
 async function HomeContent() {
   let data: Awaited<ReturnType<typeof getHomeData>> | null = null;
@@ -84,6 +100,12 @@ async function HomeContent() {
 
       {/* ── 6. ALL SPECIALIZED & MULTILINGUAL CATEGORIES (UNIFIED CATALOG DESIGN) ── */}
       <CatalogSection
+        title="Hollywood & English Movies"
+        type="movie"
+        items={data.hollywoodMovies}
+        viewAllHref="/category/hollywood"
+      />
+      <CatalogSection
         title="Bollywood & Hindi Movies"
         type="movie"
         items={data.hindiMovies}
@@ -108,10 +130,40 @@ async function HomeContent() {
         viewAllHref="/category/kdrama"
       />
       <CatalogSection
+        title="C-Dramas (Chinese Dramas)"
+        type="tv"
+        items={data.cdrama}
+        viewAllHref="/category/cdrama"
+      />
+      <CatalogSection
         title="Anime"
         type="tv"
         items={data.anime}
         viewAllHref="/category/anime"
+      />
+      <CatalogSection
+        title="Donghua (Chinese Anime)"
+        type="tv"
+        items={data.donghua}
+        viewAllHref="/category/donghua"
+      />
+      <CatalogSection
+        title="Western TV Series"
+        type="tv"
+        items={data.westernTV}
+        viewAllHref="/category/western-tv"
+      />
+      <CatalogSection
+        title="Cartoons & Animation"
+        type="tv"
+        items={data.cartoons}
+        viewAllHref="/category/cartoons"
+      />
+      <CatalogSection
+        title="World & International Cinema"
+        type="movie"
+        items={data.internationalMovies}
+        viewAllHref="/category/international"
       />
       <CatalogSection
         title="Top rated movies"

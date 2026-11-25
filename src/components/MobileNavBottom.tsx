@@ -43,7 +43,7 @@ export default function MobileNavBottom() {
             <Link
               key={tab.href}
               href={tab.href}
-              prefetch={true}
+              prefetch={false}
               className={`mobile-bottom-bar__item ${active ? 'mobile-bottom-bar__item--active' : ''}`}
               aria-current={active ? 'page' : undefined}
             >

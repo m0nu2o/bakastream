@@ -20,7 +20,7 @@ import type { CalendarEntry } from '@/app/api/calendar/route';
 import type { MediaSummary } from '@/types';
 import './WeeklySchedule.css';
 
-type ScheduleCategory = 'all' | 'anime' | 'kdrama' | 'tv' | 'movie';
+type ScheduleCategory = 'all' | 'anime' | 'kdrama' | 'cdrama' | 'tv' | 'movie';
 
 interface DayTab {
   key: string; // YYYY-MM-DD or 'all'
@@ -162,6 +162,7 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
     { id: 'all', label: 'All' },
     { id: 'anime', label: 'Anime' },
     { id: 'kdrama', label: 'K-Drama' },
+    { id: 'cdrama', label: 'C-Drama' },
     { id: 'tv', label: 'TV Series' },
     { id: 'movie', label: 'Movies' },
   ];
@@ -302,7 +303,11 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
 
                       {/* Top-Left: Category Tag */}
                       <span className="schedule-card__category-tag">
-                        {item.category === 'kdrama' ? 'K-DRAMA' : item.category.toUpperCase()}
+                        {item.category === 'kdrama'
+                          ? 'K-DRAMA'
+                          : item.category === 'cdrama'
+                            ? 'C-DRAMA'
+                            : item.category.toUpperCase()}
                       </span>
 
                       {/* Top-Right: Shelf Status Action (Zero overlap!) */}

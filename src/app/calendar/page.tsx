@@ -25,7 +25,7 @@ import type { CalendarEntry } from '@/app/api/calendar/route';
 import type { MediaSummary } from '@/types';
 import './calendar.css';
 
-type CategoryFilter = 'all' | 'anime' | 'kdrama' | 'tv' | 'movie';
+type CategoryFilter = 'all' | 'anime' | 'kdrama' | 'cdrama' | 'tv' | 'movie';
 type ViewMode = 'grid' | 'timeline';
 
 interface DayOption {
@@ -145,6 +145,7 @@ export default function CalendarPage() {
     { id: 'all', label: 'All Releases', icon: Layers },
     { id: 'anime', label: 'Anime Simulcasts', icon: Sparkles },
     { id: 'kdrama', label: 'K-Drama', icon: Tv },
+    { id: 'cdrama', label: 'C-Drama', icon: Radio },
     { id: 'tv', label: 'TV Series', icon: Clapperboard },
     { id: 'movie', label: 'Movies', icon: Film },
   ];
@@ -380,7 +381,11 @@ export default function CalendarPage() {
 
                             {/* Category Tag (Top-Left) */}
                             <span className="calendar-card__category-badge">
-                              {item.category === 'kdrama' ? 'K-DRAMA' : item.category.toUpperCase()}
+                              {item.category === 'kdrama'
+                                ? 'K-DRAMA'
+                                : item.category === 'cdrama'
+                                  ? 'C-DRAMA'
+                                  : item.category.toUpperCase()}
                             </span>
 
                             {/* Shelf Quick Action (Top-Right) */}
@@ -495,7 +500,11 @@ export default function CalendarPage() {
                           <div className="calendar-timeline__info-col">
                             <div className="calendar-timeline__badges-row">
                               <span className="calendar-timeline__category-tag">
-                                {item.category === 'kdrama' ? 'K-DRAMA' : item.category.toUpperCase()}
+                                {item.category === 'kdrama'
+                                  ? 'K-DRAMA'
+                                  : item.category === 'cdrama'
+                                    ? 'C-DRAMA'
+                                    : item.category.toUpperCase()}
                               </span>
                               {item.episodeNumber ? (
                                 <span className="calendar-timeline__ep-badge">

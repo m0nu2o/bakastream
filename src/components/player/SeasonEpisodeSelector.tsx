@@ -406,6 +406,7 @@ export default function SeasonEpisodeSelector({
               <Link
                 key={ep.id}
                 href={`/watch/tv/${mediaId}/${activeSeasonNum}/${ep.episodeNumber}`}
+                prefetch={false}
                 className={`season-ep-box ${isCurrent ? 'season-ep-box--current' : ''} ${isUpcoming ? 'season-ep-box--upcoming' : ''}`}
                 title={`Episode ${ep.episodeNumber}: ${ep.name}${isUpcoming ? ` (Upcoming · Airs ${ep.airDate})` : ep.runtime ? ` (${ep.runtime}m)` : ''}`}
               >
@@ -436,6 +437,7 @@ export default function SeasonEpisodeSelector({
               <Link
                 key={ep.id}
                 href={`/watch/tv/${mediaId}/${activeSeasonNum}/${ep.episodeNumber}`}
+                prefetch={false}
                 className={`season-ep-card ${isCurrent ? 'season-ep-card--current' : ''} ${isUpcoming ? 'season-ep-card--upcoming' : ''}`}
               >
                 <div className="season-ep-card__thumb-box">
