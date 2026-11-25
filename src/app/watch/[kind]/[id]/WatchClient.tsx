@@ -4,9 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Loader2,
-  ShieldCheck,
-  ToggleLeft,
-  ToggleRight,
   Volume2,
   VolumeX,
   Zap,
@@ -315,10 +312,7 @@ function EmbedStage({
   const [isPseudoLandscape, setIsPseudoLandscape] = useState(false);
   const triedServersRef = useRef<string[]>([activeServer]);
   const activeServerObj = compatibleServers.find(s => s.id === activeServer);
-  const serverSupportsSandbox = activeServerObj?.supportsSandbox ?? true;
-  const [sandboxOverride, setSandboxOverride] = useState<'auto' | 'on' | 'off'>('auto');
-  const applySandbox =
-    sandboxOverride === 'on' ? true : sandboxOverride === 'off' ? false : serverSupportsSandbox;
+  const applySandbox = activeServerObj?.supportsSandbox ?? true;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -735,7 +729,7 @@ function EmbedStage({
         </div>
       )}
 
-      {/* ── Top Bar: Active Server Pill + Ad Shield + Landscape / Fullscreen Toggle ── */}
+      {/* ── Top Bar: Active Server Pill + Landscape / Fullscreen Toggle ── */}
       <div className="watch__toolbar">
         <div className="watch__active-server-pill">
           <span className="watch__server-dot" />
@@ -743,34 +737,6 @@ function EmbedStage({
             Streaming on: <strong>{activeServerObj?.name ?? activeServer}</strong>
           </span>
         </div>
-
-        <div
-          className="watch__shield-badge"
-          title={
-            applySandbox
-              ? 'Strict Browser Sandbox active — popups and redirects are blocked at the browser level.'
-              : 'Parent Ad Shield active (Sandbox bypassed so this server plays cleanly without sandbox popups).'
-          }
-        >
-          <ShieldCheck size={13} className="watch__shield-icon" />{' '}
-          {applySandbox ? 'Strict Sandbox ON (0 Ads)' : 'Ad Shield Active'}
-        </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            setSandboxOverride(prev => (prev === 'auto' ? (applySandbox ? 'off' : 'on') : 'auto'))
-          }
-          className="watch__landscape-btn"
-          title="Toggle iframe sandbox protection (Auto switches automatically per server to prevent 'Disable Sandbox' popups)"
-        >
-          {applySandbox ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
-          <span>
-            {sandboxOverride === 'auto'
-              ? `Sandbox: Auto (${applySandbox ? 'ON' : 'Bypass'})`
-              : `Sandbox: ${applySandbox ? 'Forced ON' : 'OFF'}`}
-          </span>
-        </button>
 
         {isHindiOriginal && (
           <div className="watch__shield-badge" title="Original Hindi language content">

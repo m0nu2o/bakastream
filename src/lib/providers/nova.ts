@@ -24,7 +24,6 @@ import {
   type ResolveRequest,
   type StreamProvider,
   type SubtitleTrack,
-  unavailable,
 } from './types';
 
 function getApiUrl(): string {
@@ -267,13 +266,7 @@ export class NovaProvider implements StreamProvider {
       const { tracks } = extractTracks(rawPlaylist, req);
 
       if (tracks.length === 0) {
-        return unavailable(
-          this.id,
-          this.label,
-          req.type === 'tv'
-            ? `No stream tracks found for season ${req.season ?? 1}, episode ${req.episode ?? 1}.`
-            : 'No stream tracks found for this movie.'
-        );
+        return this.createNovaPlayerEmbed(req);
       }
 
       // 3. Audio language selection - REAL tracks only, never fabricated
@@ -287,28 +280,14 @@ export class NovaProvider implements StreamProvider {
           null;
 
         if (!chosen) {
-          const availableList = tracks
-            .map(t => t.title)
-            .filter(Boolean)
-            .join(', ');
-          return unavailable(
-            this.id,
-            this.label,
-            `The requested audio language ("${req.language}") was not returned by NovaAPI.${
-              availableList ? ` Available tracks: ${availableList}.` : ''
-            }`
-          );
+          chosen = tracks[0];
         }
       } else {
         chosen = tracks[0];
       }
 
       if (!chosen?.file) {
-        return unavailable(
-          this.id,
-          this.label,
-          'The selected audio track does not contain a valid stream file.'
-        );
+        return this.createNovaPlayerEmbed(req);
       }
 
       // 4. getStream endpoint: POST /api/v1/getStream { file, key }
