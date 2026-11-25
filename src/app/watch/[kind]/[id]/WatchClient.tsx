@@ -56,7 +56,7 @@ export default function WatchClient({ content, season, episode }: Props) {
   const isHindiOriginal = content.originalLanguage === 'hi';
 
   const compatibleServers = useMemo(() => {
-    return getLuminaServers(mediaCategory, isHindiOriginal).slice(0, 6);
+    return getLuminaServers(mediaCategory, isHindiOriginal);
   }, [mediaCategory, isHindiOriginal]);
 
   // AdShield: Intercept rogue popups at parent window level

@@ -48,7 +48,28 @@ export async function resolveStream(req: ResolveRequest): Promise<PlaybackInfo> 
   const defaultServer = isAnime ? 'vidlink-anime' : 'vidsrc-pm';
   const requestedServerId = getCanonicalServerId(req.server || defaultServer);
 
-  // 1. Resolve via Lumina Server Suite (verified live servers, zero dead-API latency)
+  // 1. If NovaAPI (nova / nova-anime) is explicitly requested, invoke NovaProvider first
+  // so native HLS / multi-audio streams from NOVA_API_URL are returned when available.
+  if (requestedServerId === 'nova' || requestedServerId === 'nova-anime') {
+    const novaProvider = legacyProviders.find(p => p.id === 'nova');
+    if (novaProvider) {
+      try {
+        const info = await novaProvider.resolve(req);
+        if (info.status === 'ok') {
+          ProviderTelemetry.recordSuccess(requestedServerId);
+          return {
+            ...info,
+            isAnime,
+            server: requestedServerId,
+          };
+        }
+      } catch {
+        ProviderTelemetry.recordFailure(requestedServerId);
+      }
+    }
+  }
+
+  // 2. Resolve via Lumina Server Suite (verified live servers, zero dead-API latency)
   const luminaServer = LUMINA_SERVERS.find(s => s.id === requestedServerId);
   if (luminaServer) {
     let malId: number | null = null;
