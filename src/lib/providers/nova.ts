@@ -209,14 +209,18 @@ export class NovaProvider implements StreamProvider {
     return getApiUrl();
   }
 
-  private createNovaPlayerEmbed(imdbId: string): PlaybackInfo {
+  private createNovaPlayerEmbed(req: ResolveRequest): PlaybackInfo {
+    const embedUrl =
+      req.type === 'tv' || req.season !== undefined
+        ? `/api/embed-shield/vidlink/tv/${req.id}/${req.season || 1}/${req.episode || 1}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`
+        : `/api/embed-shield/vidlink/movie/${req.id}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
     return {
       providerId: this.id,
       providerLabel: this.label,
       status: 'ok',
       playback: {
         kind: 'embed',
-        embedUrl: `https://slast430did.com/play/${encodeURIComponent(imdbId)}`,
+        embedUrl,
       },
       audioTracks: [
         { label: 'Original / Multi-Audio', selected: true },
@@ -232,15 +236,11 @@ export class NovaProvider implements StreamProvider {
   async resolve(req: ResolveRequest): Promise<PlaybackInfo> {
     const imdbId = await this.toImdbId(req);
     if (!imdbId) {
-      return unavailable(
-        this.id,
-        this.label,
-        'No IMDb ID is available for this title, so NovaAPI cannot resolve the stream.'
-      );
+      return this.createNovaPlayerEmbed(req);
     }
 
     if (!this.baseUrl()) {
-      return this.createNovaPlayerEmbed(imdbId);
+      return this.createNovaPlayerEmbed(req);
     }
 
     try {
@@ -253,14 +253,14 @@ export class NovaProvider implements StreamProvider {
       const mediaInfo = await this.getJson<NovaMediaInfoResponse>(mediaInfoUrl);
 
       if (!mediaInfo || mediaInfo.success === false) {
-        return this.createNovaPlayerEmbed(imdbId);
+        return this.createNovaPlayerEmbed(req);
       }
 
       const rawPlaylist = mediaInfo.data?.playlist ?? [];
       const key = mediaInfo.data?.key ?? '';
 
       if (rawPlaylist.length === 0 || !key) {
-        return this.createNovaPlayerEmbed(imdbId);
+        return this.createNovaPlayerEmbed(req);
       }
 
       // 2. Extract playable tracks based on media type (Movie or TV season/episode)
@@ -318,7 +318,7 @@ export class NovaProvider implements StreamProvider {
       );
 
       if (!linkRes || linkRes.success === false || !linkRes.data?.link) {
-        return this.createNovaPlayerEmbed(imdbId);
+        return this.createNovaPlayerEmbed(req);
       }
 
       const rawLink = linkRes.data.link.trim();
@@ -329,7 +329,7 @@ export class NovaProvider implements StreamProvider {
           !rawLink.startsWith('//') &&
           !rawLink.startsWith('/'))
       ) {
-        return this.createNovaPlayerEmbed(imdbId);
+        return this.createNovaPlayerEmbed(req);
       }
 
       const audioTracks = tracks
@@ -360,7 +360,7 @@ export class NovaProvider implements StreamProvider {
           'Playback is provided by NovaAPI. Availability and licensing are the responsibility of the provider operator.',
       };
     } catch {
-      return this.createNovaPlayerEmbed(imdbId);
+      return this.createNovaPlayerEmbed(req);
     }
   }
 

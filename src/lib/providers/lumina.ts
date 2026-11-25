@@ -102,14 +102,11 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsSandbox: true,
     description: 'NovaAPI (8Stream) engine with direct HLS extraction and multi-audio tracks (Hindi, English, Original).',
     features: ['Multi-Audio', '1080p HLS', 'Hindi Audio'],
-    getPlaybackUrl: ({ type, id, imdbId, season, episode }) => {
-      if (imdbId && (type === 'movie' || (season ?? 1) === 1)) {
-        return `https://slast430did.com/play/${encodeURIComponent(imdbId)}`;
-      }
+    getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'tv' || season !== undefined) {
-        return `https://vidsrc.pm/embed/tv/${id}/${season || 1}/${episode || 1}`;
+        return `/api/embed-shield/vidlink/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
       }
-      return `https://vidsrc.pm/embed/movie/${id}`;
+      return `/api/embed-shield/vidlink/movie/${id}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
     },
   },
   {
@@ -157,28 +154,6 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     },
   },
   {
-    id: 'vidfast',
-    name: 'VidFast Pro',
-    category: 'fast',
-    serverIndex: 5,
-    quality: '1080p Shielded',
-    badge: '🚀',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: true,
-    supportsSandbox: true,
-    description: 'Pre-buffered streaming engine routed via Embed-Shield with zero ads and strict sandbox.',
-    features: ['Zero Stutter', '0 Popups', 'Strict Sandbox'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `/api/embed-shield/vidfast/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
-      }
-      return `/api/embed-shield/vidfast/movie/${id}?autoPlay=1`;
-    },
-  },
-  {
     id: 'vidsrc-su',
     name: 'VidSrc Ultra',
     category: 'backup',
@@ -198,28 +173,6 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
         return `/api/embed-shield/vidsrc-su/embed/tv/${id}/${season || 1}/${episode || 1}`;
       }
       return `/api/embed-shield/vidsrc-su/embed/movie/${id}`;
-    },
-  },
-  {
-    id: '2embed',
-    name: '2Embed Direct',
-    category: 'backup',
-    serverIndex: 7,
-    quality: '1080p Shielded',
-    badge: '💎',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: true,
-    supportsSandbox: true,
-    description: 'Universal backup mirror routed via Embed-Shield with popup scripts stripped.',
-    features: ['High Uptime', '0 Popups', 'Clean'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `/api/embed-shield/2embed/embedtv/${id}&s=${season || 1}&e=${episode || 1}`;
-      }
-      return `/api/embed-shield/2embed/embed/${id}`;
     },
   },
 
@@ -267,14 +220,11 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsSandbox: true,
     description: 'NovaAPI (8Stream) anime engine with multi-audio tracks and direct HLS stream extraction.',
     features: ['Multi-Audio', 'Dual-Audio', 'Fast HLS'],
-    getPlaybackUrl: ({ type, id, imdbId, season, episode }) => {
-      if (imdbId && (type === 'movie' || (season ?? 1) === 1)) {
-        return `https://slast430did.com/play/${encodeURIComponent(imdbId)}`;
-      }
+    getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
-        return `https://vidsrc.pm/embed/movie/${id}`;
+        return `/api/embed-shield/vidlink/movie/${id}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
       }
-      return `https://vidsrc.pm/embed/tv/${id}/${season || 1}/${episode || 1}`;
+      return `/api/embed-shield/vidlink/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
     },
   },
   {
@@ -322,28 +272,6 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     },
   },
   {
-    id: 'vidfast-anime',
-    name: 'VidFast Anime',
-    category: 'backup',
-    serverIndex: 5,
-    quality: '1080p Shielded',
-    badge: '🚀',
-    supportsMovie: false,
-    supportsTV: false,
-    supportsAnime: true,
-    supportsEnglishDub: false,
-    supportsHindiDub: false,
-    supportsSandbox: true,
-    description: 'Pre-buffered anime engine routed via Embed-Shield with strict sandbox.',
-    features: ['Fast Binge', '0 Popups', 'Clean'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'movie') {
-        return `/api/embed-shield/vidfast/movie/${id}?autoPlay=1`;
-      }
-      return `/api/embed-shield/vidfast/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
-    },
-  },
-  {
     id: 'vidsrc-su-anime',
     name: 'VidSrc Anime Ultra',
     category: 'backup',
@@ -368,20 +296,17 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
 ];
 
 export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
-  'vidsrc-pm': ['vidrock', 'nova', 'vidlink', 'vidfast', 'vidsrc-su', '2embed'],
-  nova: ['vidsrc-pm', 'vidrock', 'vidlink', 'vidfast', 'vidsrc-su', '2embed'],
-  vidrock: ['vidsrc-pm', 'nova', 'vidlink', 'vidfast', 'vidsrc-su', '2embed'],
-  vidlink: ['vidsrc-pm', 'vidrock', 'nova', 'vidfast', 'vidsrc-su', '2embed'],
-  vidfast: ['vidsrc-pm', 'vidrock', 'nova', 'vidlink', 'vidsrc-su', '2embed'],
-  'vidsrc-su': ['vidsrc-pm', 'vidrock', 'nova', 'vidlink', 'vidfast', '2embed'],
-  '2embed': ['vidsrc-pm', 'vidrock', 'nova', 'vidlink', 'vidfast', 'vidsrc-su'],
+  'vidsrc-pm': ['vidrock', 'nova', 'vidlink', 'vidsrc-su'],
+  nova: ['vidsrc-pm', 'vidrock', 'vidlink', 'vidsrc-su'],
+  vidrock: ['vidsrc-pm', 'nova', 'vidlink', 'vidsrc-su'],
+  vidlink: ['vidsrc-pm', 'vidrock', 'nova', 'vidsrc-su'],
+  'vidsrc-su': ['vidsrc-pm', 'vidrock', 'nova', 'vidlink'],
 
-  'vidlink-anime': ['vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'nova-anime': ['vidlink-anime', 'vidrock-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'vidsrc-pm-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'vidrock-anime': ['vidlink-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'vidfast-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidsrc-su-anime'],
-  'vidsrc-su-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
+  'vidlink-anime': ['vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidsrc-su-anime'],
+  'nova-anime': ['vidlink-anime', 'vidrock-anime', 'vidsrc-pm-anime', 'vidsrc-su-anime'],
+  'vidsrc-pm-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidsrc-su-anime'],
+  'vidrock-anime': ['vidlink-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidsrc-su-anime'],
+  'vidsrc-su-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidsrc-pm-anime'],
 };
 
 export const LUMINA_ALIASES: Record<string, string> = {
@@ -395,20 +320,22 @@ export const LUMINA_ALIASES: Record<string, string> = {
   'vidlink-anime': 'vidlink-anime',
   'vidsrc-pm-anime': 'vidsrc-pm-anime',
   'vidrock-anime': 'vidrock-anime',
-  'vidfast-anime': 'vidfast-anime',
+  'vidfast-anime': 'vidlink-anime',
+  'vidzee-anime': 'vidlink-anime',
 
   'vidsrc-pm': 'vidsrc-pm',
   nova: 'nova',
   vidrock: 'vidrock',
   vidlink: 'vidlink',
-  vidfast: 'vidfast',
+  vidfast: 'vidrock',
+  vidzee: 'vidrock',
   'vidsrc-su': 'vidsrc-su',
-  '2embed': '2embed',
+  '2embed': 'vidrock',
 
   screenscape: 'vidsrc-pm',
   'screenscape-anime': 'vidlink-anime',
-  autoembed: 'vidfast',
-  'autoembed-co': 'vidfast',
+  autoembed: 'vidlink',
+  'autoembed-co': 'vidlink',
   'autoembed-anime': 'vidlink-anime',
   'autoembed-co-anime': 'vidlink-anime',
   'vidsrc-dev': 'vidsrc-pm',
