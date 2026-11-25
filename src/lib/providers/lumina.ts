@@ -2,9 +2,9 @@
  * Watch-Lumina High-Performance Streaming Servers
  * 100% Tested & Verified Operational in Headless Browser.
  *
- * - Dead/parked domains (smashystream, slast430did, vidfast.vc, autoembed, screenscape) removed.
- * - `supportsSandbox: true` servers enforce strict browser `sandbox` (zero popups possible).
- * - `supportsSandbox: false` servers bypass "Please Disable Sandbox" blockers while parent AdShield stays active.
+ * ALL servers run inside a strict popup-blocking `<iframe sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-downloads">`.
+ * Servers with JS sandbox/ad scripts route cleanly through `/api/embed-shield/[server]`
+ * so ad scripts are stripped, sandbox-detection traps are bypassed, and 0 popups open.
  */
 
 export type ServerCategory = 'fast' | 'backup';
@@ -23,7 +23,7 @@ export const SERVER_CATEGORIES: ServerCategoryMeta[] = [
     name: 'Ultra Fast & 4K',
     shortLabel: 'Ultra Fast',
     badge: '⚡',
-    description: 'High-bandwidth global CDNs with instant playback, zero ads, and lowest ping.',
+    description: 'High-bandwidth global CDNs with strict sandbox ad-blocking and instant playback.',
   },
   {
     id: 'backup',
@@ -46,7 +46,6 @@ export interface LuminaServerConfig {
   supportsAnime: boolean;
   supportsEnglishDub: boolean;
   supportsHindiDub: boolean;
-  /** Whether this embed plays cleanly inside a strict popup-blocking `<iframe sandbox>`. */
   supportsSandbox: boolean;
   description: string;
   features: string[];
@@ -64,7 +63,7 @@ export interface LuminaServerConfig {
 
 export const LUMINA_SERVERS: LuminaServerConfig[] = [
   // ──────────────────────────────────────────────────────────────
-  // MOVIES & TV — VERIFIED LIVE ENGINES
+  // MOVIES & TV — ALL STRICT-SANDBOX PROTECTED & POPUP-FREE
   // ──────────────────────────────────────────────────────────────
   {
     id: 'vidsrc-pm',
@@ -100,11 +99,11 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: false,
     supportsEnglishDub: true,
     supportsHindiDub: true,
-    supportsSandbox: false,
+    supportsSandbox: true,
     description: 'NovaAPI (8Stream) engine with direct HLS extraction and multi-audio tracks (Hindi, English, Original).',
     features: ['Multi-Audio', '1080p HLS', 'Hindi Audio'],
     getPlaybackUrl: ({ type, id, imdbId, season, episode }) => {
-      if (imdbId) {
+      if (imdbId && (type === 'movie' || (season ?? 1) === 1)) {
         return `https://slast430did.com/play/${encodeURIComponent(imdbId)}`;
       }
       if (type === 'tv' || season !== undefined) {
@@ -114,118 +113,118 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     },
   },
   {
-    id: 'vidlink',
-    name: 'VidLink Pro 4K',
-    category: 'fast',
-    serverIndex: 3,
-    quality: '4K-1080p',
-    badge: '⚡',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: true,
-    supportsSandbox: false,
-    description: 'Flagship ultra-fast global CDN with 4K quality, multi-audio tracks, and clean UI.',
-    features: ['4K Ready', 'Multi-Audio', 'Auto-Play'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
-      }
-      return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
-    },
-  },
-  {
     id: 'vidrock',
     name: 'VidRock 4K',
     category: 'fast',
     serverIndex: 3,
-    quality: '1080p Hindi+Global',
-    badge: '🌟',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: true,
-    supportsSandbox: false,
-    description: 'Massive Bollywood, Hindi Web Series, K-Drama, and Hollywood library with multi-audio.',
-    features: ['Bollywood', 'Hindi Series', 'K-Drama'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `https://vidrock.net/tv/${id}/${season || 1}/${episode || 1}`;
-      }
-      return `https://vidrock.net/movie/${id}`;
-    },
-  },
-  {
-    id: 'vidfast',
-    name: 'VidFast Pro',
-    category: 'fast',
-    serverIndex: 4,
-    quality: '1080p 60fps',
-    badge: '🚀',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: true,
-    supportsSandbox: false,
-    description: 'Pre-buffered streaming engine designed for zero playback stutter and fast buffering.',
-    features: ['Zero Stutter', 'Low Ping', 'Clean'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `https://vidfast.pro/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
-      }
-      return `https://vidfast.pro/movie/${id}?autoPlay=1`;
-    },
-  },
-  {
-    id: 'vidsrc-su',
-    name: 'VidSrc Ultra',
-    category: 'backup',
-    serverIndex: 5,
-    quality: '1080p Multi-Sub',
-    badge: '🎬',
-    supportsMovie: true,
-    supportsTV: true,
-    supportsAnime: false,
-    supportsEnglishDub: true,
-    supportsHindiDub: false,
-    supportsSandbox: false,
-    description: 'High-speed global content delivery with multi-subtitle support and native player.',
-    features: ['Global CDN', 'Multi-Subs', '1080p'],
-    getPlaybackUrl: ({ type, id, season, episode }) => {
-      if (type === 'tv' || season !== undefined) {
-        return `https://vidsrc.su/embed/tv/${id}/${season || 1}/${episode || 1}`;
-      }
-      return `https://vidsrc.su/embed/movie/${id}`;
-    },
-  },
-  {
-    id: '2embed',
-    name: '2Embed Direct',
-    category: 'backup',
-    serverIndex: 6,
-    quality: '1080p Backup',
+    quality: '1080p Shielded',
     badge: '🔥',
     supportsMovie: true,
     supportsTV: true,
     supportsAnime: false,
     supportsEnglishDub: true,
     supportsHindiDub: true,
-    supportsSandbox: false,
-    description: 'High-reliability global fallback embed mirror with broad device compatibility.',
-    features: ['High Uptime', 'Universal', 'Clean'],
+    supportsSandbox: true,
+    description: 'Bollywood, Hindi Web Series, K-Drama & Hollywood library routed via Embed-Shield (0 ads, 0 popups).',
+    features: ['0 Popups', 'Bollywood', 'Hindi Series'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'tv' || season !== undefined) {
-        return `https://www.2embed.cc/embedtv/${id}&s=${season || 1}&e=${episode || 1}`;
+        return `/api/embed-shield/vidrock/tv/${id}/${season || 1}/${episode || 1}`;
       }
-      return `https://www.2embed.cc/embed/${id}`;
+      return `/api/embed-shield/vidrock/movie/${id}`;
+    },
+  },
+  {
+    id: 'vidlink',
+    name: 'VidLink Pro 4K',
+    category: 'fast',
+    serverIndex: 4,
+    quality: '4K Shielded',
+    badge: '⚡',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: false,
+    supportsEnglishDub: true,
+    supportsHindiDub: true,
+    supportsSandbox: true,
+    description: 'Flagship 4K global CDN routed via Embed-Shield with strict sandbox & popup-blocker protection.',
+    features: ['4K Ready', '0 Popups', 'Multi-Audio'],
+    getPlaybackUrl: ({ type, id, season, episode }) => {
+      if (type === 'tv' || season !== undefined) {
+        return `/api/embed-shield/vidlink/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
+      }
+      return `/api/embed-shield/vidlink/movie/${id}?autoplay=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
+    },
+  },
+  {
+    id: 'vidfast',
+    name: 'VidFast Pro',
+    category: 'fast',
+    serverIndex: 5,
+    quality: '1080p Shielded',
+    badge: '🚀',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: false,
+    supportsEnglishDub: true,
+    supportsHindiDub: true,
+    supportsSandbox: true,
+    description: 'Pre-buffered streaming engine routed via Embed-Shield with zero ads and strict sandbox.',
+    features: ['Zero Stutter', '0 Popups', 'Strict Sandbox'],
+    getPlaybackUrl: ({ type, id, season, episode }) => {
+      if (type === 'tv' || season !== undefined) {
+        return `/api/embed-shield/vidfast/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
+      }
+      return `/api/embed-shield/vidfast/movie/${id}?autoPlay=1`;
+    },
+  },
+  {
+    id: 'vidsrc-su',
+    name: 'VidSrc Ultra',
+    category: 'backup',
+    serverIndex: 6,
+    quality: '1080p Shielded',
+    badge: '🎬',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: false,
+    supportsEnglishDub: true,
+    supportsHindiDub: false,
+    supportsSandbox: true,
+    description: 'High-speed global relay routed via Embed-Shield with multi-subtitle support.',
+    features: ['Global CDN', '0 Popups', 'Multi-Subs'],
+    getPlaybackUrl: ({ type, id, season, episode }) => {
+      if (type === 'tv' || season !== undefined) {
+        return `/api/embed-shield/vidsrc-su/embed/tv/${id}/${season || 1}/${episode || 1}`;
+      }
+      return `/api/embed-shield/vidsrc-su/embed/movie/${id}`;
+    },
+  },
+  {
+    id: '2embed',
+    name: '2Embed Direct',
+    category: 'backup',
+    serverIndex: 7,
+    quality: '1080p Shielded',
+    badge: '💎',
+    supportsMovie: true,
+    supportsTV: true,
+    supportsAnime: false,
+    supportsEnglishDub: true,
+    supportsHindiDub: true,
+    supportsSandbox: true,
+    description: 'Universal backup mirror routed via Embed-Shield with popup scripts stripped.',
+    features: ['High Uptime', '0 Popups', 'Clean'],
+    getPlaybackUrl: ({ type, id, season, episode }) => {
+      if (type === 'tv' || season !== undefined) {
+        return `/api/embed-shield/2embed/embedtv/${id}&s=${season || 1}&e=${episode || 1}`;
+      }
+      return `/api/embed-shield/2embed/embed/${id}`;
     },
   },
 
   // ──────────────────────────────────────────────────────────────
-  // ANIME — DEDICATED SUB/DUB & SANDBOX ENGINES
+  // ANIME — DEDICATED SUB/DUB & STRICT-SANDBOX ENGINES
   // ──────────────────────────────────────────────────────────────
   {
     id: 'vidlink-anime',
@@ -239,18 +238,18 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: true,
-    supportsSandbox: false,
-    description: 'Dedicated MAL-mapped anime player with instant Japanese Sub & English Dub switching.',
-    features: ['Sub/Dub Switch', 'MAL Mapped', '1080p Ultra'],
+    supportsSandbox: true,
+    description: 'MAL-mapped anime player routed via Embed-Shield with strict sandbox and Sub/Dub switching.',
+    features: ['Sub/Dub Switch', '0 Popups', 'Strict Sandbox'],
     getPlaybackUrl: ({ type, id, season, episode, isDub, malId }) => {
       if (malId) {
         const epNum = type === 'movie' ? 1 : (episode || 1);
-        return `https://vidlink.pro/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?fallback=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
+        return `/api/embed-shield/vidlink/anime/${malId}/${epNum}/${isDub ? 'dub' : 'sub'}?fallback=true&primaryColor=F70063&secondaryColor=121318&iconColor=F70063&icons=vid`;
       }
       if (type === 'movie') {
-        return `https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=F70063`;
+        return `/api/embed-shield/vidlink/movie/${id}?autoplay=true&primaryColor=F70063`;
       }
-      return `https://vidlink.pro/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063`;
+      return `/api/embed-shield/vidlink/tv/${id}/${season || 1}/${episode || 1}?autoplay=true&primaryColor=F70063`;
     },
   },
   {
@@ -265,11 +264,11 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: true,
-    supportsSandbox: false,
+    supportsSandbox: true,
     description: 'NovaAPI (8Stream) anime engine with multi-audio tracks and direct HLS stream extraction.',
     features: ['Multi-Audio', 'Dual-Audio', 'Fast HLS'],
     getPlaybackUrl: ({ type, id, imdbId, season, episode }) => {
-      if (imdbId) {
+      if (imdbId && (type === 'movie' || (season ?? 1) === 1)) {
         return `https://slast430did.com/play/${encodeURIComponent(imdbId)}`;
       }
       if (type === 'movie') {
@@ -304,99 +303,88 @@ export const LUMINA_SERVERS: LuminaServerConfig[] = [
     id: 'vidrock-anime',
     name: 'VidRock Anime',
     category: 'fast',
-    serverIndex: 3,
-    quality: '1080p Sub+Dub',
-    badge: '🌟',
+    serverIndex: 4,
+    quality: '1080p Shielded',
+    badge: '🔥',
     supportsMovie: false,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: true,
-    supportsSandbox: false,
-    description: 'High-uptime anime & donghua mirror with multi-audio and soft subtitles.',
-    features: ['Donghua Ready', 'Multi-Audio', '1080p'],
+    supportsSandbox: true,
+    description: 'High-uptime anime & donghua mirror routed via Embed-Shield with zero popups.',
+    features: ['Donghua Ready', '0 Popups', 'Strict Sandbox'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
-        return `https://vidrock.net/movie/${id}`;
+        return `/api/embed-shield/vidrock/movie/${id}`;
       }
-      return `https://vidrock.net/tv/${id}/${season || 1}/${episode || 1}`;
+      return `/api/embed-shield/vidrock/tv/${id}/${season || 1}/${episode || 1}`;
     },
   },
   {
     id: 'vidfast-anime',
     name: 'VidFast Anime',
     category: 'backup',
-    serverIndex: 4,
-    quality: '1080p Fast',
+    serverIndex: 5,
+    quality: '1080p Shielded',
     badge: '🚀',
     supportsMovie: false,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: false,
     supportsHindiDub: false,
-    supportsSandbox: false,
-    description: 'Pre-buffered streaming engine optimized for fast anime binge-watching.',
-    features: ['Fast Binge', '1080p', 'Clean'],
+    supportsSandbox: true,
+    description: 'Pre-buffered anime engine routed via Embed-Shield with strict sandbox.',
+    features: ['Fast Binge', '0 Popups', 'Clean'],
     getPlaybackUrl: ({ type, id, season, episode }) => {
       if (type === 'movie') {
-        return `https://vidfast.pro/movie/${id}?autoPlay=1`;
+        return `/api/embed-shield/vidfast/movie/${id}?autoPlay=1`;
       }
-      return `https://vidfast.pro/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
+      return `/api/embed-shield/vidfast/tv/${id}/${season || 1}/${episode || 1}?autoPlay=1`;
     },
   },
   {
     id: 'vidsrc-su-anime',
     name: 'VidSrc Anime Ultra',
     category: 'backup',
-    serverIndex: 5,
-    quality: '1080p Mirror',
+    serverIndex: 6,
+    quality: '1080p Shielded',
     badge: '🎬',
     supportsMovie: false,
     supportsTV: false,
     supportsAnime: true,
     supportsEnglishDub: true,
     supportsHindiDub: false,
-    supportsSandbox: false,
-    description: 'Global backup anime mirror with multi-subtitle support.',
-    features: ['Multi-Subs', 'High Uptime', '1080p'],
+    supportsSandbox: true,
+    description: 'Global backup anime mirror routed via Embed-Shield with multi-subtitle support.',
+    features: ['Multi-Subs', '0 Popups', 'Strict Sandbox'],
     getPlaybackUrl: ({ type, id, season, episode, isDub }) => {
       if (type === 'movie') {
-        return `https://vidsrc.su/embed/movie/${id}${isDub ? '?dub=1' : ''}`;
+        return `/api/embed-shield/vidsrc-su/embed/movie/${id}${isDub ? '?dub=1' : ''}`;
       }
-      return `https://vidsrc.su/embed/tv/${id}/${season || 1}/${episode || 1}${isDub ? '?dub=1' : ''}`;
+      return `/api/embed-shield/vidsrc-su/embed/tv/${id}/${season || 1}/${episode || 1}${isDub ? '?dub=1' : ''}`;
     },
   },
 ];
 
-/**
- * Ordered fallback chain for auto-switching.
- * Tried servers are skipped automatically.
- */
 export const AUTO_SWITCH_CHAIN: Record<string, string[]> = {
-  // Movie/TV fallback order
-  'vidsrc-pm': ['nova', 'vidlink', 'vidrock', 'vidfast', 'vidsrc-su', '2embed'],
-  nova: ['vidsrc-pm', 'vidlink', 'vidrock', 'vidfast', 'vidsrc-su', '2embed'],
-  vidlink: ['vidsrc-pm', 'nova', 'vidrock', 'vidfast', 'vidsrc-su', '2embed'],
+  'vidsrc-pm': ['vidrock', 'nova', 'vidlink', 'vidfast', 'vidsrc-su', '2embed'],
+  nova: ['vidsrc-pm', 'vidrock', 'vidlink', 'vidfast', 'vidsrc-su', '2embed'],
   vidrock: ['vidsrc-pm', 'nova', 'vidlink', 'vidfast', 'vidsrc-su', '2embed'],
-  vidfast: ['vidsrc-pm', 'nova', 'vidlink', 'vidrock', 'vidsrc-su', '2embed'],
-  'vidsrc-su': ['vidsrc-pm', 'nova', 'vidlink', 'vidrock', 'vidfast', '2embed'],
-  '2embed': ['vidsrc-pm', 'nova', 'vidlink', 'vidrock', 'vidfast', 'vidsrc-su'],
+  vidlink: ['vidsrc-pm', 'vidrock', 'nova', 'vidfast', 'vidsrc-su', '2embed'],
+  vidfast: ['vidsrc-pm', 'vidrock', 'nova', 'vidlink', 'vidsrc-su', '2embed'],
+  'vidsrc-su': ['vidsrc-pm', 'vidrock', 'nova', 'vidlink', 'vidfast', '2embed'],
+  '2embed': ['vidsrc-pm', 'vidrock', 'nova', 'vidlink', 'vidfast', 'vidsrc-su'],
 
-  // Anime fallback order
-  'vidlink-anime': ['nova-anime', 'vidsrc-pm-anime', 'vidrock-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'nova-anime': ['vidlink-anime', 'vidsrc-pm-anime', 'vidrock-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'vidsrc-pm-anime': ['vidlink-anime', 'nova-anime', 'vidrock-anime', 'vidfast-anime', 'vidsrc-su-anime'],
+  'vidlink-anime': ['vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidsrc-su-anime'],
+  'nova-anime': ['vidlink-anime', 'vidrock-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidsrc-su-anime'],
+  'vidsrc-pm-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidfast-anime', 'vidsrc-su-anime'],
   'vidrock-anime': ['vidlink-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime', 'vidsrc-su-anime'],
-  'vidfast-anime': ['vidlink-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidrock-anime', 'vidsrc-su-anime'],
-  'vidsrc-su-anime': ['vidlink-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidrock-anime', 'vidfast-anime'],
+  'vidfast-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidsrc-su-anime'],
+  'vidsrc-su-anime': ['vidlink-anime', 'vidrock-anime', 'nova-anime', 'vidsrc-pm-anime', 'vidfast-anime'],
 };
 
-/**
- * Backward compatibility alias mapping.
- * All legacy/dead aliases map strictly to verified live working servers.
- */
 export const LUMINA_ALIASES: Record<string, string> = {
-  // Anime Primary
   'nextgen-anime': 'vidlink-anime',
   nextgen: 'vidlink-anime',
   'direct-hls': 'vidlink-anime',
@@ -409,16 +397,14 @@ export const LUMINA_ALIASES: Record<string, string> = {
   'vidrock-anime': 'vidrock-anime',
   'vidfast-anime': 'vidfast-anime',
 
-  // Movies/TV Primary
   'vidsrc-pm': 'vidsrc-pm',
   nova: 'nova',
-  vidlink: 'vidlink',
   vidrock: 'vidrock',
+  vidlink: 'vidlink',
   vidfast: 'vidfast',
   'vidsrc-su': 'vidsrc-su',
   '2embed': '2embed',
 
-  // Legacy / dead servers → Clean working fallbacks
   screenscape: 'vidsrc-pm',
   'screenscape-anime': 'vidlink-anime',
   autoembed: 'vidfast',
@@ -434,18 +420,12 @@ export const LUMINA_ALIASES: Record<string, string> = {
   smashy: 'vidrock',
 };
 
-/**
- * Returns canonical server id resolving any aliases.
- */
 export function getCanonicalServerId(id?: string): string {
   if (!id) return 'vidsrc-pm';
   const clean = id.toLowerCase().trim();
   return LUMINA_ALIASES[clean] ?? (LUMINA_SERVERS.some(s => s.id === clean) ? clean : 'vidsrc-pm');
 }
 
-/**
- * Retrieves all Lumina servers compatible with the given media category.
- */
 export function getLuminaServers(
   category: 'movie' | 'tv' | 'anime',
   isHindi?: boolean
@@ -467,9 +447,6 @@ export function getLuminaServers(
   return filtered;
 }
 
-/**
- * Returns the next server to try in the auto-switch chain.
- */
 export function getNextFallbackServer(
   currentId: string,
   triedIds: string[],
@@ -481,9 +458,6 @@ export function getNextFallbackServer(
   return next ?? null;
 }
 
-/**
- * In-memory provider telemetry to measure health and latency across user sessions.
- */
 const healthMap = new Map<
   string,
   { failureCount: number; avgLatencyMs: number | null; lastChecked: number }

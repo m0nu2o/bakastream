@@ -315,7 +315,7 @@ function EmbedStage({
   const [isPseudoLandscape, setIsPseudoLandscape] = useState(false);
   const triedServersRef = useRef<string[]>([activeServer]);
   const activeServerObj = compatibleServers.find(s => s.id === activeServer);
-  const serverSupportsSandbox = activeServerObj?.supportsSandbox ?? false;
+  const serverSupportsSandbox = activeServerObj?.supportsSandbox ?? true;
   const [sandboxOverride, setSandboxOverride] = useState<'auto' | 'on' | 'off'>('auto');
   const applySandbox =
     sandboxOverride === 'on' ? true : sandboxOverride === 'off' ? false : serverSupportsSandbox;
