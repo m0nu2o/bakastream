@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type Hls from 'hls.js';
 import {
   Play,
@@ -17,8 +18,12 @@ import {
   SkipBack,
   SkipForward,
   Captions,
+  ChevronRight,
+  ChevronLeft,
+  Zap,
 } from 'lucide-react';
 import type { PlaybackInfo } from '@/lib/providers/types';
+import type { DirectStreamOption } from '@/lib/player/directExtractor';
 import { saveProgress, getProgress, clearProgress, recordWatch } from '@/lib/storage';
 import type { MediaSummary } from '@/types';
 import './VideoPlayer.css';
@@ -28,6 +33,11 @@ interface Props {
   content: MediaSummary;
   season?: number | null;
   episode?: number | null;
+  mirrors?: DirectStreamOption[];
+  onSelectMirror?: (stream: DirectStreamOption) => void;
+  prevEpisodeHref?: string | null;
+  nextEpisodeHref?: string | null;
+  onFallbackToEmbed?: () => void;
   /** Called when the user picks another audio language. */
   onLanguageChange?: (label: string) => void;
 }
@@ -39,15 +49,20 @@ interface EmbeddedTrack {
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
-const RESUME_SKIP_SECONDS = 30;
 
 export default function VideoPlayer({
   playback,
   content,
   season,
   episode,
+  mirrors = [],
+  onSelectMirror,
+  prevEpisodeHref,
+  nextEpisodeHref,
+  onFallbackToEmbed,
   onLanguageChange,
 }: Props) {
+  const router = useRouter();
   const native = playback.playback?.kind === 'native' ? playback.playback : null;
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -55,33 +70,39 @@ export default function VideoPlayer({
   const hlsRef = useRef<Hls | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSaveRef = useRef(0);
+  const triedMirrorUrlsRef = useRef<Set<string>>(new Set());
 
   const [buffering, setBuffering] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [bufferedEnd, setBufferedEnd] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [settingsTab, setSettingsTab] = useState<'main' | 'quality' | 'audio' | 'subs' | 'speed'>('main');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hoverTime, setHoverTime] = useState<{ pct: number; time: number } | null>(null);
+  const [dismissUpNext, setDismissUpNext] = useState(false);
 
-  // Keyboard navigation & Hold 2X Fast-Forward state
+  // Keyboard navigation & Hold 2X Fast-Forward / double-tap state
   const [hud, setHud] = useState<{ text: string; holding?: boolean } | null>(null);
   const hudTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isHoldingRef = useRef(false);
   const holdKeyRef = useRef<string | null>(null);
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTapRef = useRef<{ time: number; side: 'left' | 'right' } | null>(null);
 
-  const showHud = useCallback((text: string, duration = 1200, holding = false) => {
+  const showHud = useCallback((text: string, durationMs = 1100, holding = false) => {
     if (hudTimerRef.current) clearTimeout(hudTimerRef.current);
     setHud({ text, holding });
     if (!holding) {
       hudTimerRef.current = setTimeout(() => {
         setHud(null);
-      }, duration);
+      }, durationMs);
     }
   }, []);
 
@@ -89,29 +110,49 @@ export default function VideoPlayer({
   const [levels, setLevels] = useState<Array<{ height: number; index: number }>>([]);
   const [activeLevel, setActiveLevel] = useState(-1);
 
-  // Embedded HLS audio tracks
+  // Embedded HLS audio & subtitle tracks
   const [embeddedAudio, setEmbeddedAudio] = useState<EmbeddedTrack[]>([]);
   const [activeAudioTrack, setActiveAudioTrack] = useState(-1);
-
-  // Embedded HLS subtitle tracks
   const [embeddedSubtitles, setEmbeddedSubtitles] = useState<EmbeddedTrack[]>([]);
   const [activeHlsSubtitle, setActiveHlsSubtitle] = useState(-1);
 
   // Sidecar WebVTT subtitles from provider
-  const sidecarSubtitles = playback.subtitles || [];
+  const sidecarSubtitles = useMemo(() => playback.subtitles || [], [playback.subtitles]);
   const [activeSidecarSubtitle, setActiveSidecarSubtitle] = useState(-1);
 
   const hasSubtitles = embeddedSubtitles.length > 0 || sidecarSubtitles.length > 0;
   const isSubtitleActive = activeHlsSubtitle !== -1 || activeSidecarSubtitle !== -1;
 
-  /* ── Source setup ──────────────────────────────────────────────────── */
+  const tryFailoverOrError = useCallback(
+    (msg: string) => {
+      if (native?.url) {
+        triedMirrorUrlsRef.current.add(native.url);
+      }
+      const nextMirror = mirrors.find(m => !triedMirrorUrlsRef.current.has(m.url));
+      if (nextMirror && onSelectMirror) {
+        showHud(`⚡ Switching to ${nextMirror.label}…`, 1400);
+        onSelectMirror(nextMirror);
+        return true;
+      }
+      if (onFallbackToEmbed) {
+        onFallbackToEmbed();
+        return true;
+      }
+      setError(msg);
+      setBuffering(false);
+      return false;
+    },
+    [mirrors, native, onFallbackToEmbed, onSelectMirror, showHud]
+  );
 
+  /* ── Source setup ──────────────────────────────────────────────────── */
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !native) return;
 
     setBuffering(true);
     setError(null);
+    setDismissUpNext(false);
     setLevels([]);
     setEmbeddedAudio([]);
     setEmbeddedSubtitles([]);
@@ -122,12 +163,14 @@ export default function VideoPlayer({
 
     if (native.streamType === 'mp4') {
       video.src = native.url;
+      video.play().catch(() => {});
       return;
     }
 
-    // HLS — native support (Safari/iOS) first, hls.js everywhere else.
+    // Native Apple HLS
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = native.url;
+      video.play().catch(() => {});
       return;
     }
 
@@ -138,19 +181,22 @@ export default function VideoPlayer({
         const HlsCtor = mod.default;
         if (destroyed) return;
         if (!HlsCtor.isSupported()) {
-          setError('HLS playback is not supported in this browser.');
-          setBuffering(false);
+          tryFailoverOrError('HLS playback is not supported in this browser.');
           return;
         }
 
-        const hls = new HlsCtor({ maxBufferLength: 30 });
+        const hls = new HlsCtor({
+          maxBufferLength: 24,
+          maxMaxBufferLength: 48,
+          startFragPrefetch: true,
+          enableWorker: true,
+        });
         hlsRef.current = hls;
         hls.loadSource(native.url);
         hls.attachMedia(video);
 
         hls.on(HlsCtor.Events.MANIFEST_PARSED, () => {
           if (destroyed) return;
-          // Quality levels
           setLevels(
             hls.levels
               .map((l, index) => ({ height: l.height || 0, index }))
@@ -158,7 +204,6 @@ export default function VideoPlayer({
               .sort((a, b) => b.height - a.height)
           );
 
-          // Embedded audio tracks
           if (hls.audioTracks && hls.audioTracks.length > 0) {
             setEmbeddedAudio(
               hls.audioTracks.map((t, idx) => ({
@@ -170,7 +215,6 @@ export default function VideoPlayer({
             setActiveAudioTrack(hls.audioTrack);
           }
 
-          // Embedded subtitle tracks
           if (hls.subtitleTracks && hls.subtitleTracks.length > 0) {
             setEmbeddedSubtitles(
               hls.subtitleTracks.map((t, idx) => ({
@@ -183,6 +227,7 @@ export default function VideoPlayer({
           }
 
           setBuffering(false);
+          video.play().catch(() => {});
         });
 
         hls.on(HlsCtor.Events.AUDIO_TRACKS_UPDATED, () => {
@@ -210,20 +255,16 @@ export default function VideoPlayer({
         });
 
         hls.on(HlsCtor.Events.ERROR, (_evt, data) => {
-          if (destroyed) return;
-          if (data.fatal) {
-            setError(
-              data.type === 'networkError'
-                ? 'The stream could not be loaded (network error). It may be offline or blocked.'
-                : 'The stream could not be played. The media may be corrupted or unsupported.'
-            );
-            setBuffering(false);
-          }
+          if (destroyed || !data.fatal) return;
+          tryFailoverOrError(
+            data.type === 'networkError'
+              ? 'Stream could not be loaded (network error).'
+              : 'Stream format could not be played.'
+          );
         });
       } catch {
         if (!destroyed) {
-          setError('Could not initialize the video engine.');
-          setBuffering(false);
+          tryFailoverOrError('Could not initialize the video engine.');
         }
       }
     })();
@@ -233,10 +274,9 @@ export default function VideoPlayer({
       hlsRef.current?.destroy();
       hlsRef.current = null;
     };
-  }, [native]);
+  }, [native, tryFailoverOrError]);
 
   /* ── History (recently watched) ────────────────────────────────────── */
-
   useEffect(() => {
     recordWatch({
       ...content,
@@ -249,13 +289,10 @@ export default function VideoPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- record once per title open
   }, [content.id, content.type, season, episode]);
 
-  /* ── Metadata + resume ─────────────────────────────────────────────── */
-
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
     setDuration(video.duration || 0);
-
     const saved = getProgress(content.type, content.id, season, episode);
     if (saved && video.duration && saved.seconds > 15 && saved.seconds < video.duration - 30) {
       video.currentTime = saved.seconds;
@@ -263,12 +300,13 @@ export default function VideoPlayer({
     setBuffering(false);
   }, [content.type, content.id, season, episode]);
 
-  /* ── Playback sync + progress persistence ──────────────────────────── */
-
   const onTimeUpdate = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
     setCurrent(video.currentTime);
+    if (video.buffered.length > 0) {
+      setBufferedEnd(video.buffered.end(video.buffered.length - 1));
+    }
     const now = Date.now();
     if (now - lastSaveRef.current > 5000 && video.duration) {
       lastSaveRef.current = now;
@@ -279,17 +317,17 @@ export default function VideoPlayer({
   const onEnded = useCallback(() => {
     setPlaying(false);
     clearProgress(content.type, content.id, season, episode);
-  }, [content.type, content.id, season, episode]);
+    if (nextEpisodeHref) {
+      router.push(nextEpisodeHref);
+    }
+  }, [content.type, content.id, season, episode, nextEpisodeHref, router]);
 
   /* ── Controls ──────────────────────────────────────────────────────── */
-
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
-      video.play().catch(err => {
-        console.warn('Playback play request was prevented by browser policy:', err);
-      });
+      video.play().catch(() => {});
     } else {
       video.pause();
     }
@@ -298,7 +336,7 @@ export default function VideoPlayer({
   const seekBy = useCallback((delta: number) => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
-    video.currentTime = Math.min(video.duration - 1, Math.max(0, video.currentTime + delta));
+    video.currentTime = Math.min(video.duration - 0.5, Math.max(0, video.currentTime + delta));
   }, []);
 
   const seekTo = useCallback((fraction: number) => {
@@ -333,7 +371,7 @@ export default function VideoPlayer({
   const changeQuality = useCallback((index: number) => {
     const hls = hlsRef.current;
     if (!hls) return;
-    hls.currentLevel = index; // -1 = auto
+    hls.currentLevel = index;
     setActiveLevel(index);
   }, []);
 
@@ -345,14 +383,10 @@ export default function VideoPlayer({
   }, []);
 
   const disableAllSubtitles = useCallback(() => {
-    const hls = hlsRef.current;
-    if (hls) {
-      hls.subtitleTrack = -1;
-    }
+    if (hlsRef.current) hlsRef.current.subtitleTrack = -1;
     setActiveHlsSubtitle(-1);
-
     const video = videoRef.current;
-    if (video && video.textTracks) {
+    if (video?.textTracks) {
       for (let i = 0; i < video.textTracks.length; i++) {
         video.textTracks[i].mode = 'disabled';
       }
@@ -362,29 +396,21 @@ export default function VideoPlayer({
 
   const selectHlsSubtitle = useCallback((index: number) => {
     const video = videoRef.current;
-    if (video && video.textTracks) {
+    if (video?.textTracks) {
       for (let i = 0; i < video.textTracks.length; i++) {
         video.textTracks[i].mode = 'disabled';
       }
     }
     setActiveSidecarSubtitle(-1);
-
-    const hls = hlsRef.current;
-    if (hls) {
-      hls.subtitleTrack = index;
-    }
+    if (hlsRef.current) hlsRef.current.subtitleTrack = index;
     setActiveHlsSubtitle(index);
   }, []);
 
   const selectSidecarSubtitle = useCallback((index: number) => {
-    const hls = hlsRef.current;
-    if (hls) {
-      hls.subtitleTrack = -1;
-    }
+    if (hlsRef.current) hlsRef.current.subtitleTrack = -1;
     setActiveHlsSubtitle(-1);
-
     const video = videoRef.current;
-    if (video && video.textTracks) {
+    if (video?.textTracks) {
       for (let i = 0; i < video.textTracks.length; i++) {
         video.textTracks[i].mode = i === index ? 'showing' : 'disabled';
       }
@@ -396,22 +422,23 @@ export default function VideoPlayer({
     if (!hasSubtitles) return;
     if (isSubtitleActive) {
       disableAllSubtitles();
-    } else {
-      // Turn on first available subtitle track
-      if (embeddedSubtitles.length > 0) {
-        selectHlsSubtitle(0);
-      } else if (sidecarSubtitles.length > 0) {
-        selectSidecarSubtitle(0);
-      }
+      showHud('Subtitles Off');
+    } else if (embeddedSubtitles.length > 0) {
+      selectHlsSubtitle(0);
+      showHud(`Subtitles: ${embeddedSubtitles[0].name}`);
+    } else if (sidecarSubtitles.length > 0) {
+      selectSidecarSubtitle(0);
+      showHud(`Subtitles: ${sidecarSubtitles[0].label}`);
     }
   }, [
     hasSubtitles,
     isSubtitleActive,
     disableAllSubtitles,
-    embeddedSubtitles.length,
-    sidecarSubtitles.length,
+    embeddedSubtitles,
+    sidecarSubtitles,
     selectHlsSubtitle,
     selectSidecarSubtitle,
+    showHud,
   ]);
 
   const toggleFullscreen = useCallback(async () => {
@@ -420,25 +447,20 @@ export default function VideoPlayer({
     if (document.fullscreenElement) {
       await document.exitFullscreen().catch(() => {});
       try {
-        if (screen.orientation && 'unlock' in screen.orientation) {
-          screen.orientation.unlock();
-        }
+        if (screen.orientation && 'unlock' in screen.orientation) screen.orientation.unlock();
       } catch {
-        // safe ignore
+        // ignore
       }
     } else {
       try {
-        if (el.requestFullscreen) {
-          await el.requestFullscreen();
-        } else if ((el as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if ((el as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
           await (el as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen();
         }
         const orientation = screen.orientation as unknown as { lock?: (o: string) => Promise<void> };
-        if (orientation && typeof orientation.lock === 'function') {
-          await orientation.lock('landscape').catch(() => {});
-        }
-      } catch (err) {
-        console.warn('Native video fullscreen/orientation lock rejected:', err);
+        if (orientation?.lock) await orientation.lock('landscape').catch(() => {});
+      } catch {
+        // ignore
       }
     }
   }, []);
@@ -450,7 +472,7 @@ export default function VideoPlayer({
       if (document.pictureInPictureElement) await document.exitPictureInPicture();
       else await video.requestPictureInPicture();
     } catch {
-      /* PiP unsupported / denied — ignore */
+      // ignore
     }
   }, []);
 
@@ -458,6 +480,7 @@ export default function VideoPlayer({
     const video = videoRef.current;
     if (!video || !native) return;
     setError(null);
+    setBuffering(true);
     if (native.streamType === 'mp4' || video.canPlayType('application/vnd.apple.mpegurl')) {
       video.load();
     } else {
@@ -473,29 +496,14 @@ export default function VideoPlayer({
       if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
       const key = e.key.toLowerCase();
 
-      // If already holding this key, prevent duplicate timers & repeated actions
       if (isHoldingRef.current && holdKeyRef.current === key) {
         if (key === ' ' || key === 'arrowright') e.preventDefault();
         return;
       }
 
-      if (key === ' ' || key === 'k') {
+      if (key === ' ' || key === 'k' || key === 'arrowright' || key === 'l') {
         e.preventDefault();
         holdKeyRef.current = key;
-
-        if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
-        holdTimerRef.current = setTimeout(() => {
-          isHoldingRef.current = true;
-          if (video) video.playbackRate = 2;
-          showHud('▶▶ 2X Speed (Holding)', 0, true);
-        }, 220);
-        return;
-      }
-
-      if (key === 'arrowright' || key === 'l') {
-        e.preventDefault();
-        holdKeyRef.current = key;
-
         if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
         holdTimerRef.current = setTimeout(() => {
           isHoldingRef.current = true;
@@ -508,96 +516,64 @@ export default function VideoPlayer({
       if (key === 'arrowleft' || key === 'j') {
         e.preventDefault();
         seekBy(-10);
-        showHud('◀◀ -10s Skip');
-        return;
-      }
-
-      if (key === 'f') {
+        showHud('◀◀ -10s');
+      } else if (key === 'f') {
         e.preventDefault();
         toggleFullscreen();
-        showHud(fullscreen ? 'Exit Fullscreen' : 'Fullscreen');
-        return;
-      }
-
-      if (key === 'm') {
+      } else if (key === 'm') {
         e.preventDefault();
         toggleMute();
         showHud(muted ? '🔊 Unmuted' : '🔇 Muted');
-        return;
-      }
-
-      if (key === 'p') {
+      } else if (key === 'p') {
         togglePiP();
-        return;
-      }
-
-      if (key === 'c') {
+      } else if (key === 'c') {
         toggleSubtitlesQuick();
-        return;
-      }
-
-      if (key === '<' || key === ',') {
+      } else if (key === '<' || key === ',') {
         const curIdx = SPEEDS.indexOf(speed);
         if (curIdx > 0) {
           changeSpeed(SPEEDS[curIdx - 1]);
-          showHud(`${SPEEDS[curIdx - 1]}X Speed`);
+          showHud(`${SPEEDS[curIdx - 1]}× Speed`);
         }
-        return;
-      }
-
-      if (key === '>' || key === '.') {
+      } else if (key === '>' || key === '.') {
         const curIdx = SPEEDS.indexOf(speed);
         if (curIdx < SPEEDS.length - 1) {
           changeSpeed(SPEEDS[curIdx + 1]);
-          showHud(`${SPEEDS[curIdx + 1]}X Speed`);
+          showHud(`${SPEEDS[curIdx + 1]}× Speed`);
         }
-        return;
-      }
-
-      if (key === 'arrowup') {
+      } else if (key === 'arrowup') {
         e.preventDefault();
         const nextVol = Math.min(1, volume + 0.1);
         changeVolume(nextVol);
-        showHud(`🔊 Volume ${Math.round(nextVol * 100)}%`);
-        return;
-      }
-
-      if (key === 'arrowdown') {
+        showHud(`🔊 ${Math.round(nextVol * 100)}%`);
+      } else if (key === 'arrowdown') {
         e.preventDefault();
         const nextVol = Math.max(0, volume - 0.1);
         changeVolume(nextVol);
-        showHud(`🔉 Volume ${Math.round(nextVol * 100)}%`);
-        return;
-      }
-
-      if (/^[0-9]$/.test(e.key)) {
+        showHud(`🔉 ${Math.round(nextVol * 100)}%`);
+      } else if (/^[0-9]$/.test(e.key)) {
         seekTo(Number(e.key) / 10);
-        showHud(`Seek to ${Number(e.key) * 10}%`);
+        showHud(`${Number(e.key) * 10}%`);
       }
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
       const key = e.key.toLowerCase();
-
       if (holdTimerRef.current) {
         clearTimeout(holdTimerRef.current);
         holdTimerRef.current = null;
       }
-
       if (holdKeyRef.current === key) {
         if (isHoldingRef.current) {
           isHoldingRef.current = false;
           if (video) video.playbackRate = speed;
-          showHud(`${speed}X Speed`, 800, false);
-        } else {
-          if (key === ' ' || key === 'k') {
-            togglePlay();
-            showHud(playing ? '⏸ Paused' : '▶ Playing');
-          } else if (key === 'arrowright' || key === 'l') {
-            seekBy(10);
-            showHud('▶▶ +10s Skip');
-          }
+          showHud(`${speed}× Speed`, 800, false);
+        } else if (key === ' ' || key === 'k') {
+          togglePlay();
+          showHud(playing ? '⏸ Paused' : '▶ Playing');
+        } else if (key === 'arrowright' || key === 'l') {
+          seekBy(10);
+          showHud('▶▶ +10s');
         }
         holdKeyRef.current = null;
       }
@@ -605,7 +581,6 @@ export default function VideoPlayer({
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
-
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
@@ -625,7 +600,6 @@ export default function VideoPlayer({
     speed,
     changeSpeed,
     showHud,
-    fullscreen,
     muted,
     playing,
   ]);
@@ -636,12 +610,11 @@ export default function VideoPlayer({
     return () => document.removeEventListener('fullscreenchange', onFs);
   }, []);
 
-  /* auto-hide controls: Only auto-hide when video is actively PLAYING */
   const wakeControls = useCallback(() => {
     setShowControls(true);
     if (hideTimer.current) clearTimeout(hideTimer.current);
     if (playing && !settingsOpen) {
-      hideTimer.current = setTimeout(() => setShowControls(false), 3500);
+      hideTimer.current = setTimeout(() => setShowControls(false), 3200);
     }
   }, [playing, settingsOpen]);
 
@@ -655,11 +628,10 @@ export default function VideoPlayer({
   }, [playing, wakeControls]);
 
   useEffect(() => {
-    wakeControls();
     return () => {
       if (hideTimer.current) clearTimeout(hideTimer.current);
     };
-  }, [wakeControls]);
+  }, []);
 
   if (!native) {
     return (
@@ -671,7 +643,7 @@ export default function VideoPlayer({
   }
 
   const fmt = (s: number) => {
-    if (!Number.isFinite(s)) return '0:00';
+    if (!Number.isFinite(s) || s < 0) return '0:00';
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = Math.floor(s % 60);
@@ -680,21 +652,53 @@ export default function VideoPlayer({
       : `${m}:${String(sec).padStart(2, '0')}`;
   };
 
+  const progressPct = duration > 0 ? Math.min(100, (current / duration) * 100) : 0;
+  const bufferedPct = duration > 0 ? Math.min(100, (bufferedEnd / duration) * 100) : 0;
+  const showUpNextCard =
+    Boolean(nextEpisodeHref) &&
+    !dismissUpNext &&
+    duration > 90 &&
+    duration - current <= 25 &&
+    duration - current > 0;
+
   return (
     <div
       ref={containerRef}
       className={`videoplayer ${showControls || !playing || settingsOpen ? 'videoplayer--controls' : 'videoplayer--hidden'} ${playing ? 'videoplayer--playing' : 'videoplayer--paused'}`}
       onMouseMove={wakeControls}
       onMouseEnter={wakeControls}
-      onTouchStart={wakeControls}
+      onTouchStart={e => {
+        wakeControls();
+        if ((e.target as HTMLElement).tagName !== 'VIDEO') return;
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const x = e.touches[0].clientX - rect.left;
+        const side = x < rect.width * 0.45 ? 'left' : x > rect.width * 0.55 ? 'right' : null;
+        if (!side) return;
+        const now = Date.now();
+        if (lastTapRef.current && now - lastTapRef.current.time < 300 && lastTapRef.current.side === side) {
+          seekBy(side === 'left' ? -10 : 10);
+          showHud(side === 'left' ? '◀◀ -10s' : '▶▶ +10s');
+          lastTapRef.current = null;
+        } else {
+          lastTapRef.current = { time: now, side };
+        }
+      }}
+      onDoubleClick={e => {
+        if ((e.target as HTMLElement).tagName === 'VIDEO') toggleFullscreen();
+      }}
       onClick={e => {
         if ((e.target as HTMLElement).tagName === 'VIDEO') togglePlay();
+        if (settingsOpen && !(e.target as HTMLElement).closest('.videoplayer__settings')) {
+          setSettingsOpen(false);
+        }
       }}
     >
       <video
         ref={videoRef}
         playsInline
-        preload="metadata"
+        autoPlay
+        preload="auto"
         crossOrigin="anonymous"
         onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={onTimeUpdate}
@@ -703,6 +707,7 @@ export default function VideoPlayer({
         onPause={() => setPlaying(false)}
         onWaiting={() => setBuffering(true)}
         onPlaying={() => setBuffering(false)}
+        onError={() => tryFailoverOrError('Video stream could not be loaded.')}
         onVolumeChange={() => {
           const v = videoRef.current;
           if (v) {
@@ -713,7 +718,7 @@ export default function VideoPlayer({
       >
         {sidecarSubtitles.map((sub, idx) => (
           <track
-            key={idx}
+            key={`${sub.label}-${idx}`}
             kind="subtitles"
             label={sub.label}
             srcLang={sub.lang || 'en'}
@@ -722,81 +727,197 @@ export default function VideoPlayer({
         ))}
       </video>
 
-      {/* ── Apple-Grade Player HUD Toast ── */}
+      {/* Top Cinema Header */}
+      <div className="videoplayer__top">
+        <div className="videoplayer__title-wrap">
+          <span className="videoplayer__live-pill">
+            <Zap size={11} /> Instant HD
+          </span>
+          <h2 className="videoplayer__title">
+            {content.title}
+            {season !== undefined && season !== null && episode !== undefined && episode !== null
+              ? ` · S${season} E${episode}`
+              : ''}
+          </h2>
+        </div>
+
+        {/* Fast Mirror / Audio switcher inside player */}
+        {mirrors.length > 1 && onSelectMirror && (
+          <div className="videoplayer__mirrors">
+            <select
+              className="videoplayer__select"
+              value={native.url}
+              onChange={e => {
+                const chosen = mirrors.find(m => m.url === e.target.value);
+                if (chosen) {
+                  showHud(`⚡ ${chosen.label}`);
+                  onSelectMirror(chosen);
+                }
+              }}
+              aria-label="Audio track and stream mirror"
+            >
+              {mirrors.map(m => (
+                <option key={m.id} value={m.url}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Player HUD Toast */}
       {hud && (
         <div className={`player-hud-toast ${hud.holding ? 'player-hud-toast--holding' : ''}`}>
           <span>{hud.text}</span>
         </div>
       )}
 
-      {/* Loading / error overlays */}
-      {buffering && !error && (
-        <div className="videoplayer__overlay">
-          <Loader2 size={44} className="videoplayer__spinner" />
-        </div>
-      )}
-      {error && (
-        <div className="videoplayer__overlay videoplayer__overlay--error">
-          <AlertTriangle size={36} />
-          <p>{error}</p>
-          <button className="btn btn--primary" onClick={retry}>
-            <RotateCcw size={16} /> Retry
+      {/* Up Next Prompt */}
+      {showUpNextCard && nextEpisodeHref && (
+        <div className="videoplayer__upnext">
+          <button
+            type="button"
+            className="videoplayer__upnext-btn"
+            onClick={() => router.push(nextEpisodeHref)}
+          >
+            <span>Next Episode</span>
+            <ChevronRight size={15} />
+          </button>
+          <button
+            type="button"
+            className="videoplayer__upnext-close"
+            onClick={() => setDismissUpNext(true)}
+            aria-label="Dismiss next episode"
+          >
+            ×
           </button>
         </div>
       )}
 
-      {/* Center play button when paused */}
+      {buffering && !error && (
+        <div className="videoplayer__overlay">
+          <Loader2 size={42} className="videoplayer__spinner" />
+        </div>
+      )}
+
+      {error && (
+        <div className="videoplayer__overlay videoplayer__overlay--error">
+          <AlertTriangle size={34} />
+          <p>{error}</p>
+          <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <button type="button" className="btn btn--primary" onClick={retry}>
+              <RotateCcw size={15} /> Retry
+            </button>
+            {onFallbackToEmbed && (
+              <button type="button" className="btn btn--ghost" onClick={onFallbackToEmbed}>
+                Switch Engine
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {!playing && !buffering && !error && (
-        <button className="videoplayer__bigplay" onClick={togglePlay} aria-label="Play">
-          <Play size={30} fill="currentColor" />
+        <button type="button" className="videoplayer__bigplay" onClick={togglePlay} aria-label="Play">
+          <Play size={28} fill="currentColor" />
         </button>
       )}
 
-      {/* Controls bar */}
+      {/* Glass Controls Bar */}
       <div className="videoplayer__controls">
-        <input
-          type="range"
-          className="videoplayer__seek"
-          min={0}
-          max={1000}
-          value={duration ? Math.round((current / duration) * 1000) : 0}
-          onChange={e => seekTo(Number(e.target.value) / 1000)}
-          aria-label="Seek"
-          style={{
-            background: `linear-gradient(90deg, var(--accent) ${duration ? (current / duration) * 100 : 0}%, rgba(255,255,255,0.25) ${duration ? (current / duration) * 100 : 0}%)`,
+        <div
+          className="videoplayer__seek-wrap"
+          onMouseMove={e => {
+            if (!duration) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            setHoverTime({ pct: pct * 100, time: pct * duration });
           }}
-        />
+          onMouseLeave={() => setHoverTime(null)}
+        >
+          {hoverTime && (
+            <span className="videoplayer__seek-tooltip" style={{ left: `${hoverTime.pct}%` }}>
+              {fmt(hoverTime.time)}
+            </span>
+          )}
+          <div className="videoplayer__seek-track">
+            <div className="videoplayer__seek-buf" style={{ width: `${bufferedPct}%` }} />
+            <div className="videoplayer__seek-fill" style={{ width: `${progressPct}%` }} />
+          </div>
+          <input
+            type="range"
+            className="videoplayer__seek"
+            min={0}
+            max={1000}
+            value={duration ? Math.round((current / duration) * 1000) : 0}
+            onChange={e => seekTo(Number(e.target.value) / 1000)}
+            aria-label="Seek"
+          />
+        </div>
 
         <div className="videoplayer__row">
+          {prevEpisodeHref && (
+            <button
+              type="button"
+              onClick={() => router.push(prevEpisodeHref)}
+              aria-label="Previous episode"
+              title="Previous episode"
+              className="videoplayer__btn videoplayer__btn--slim"
+            >
+              <ChevronLeft size={19} />
+            </button>
+          )}
           <button
+            type="button"
             onClick={togglePlay}
             aria-label={playing ? 'Pause' : 'Play'}
             className="videoplayer__btn"
           >
-            {playing ? <Pause size={22} /> : <Play size={22} fill="currentColor" />}
+            {playing ? <Pause size={21} /> : <Play size={21} fill="currentColor" />}
           </button>
           <button
-            onClick={() => seekBy(-10)}
+            type="button"
+            onClick={() => {
+              seekBy(-10);
+              showHud('◀◀ -10s');
+            }}
             aria-label="Back 10 seconds"
             className="videoplayer__btn videoplayer__btn--slim"
           >
             <SkipBack size={18} />
           </button>
           <button
-            onClick={() => seekBy(10)}
+            type="button"
+            onClick={() => {
+              seekBy(10);
+              showHud('▶▶ +10s');
+            }}
             aria-label="Forward 10 seconds"
             className="videoplayer__btn videoplayer__btn--slim"
           >
             <SkipForward size={18} />
           </button>
+          {nextEpisodeHref && (
+            <button
+              type="button"
+              onClick={() => router.push(nextEpisodeHref)}
+              aria-label="Next episode"
+              title="Next episode"
+              className="videoplayer__btn videoplayer__btn--slim"
+            >
+              <ChevronRight size={19} />
+            </button>
+          )}
 
           <div className="videoplayer__volume">
             <button
+              type="button"
               onClick={toggleMute}
               aria-label={muted ? 'Unmute' : 'Mute'}
               className="videoplayer__btn"
             >
-              {muted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+              {muted || volume === 0 ? <VolumeX size={19} /> : <Volume2 size={19} />}
             </button>
             <input
               type="range"
@@ -815,8 +936,7 @@ export default function VideoPlayer({
 
           <span className="videoplayer__spacer" />
 
-          {/* Provider stream audio selector (only when multiple real streams exist) */}
-          {playback.audioTracks.length > 1 && onLanguageChange && (
+          {playback.audioTracks.length > 1 && onLanguageChange && mirrors.length <= 1 && (
             <select
               className="videoplayer__select"
               defaultValue={playback.selectedLanguage}
@@ -831,9 +951,9 @@ export default function VideoPlayer({
             </select>
           )}
 
-          {/* Subtitles quick toggle (only shown when subtitles exist) */}
           {hasSubtitles && (
             <button
+              type="button"
               onClick={toggleSubtitlesQuick}
               aria-label="Subtitles"
               className={`videoplayer__btn videoplayer__btn--slim ${isSubtitleActive ? 'videoplayer__btn--active' : ''}`}
@@ -845,108 +965,197 @@ export default function VideoPlayer({
 
           <div className="videoplayer__settings">
             <button
+              type="button"
               className="videoplayer__btn"
-              onClick={() => setSettingsOpen(o => !o)}
+              onClick={() => {
+                setSettingsTab('main');
+                setSettingsOpen(o => !o);
+              }}
               aria-label="Playback settings"
               aria-expanded={settingsOpen}
             >
-              <Settings size={20} />
+              <Settings size={19} />
             </button>
             {settingsOpen && (
               <div className="videoplayer__menu">
-                {/* Quality options (only when multiple real choices exist) */}
-                {levels.length > 1 && (
+                {settingsTab === 'main' ? (
                   <>
-                    <p className="videoplayer__menu-label">Quality</p>
                     <button
-                      className={`videoplayer__menu-item ${activeLevel === -1 ? 'is-active' : ''}`}
-                      onClick={() => changeQuality(-1)}
+                      type="button"
+                      className="videoplayer__menu-item videoplayer__menu-row"
+                      onClick={() => setSettingsTab('speed')}
                     >
-                      Auto
+                      <span>Speed</span>
+                      <span className="videoplayer__menu-val">{speed}×</span>
                     </button>
-                    {levels.map(l => (
+                    {levels.length > 1 && (
                       <button
-                        key={l.index}
-                        className={`videoplayer__menu-item ${activeLevel === l.index ? 'is-active' : ''}`}
-                        onClick={() => changeQuality(l.index)}
+                        type="button"
+                        className="videoplayer__menu-item videoplayer__menu-row"
+                        onClick={() => setSettingsTab('quality')}
                       >
-                        {l.height}p
+                        <span>Quality</span>
+                        <span className="videoplayer__menu-val">
+                          {activeLevel === -1
+                            ? 'Auto'
+                            : `${levels.find(l => l.index === activeLevel)?.height ?? ''}p`}
+                        </span>
                       </button>
-                    ))}
-                  </>
-                )}
-
-                {/* Embedded audio track options (only when multiple tracks exist) */}
-                {embeddedAudio.length > 1 && (
-                  <>
-                    <p className="videoplayer__menu-label">Audio Track</p>
-                    {embeddedAudio.map(t => (
+                    )}
+                    {embeddedAudio.length > 1 && (
                       <button
-                        key={t.id}
-                        className={`videoplayer__menu-item ${activeAudioTrack === t.id ? 'is-active' : ''}`}
-                        onClick={() => changeEmbeddedAudio(t.id)}
+                        type="button"
+                        className="videoplayer__menu-item videoplayer__menu-row"
+                        onClick={() => setSettingsTab('audio')}
                       >
-                        {t.name}
+                        <span>Audio</span>
+                        <span className="videoplayer__menu-val">
+                          {embeddedAudio.find(a => a.id === activeAudioTrack)?.name ?? 'Auto'}
+                        </span>
                       </button>
-                    ))}
+                    )}
+                    {hasSubtitles && (
+                      <button
+                        type="button"
+                        className="videoplayer__menu-item videoplayer__menu-row"
+                        onClick={() => setSettingsTab('subs')}
+                      >
+                        <span>Subtitles</span>
+                        <span className="videoplayer__menu-val">
+                          {activeSidecarSubtitle >= 0
+                            ? sidecarSubtitles[activeSidecarSubtitle]?.label
+                            : activeHlsSubtitle >= 0
+                              ? embeddedSubtitles[activeHlsSubtitle]?.name
+                              : 'Off'}
+                        </span>
+                      </button>
+                    )}
                   </>
-                )}
-
-                {/* Subtitle selection (only when real subtitles exist) */}
-                {hasSubtitles && (
+                ) : (
                   <>
-                    <p className="videoplayer__menu-label">Subtitles</p>
                     <button
-                      className={`videoplayer__menu-item ${!isSubtitleActive ? 'is-active' : ''}`}
-                      onClick={disableAllSubtitles}
+                      type="button"
+                      className="videoplayer__menu-item videoplayer__menu-back"
+                      onClick={() => setSettingsTab('main')}
                     >
-                      Off
+                      ← Back
                     </button>
-                    {embeddedSubtitles.map(s => (
-                      <button
-                        key={`hls-${s.id}`}
-                        className={`videoplayer__menu-item ${activeHlsSubtitle === s.id ? 'is-active' : ''}`}
-                        onClick={() => selectHlsSubtitle(s.id)}
-                      >
-                        {s.name}
-                      </button>
-                    ))}
-                    {sidecarSubtitles.map((s, idx) => (
-                      <button
-                        key={`vtt-${idx}`}
-                        className={`videoplayer__menu-item ${activeSidecarSubtitle === idx ? 'is-active' : ''}`}
-                        onClick={() => selectSidecarSubtitle(idx)}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
+                    {settingsTab === 'speed' &&
+                      SPEEDS.map(s => (
+                        <button
+                          type="button"
+                          key={s}
+                          className={`videoplayer__menu-item ${speed === s ? 'is-active' : ''}`}
+                          onClick={() => {
+                            changeSpeed(s);
+                            setSettingsOpen(false);
+                          }}
+                        >
+                          {s}×
+                        </button>
+                      ))}
+                    {settingsTab === 'quality' && (
+                      <>
+                        <button
+                          type="button"
+                          className={`videoplayer__menu-item ${activeLevel === -1 ? 'is-active' : ''}`}
+                          onClick={() => {
+                            changeQuality(-1);
+                            setSettingsOpen(false);
+                          }}
+                        >
+                          Auto
+                        </button>
+                        {levels.map(l => (
+                          <button
+                            type="button"
+                            key={l.index}
+                            className={`videoplayer__menu-item ${activeLevel === l.index ? 'is-active' : ''}`}
+                            onClick={() => {
+                              changeQuality(l.index);
+                              setSettingsOpen(false);
+                            }}
+                          >
+                            {l.height}p
+                          </button>
+                        ))}
+                      </>
+                    )}
+                    {settingsTab === 'audio' &&
+                      embeddedAudio.map(t => (
+                        <button
+                          type="button"
+                          key={t.id}
+                          className={`videoplayer__menu-item ${activeAudioTrack === t.id ? 'is-active' : ''}`}
+                          onClick={() => {
+                            changeEmbeddedAudio(t.id);
+                            setSettingsOpen(false);
+                          }}
+                        >
+                          {t.name}
+                        </button>
+                      ))}
+                    {settingsTab === 'subs' && (
+                      <>
+                        <button
+                          type="button"
+                          className={`videoplayer__menu-item ${!isSubtitleActive ? 'is-active' : ''}`}
+                          onClick={() => {
+                            disableAllSubtitles();
+                            setSettingsOpen(false);
+                          }}
+                        >
+                          Off
+                        </button>
+                        {embeddedSubtitles.map(s => (
+                          <button
+                            type="button"
+                            key={`hls-${s.id}`}
+                            className={`videoplayer__menu-item ${activeHlsSubtitle === s.id ? 'is-active' : ''}`}
+                            onClick={() => {
+                              selectHlsSubtitle(s.id);
+                              setSettingsOpen(false);
+                            }}
+                          >
+                            {s.name}
+                          </button>
+                        ))}
+                        {sidecarSubtitles.map((s, idx) => (
+                          <button
+                            type="button"
+                            key={`vtt-${idx}`}
+                            className={`videoplayer__menu-item ${activeSidecarSubtitle === idx ? 'is-active' : ''}`}
+                            onClick={() => {
+                              selectSidecarSubtitle(idx);
+                              setSettingsOpen(false);
+                            }}
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </>
+                    )}
                   </>
                 )}
-
-                {/* Playback speed options */}
-                <p className="videoplayer__menu-label">Speed</p>
-                {SPEEDS.map(s => (
-                  <button
-                    key={s}
-                    className={`videoplayer__menu-item ${speed === s ? 'is-active' : ''}`}
-                    onClick={() => changeSpeed(s)}
-                  >
-                    {s}×
-                  </button>
-                ))}
               </div>
             )}
           </div>
 
           <button
+            type="button"
             onClick={togglePiP}
             aria-label="Picture in picture"
             className="videoplayer__btn videoplayer__btn--slim"
           >
             <PictureInPicture2 size={18} />
           </button>
-          <button onClick={toggleFullscreen} aria-label="Fullscreen" className="videoplayer__btn">
-            {fullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label="Fullscreen"
+            className="videoplayer__btn"
+          >
+            {fullscreen ? <Minimize size={19} /> : <Maximize size={19} />}
           </button>
         </div>
       </div>

@@ -57,7 +57,7 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '🇰🇷',
     params: {
       with_original_language: 'ko',
-      without_genres: 16,
+      without_genres: '16,10764,10767,10763',
       sort_by: 'popularity.desc',
     },
   },
@@ -71,7 +71,49 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '🇨🇳',
     params: {
       with_original_language: 'zh',
-      without_genres: 16,
+      without_genres: '16,10764,10767,10763',
+      sort_by: 'popularity.desc',
+    },
+  },
+  'turkish-dramas': {
+    id: 'turkish-dramas',
+    name: 'Turkish Dramas (Dizi)',
+    shortName: 'Turkish',
+    type: 'tv',
+    description:
+      'Popular Turkish television dramas, historical epics, romance, and family series.',
+    icon: '🇹🇷',
+    params: {
+      with_original_language: 'tr',
+      without_genres: '16,10764,10767,10763',
+      sort_by: 'popularity.desc',
+    },
+  },
+  'thai-dramas': {
+    id: 'thai-dramas',
+    name: 'Thai Dramas (Lakorn & BL)',
+    shortName: 'Thai',
+    type: 'tv',
+    description:
+      'Trending Thai television dramas, romance series, mystery thrillers, and lakorns.',
+    icon: '🇹🇭',
+    params: {
+      with_original_language: 'th',
+      without_genres: '16,10764,10767,10763',
+      sort_by: 'popularity.desc',
+    },
+  },
+  'pakistani-dramas': {
+    id: 'pakistani-dramas',
+    name: 'Pakistani & Urdu Dramas',
+    shortName: 'Pakistani',
+    type: 'tv',
+    description:
+      'Acclaimed Urdu television serials, romantic dramas, and classic family series.',
+    icon: '🌙',
+    params: {
+      with_original_language: 'ur',
+      without_genres: '16,10764,10767,10763',
       sort_by: 'popularity.desc',
     },
   },
@@ -101,6 +143,19 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
       sort_by: 'popularity.desc',
     },
   },
+  'south-indian': {
+    id: 'south-indian',
+    name: 'South Indian Cinema (Tamil, Telugu, Malayalam)',
+    shortName: 'South Indian',
+    type: 'movie',
+    description:
+      'High-octane Tamil, Telugu, Malayalam, and Kannada blockbusters and pan-India hits.',
+    icon: '🔥',
+    params: {
+      with_original_language: 'ta|te|ml|kn',
+      sort_by: 'popularity.desc',
+    },
+  },
   'western-tv': {
     id: 'western-tv',
     name: 'Western TV Series & Shows',
@@ -111,7 +166,8 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '📺',
     params: {
       with_original_language: 'en',
-      without_genres: 16,
+      without_genres: '16,10764,10767,10763',
+      'vote_count.gte': 15,
       sort_by: 'popularity.desc',
     },
   },
@@ -138,7 +194,7 @@ export const CATEGORIES: Record<string, CategoryDefinition> = {
     icon: '🇮🇳',
     params: {
       with_original_language: 'hi',
-      without_genres: 10766,
+      without_genres: '16,10764,10767,10763,10766',
       'vote_count.gte': 10,
       sort_by: 'popularity.desc',
     },
@@ -208,6 +264,18 @@ const ALIASES: Record<string, string> = {
   'world-cinema': 'international',
   cartoon: 'cartoons',
   animation: 'cartoons',
+  turkish: 'turkish-dramas',
+  'turkish-drama': 'turkish-dramas',
+  dizi: 'turkish-dramas',
+  thai: 'thai-dramas',
+  'thai-drama': 'thai-dramas',
+  lakorn: 'thai-dramas',
+  pakistani: 'pakistani-dramas',
+  'pakistani-drama': 'pakistani-dramas',
+  urdu: 'pakistani-dramas',
+  south: 'south-indian',
+  tollywood: 'south-indian',
+  kollywood: 'south-indian',
 };
 
 export function getCategory(idOrAlias: string): CategoryDefinition | null {

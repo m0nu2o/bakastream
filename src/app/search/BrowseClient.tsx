@@ -32,13 +32,17 @@ const SORT_OPTIONS = [
 
 const CATEGORY_ITEMS = [
   { href: '/category/bollywood', label: 'Bollywood', icon: '🍿' },
+  { href: '/category/south-indian', label: 'South Indian', icon: '🔥' },
   { href: '/category/hindi-serials', label: 'Hindi Serials', icon: '📻' },
   { href: '/category/hindi-web-series', label: 'Web Series', icon: '🇮🇳' },
   { href: '/category/kdrama', label: 'K-Dramas', icon: '🇰🇷' },
+  { href: '/category/cdrama', label: 'C-Dramas', icon: '🇨🇳' },
+  { href: '/category/turkish-dramas', label: 'Turkish', icon: '🇹🇷' },
+  { href: '/category/thai-dramas', label: 'Thai', icon: '🇹🇭' },
+  { href: '/category/pakistani-dramas', label: 'Pakistani', icon: '🌙' },
   { href: '/category/anime', label: 'Anime', icon: '⚔️' },
   { href: '/category/donghua', label: 'Donghua', icon: '🐉' },
   { href: '/category/hollywood', label: 'Hollywood', icon: '🎬' },
-  { href: '/category/cdrama', label: 'C-Dramas', icon: '🇨🇳' },
   { href: '/category/western-tv', label: 'Western TV', icon: '📺' },
   { href: '/category/international', label: 'International', icon: '🌍' },
   { href: '/category/cartoons', label: 'Cartoons', icon: '🎨' },

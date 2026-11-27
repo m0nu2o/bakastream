@@ -337,7 +337,7 @@ async function handleProxy(
       /\.(js|css|woff2?|png|svg|ico)$/i.test(joined);
 
     const cacheControl = isStaticAsset
-      ? 'public, max-age=86400, s-maxage=86400'
+      ? 'public, max-age=300, must-revalidate'
       : 'no-store';
 
     if (ct.includes('text/html')) {

@@ -492,7 +492,7 @@ export async function getHindiTV(page = 1) {
     params: {
       page,
       with_original_language: 'hi',
-      without_genres: 10766,
+      without_genres: '16,10764,10767,10763,10766',
       'vote_count.gte': 10,
       sort_by: 'popularity.desc',
     },
@@ -517,7 +517,7 @@ export async function getKDrama(page = 1) {
     params: {
       page,
       with_original_language: 'ko',
-      without_genres: 16,
+      without_genres: '16,10764,10767,10763',
       sort_by: 'popularity.desc',
     },
   });
@@ -529,7 +529,30 @@ export async function getCDrama(page = 1) {
     params: {
       page,
       with_original_language: 'zh',
-      without_genres: 16,
+      without_genres: '16,10764,10767,10763',
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getTurkishDramas(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/tv', {
+    params: {
+      page,
+      with_original_language: 'tr',
+      without_genres: '16,10764,10767,10763',
+      sort_by: 'popularity.desc',
+    },
+  });
+  return data.results.map(mapSummary);
+}
+
+export async function getSouthIndianMovies(page = 1) {
+  const data = await tmdbFetch<{ results: RawMedia[] }>('/discover/movie', {
+    params: {
+      page,
+      with_original_language: 'ta|te|ml|kn',
       sort_by: 'popularity.desc',
     },
   });
@@ -564,7 +587,8 @@ export async function getWesternTV(page = 1) {
     params: {
       page,
       with_original_language: 'en',
-      without_genres: 16,
+      without_genres: '16,10764,10767,10763',
+      'vote_count.gte': 15,
       sort_by: 'popularity.desc',
     },
   });
@@ -661,6 +685,8 @@ export interface HomeData {
   hindiSerials: MediaSummary[];
   kdrama: MediaSummary[];
   cdrama: MediaSummary[];
+  turkishDramas: MediaSummary[];
+  southIndianMovies: MediaSummary[];
   donghua: MediaSummary[];
   westernTV: MediaSummary[];
   cartoons: MediaSummary[];
@@ -683,6 +709,8 @@ export async function getHomeData(): Promise<HomeData> {
     hindiSerials,
     kdrama,
     cdrama,
+    turkishDramas,
+    southIndianMovies,
     donghua,
     westernTV,
     cartoons,
@@ -703,6 +731,8 @@ export async function getHomeData(): Promise<HomeData> {
     getHindiSerials(),
     getKDrama(),
     getCDrama(),
+    getTurkishDramas(),
+    getSouthIndianMovies(),
     getDonghua(),
     getWesternTV(),
     getCartoons(),
@@ -734,6 +764,8 @@ export async function getHomeData(): Promise<HomeData> {
     hindiSerials: ok(hindiSerials, [] as MediaSummary[]).slice(0, 20),
     kdrama: ok(kdrama, [] as MediaSummary[]).slice(0, 20),
     cdrama: ok(cdrama, [] as MediaSummary[]).slice(0, 20),
+    turkishDramas: ok(turkishDramas, [] as MediaSummary[]).slice(0, 20),
+    southIndianMovies: ok(southIndianMovies, [] as MediaSummary[]).slice(0, 20),
     donghua: ok(donghua, [] as MediaSummary[]).slice(0, 20),
     westernTV: ok(westernTV, [] as MediaSummary[]).slice(0, 20),
     cartoons: ok(cartoons, [] as MediaSummary[]).slice(0, 20),

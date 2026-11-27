@@ -53,7 +53,22 @@ export default function CalendarPage() {
       .then(data => {
         if (cancelled) return;
         if (data.success && Array.isArray(data.entries)) {
-          setEntries(data.entries);
+          const normalized = (data.entries as CalendarEntry[]).map(entry => {
+            if (entry.category === 'anime' && entry.airTimestamp) {
+              const d = new Date(entry.airTimestamp);
+              return {
+                ...entry,
+                airDate: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+                airTime: d.toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                }),
+              };
+            }
+            return entry;
+          });
+          setEntries(normalized);
         }
       })
       .catch(err => {
@@ -410,7 +425,9 @@ export default function CalendarPage() {
                             <div className="calendar-card__ep-row">
                               {item.episodeNumber ? (
                                 <span className="calendar-card__ep-badge">
-                                  Ep {item.episodeNumber}
+                                  {item.seasonNumber && item.seasonNumber > 1
+                                    ? `S${item.seasonNumber} Ep ${item.episodeNumber}`
+                                    : `Ep ${item.episodeNumber}`}
                                 </span>
                               ) : (
                                 <span className="calendar-card__ep-badge">Premiere</span>
@@ -508,7 +525,9 @@ export default function CalendarPage() {
                               </span>
                               {item.episodeNumber ? (
                                 <span className="calendar-timeline__ep-badge">
-                                  Episode {item.episodeNumber}
+                                  {item.seasonNumber && item.seasonNumber > 1
+                                    ? `Season ${item.seasonNumber} · Episode ${item.episodeNumber}`
+                                    : `Episode ${item.episodeNumber}`}
                                 </span>
                               ) : (
                                 <span className="calendar-timeline__ep-badge">Premiere</span>

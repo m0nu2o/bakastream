@@ -50,6 +50,10 @@ export default async function WatchPage({ params }: PageProps) {
     type === 'tv' ? (details.seasons.find(s => s.seasonNumber > 0)?.seasonNumber ?? 1) : 1;
 
   const seasonData = type === 'tv' ? await getSeasonDetails(numericId, initialSeasonNumber) : null;
+  const nextEpisodeHref =
+    type === 'tv' && (seasonData?.episodeCount ?? 0) > 1
+      ? `/watch/tv/${details.id}/${initialSeasonNumber}/2`
+      : null;
 
   const backHref =
     type === 'movie' ? movieUrl(details.id, details.title) : tvUrl(details.id, details.title);
@@ -74,7 +78,7 @@ export default async function WatchPage({ params }: PageProps) {
     <main className="watch">
       <div className="watch__main-col">
         {/* Primary Video Player Stage & Server Deck */}
-        <WatchClient content={summary} />
+        <WatchClient content={summary} nextEpisodeHref={nextEpisodeHref} />
 
         {/* Cinematic Seasons, 2000+ Episodes & Movie Franchise Browser */}
         <SeasonEpisodeSelector

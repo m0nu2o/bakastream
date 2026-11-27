@@ -85,7 +85,22 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
       .then(data => {
         if (cancelled) return;
         if (data.success && Array.isArray(data.entries)) {
-          setEntries(data.entries);
+          const normalized = (data.entries as CalendarEntry[]).map(entry => {
+            if (entry.category === 'anime' && entry.airTimestamp) {
+              const d = new Date(entry.airTimestamp);
+              return {
+                ...entry,
+                airDate: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+                airTime: d.toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                }),
+              };
+            }
+            return entry;
+          });
+          setEntries(normalized);
         }
       })
       .catch(err => {
@@ -332,7 +347,9 @@ export default function WeeklySchedule({ isEmbedded = true }: Props) {
                       <div className="schedule-card__ep-row">
                         {item.episodeNumber ? (
                           <span className="schedule-card__ep-badge">
-                            Ep {item.episodeNumber}
+                            {item.seasonNumber && item.seasonNumber > 1
+                              ? `S${item.seasonNumber} Ep ${item.episodeNumber}`
+                              : `Ep ${item.episodeNumber}`}
                           </span>
                         ) : (
                           <span className="schedule-card__ep-badge">Premiere</span>

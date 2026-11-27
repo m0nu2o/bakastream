@@ -378,7 +378,7 @@ export class NovaProvider implements StreamProvider {
 
   private async getJson<T>(url: string): Promise<T> {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8_000) });
+      const res = await fetch(url, { signal: AbortSignal.timeout(3_000) });
       if (!res.ok) {
         throw new Error(`NovaAPI returned HTTP ${res.status} (${res.statusText})`);
       }

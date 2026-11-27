@@ -49,6 +49,27 @@ export default async function WatchEpisodePage({ params }: PageProps) {
   const seasonData = await getSeasonDetails(tvId, seasonNum);
   const current = seasonData?.episodes.find(e => e.episodeNumber === episodeNum) ?? null;
   const poster = posterUrl(show.posterPath, 'w342');
+  const epCount = seasonData?.episodeCount ?? 0;
+
+  let prevEpisodeHref: string | null = null;
+  if (episodeNum > 1) {
+    prevEpisodeHref = `/watch/tv/${tvId}/${seasonNum}/${episodeNum - 1}`;
+  } else if (seasonNum > 1) {
+    const prevS = show.seasons.find(s => s.seasonNumber === seasonNum - 1);
+    if (prevS && prevS.episodeCount > 0) {
+      prevEpisodeHref = `/watch/tv/${tvId}/${seasonNum - 1}/${prevS.episodeCount}`;
+    }
+  }
+
+  let nextEpisodeHref: string | null = null;
+  if (epCount > 0 && episodeNum < epCount) {
+    nextEpisodeHref = `/watch/tv/${tvId}/${seasonNum}/${episodeNum + 1}`;
+  } else {
+    const nextS = show.seasons.find(s => s.seasonNumber === seasonNum + 1);
+    if (nextS && nextS.episodeCount > 0) {
+      nextEpisodeHref = `/watch/tv/${tvId}/${seasonNum + 1}/1`;
+    }
+  }
 
   const summary: MediaSummary = {
     id: show.id,
@@ -69,7 +90,13 @@ export default async function WatchEpisodePage({ params }: PageProps) {
     <main className="watch">
       <div className="watch__main-col">
         {/* Primary Video Player Stage & Server Deck */}
-        <WatchClient content={summary} season={seasonNum} episode={episodeNum} />
+        <WatchClient
+          content={summary}
+          season={seasonNum}
+          episode={episodeNum}
+          prevEpisodeHref={prevEpisodeHref}
+          nextEpisodeHref={nextEpisodeHref}
+        />
 
         {/* Cinematic Seasons & 2000+ Episodes Browser */}
         <SeasonEpisodeSelector

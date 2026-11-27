@@ -21,12 +21,16 @@ import LuminaServerDeck from '@/components/player/LuminaServerDeck';
 import StateView from '@/components/StateView';
 import { resolveStream } from '@/lib/tmdb/client';
 import {
+  extractDirectStreams,
+  type DirectStreamOption,
+} from '@/lib/player/directExtractor';
+import {
   getLuminaServers,
   getNextFallbackServer,
   ProviderTelemetry,
   type LuminaServerConfig,
 } from '@/lib/providers/lumina';
-import type { PlaybackInfo } from '@/lib/providers/types';
+import type { PlaybackInfo, SubtitleTrack } from '@/lib/providers/types';
 import type { MediaSummary } from '@/types';
 import './watch.css';
 
@@ -34,18 +38,31 @@ interface Props {
   content: MediaSummary;
   season?: number;
   episode?: number;
+  prevEpisodeHref?: string | null;
+  nextEpisodeHref?: string | null;
 }
 
-export default function WatchClient({ content, season, episode }: Props) {
+const DIRECT_PLAYER_SERVERS = new Set(['nova', 'nova-anime', 'vidrock', 'vidrock-anime']);
+
+export default function WatchClient({
+  content,
+  season,
+  episode,
+  prevEpisodeHref,
+  nextEpisodeHref,
+}: Props) {
   const [info, setInfo] = useState<PlaybackInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const initialLang = content.originalLanguage === 'hi' ? 'hindi' : 'english';
   const [subOrDub, setSubOrDub] = useState<'sub' | 'dub'>('sub');
   const isAnimeGenre = Boolean(content.genreIds?.includes(16));
-  const [server, setServer] = useState<string>(isAnimeGenre ? 'vidlink-anime' : 'vidsrc-pm');
+  const [server, setServer] = useState<string>(isAnimeGenre ? 'nova-anime' : 'nova');
   const [language, setLanguage] = useState<string>(initialLang);
   const [autoSwitch, setAutoSwitch] = useState<boolean>(true);
+  const [directStreams, setDirectStreams] = useState<DirectStreamOption[]>([]);
+  const [activeDirectStream, setActiveDirectStream] = useState<DirectStreamOption | null>(null);
+  const [directSubtitles, setDirectSubtitles] = useState<SubtitleTrack[]>([]);
 
   const requestedLang = useRef<string | undefined>(undefined);
   const isAnime = Boolean(isAnimeGenre || info?.isAnime);
@@ -77,22 +94,46 @@ export default function WatchClient({ content, season, episode }: Props) {
         (content.originalLanguage === 'hi' ? 'hindi' : undefined);
       const nextSubOrDub = options?.subOrDub ?? subOrDub;
       const nextServer = options?.server ?? server;
+      const shouldExtractDirect = DIRECT_PLAYER_SERVERS.has(nextServer);
 
       setLoading(true);
       setError(null);
       try {
-        const data = await resolveStream({
-          type: content.type,
-          id: content.id,
-          imdbId: content.imdbId ?? undefined,
-          season,
-          episode,
-          title: content.title,
-          isAnime: content.genreIds?.includes(16),
-          subOrDub: nextSubOrDub,
-          server: nextServer,
-          language: nextLang,
-        });
+        const [data, direct] = await Promise.all([
+          resolveStream({
+            type: content.type,
+            id: content.id,
+            imdbId: content.imdbId ?? undefined,
+            season,
+            episode,
+            title: content.title,
+            isAnime: content.genreIds?.includes(16),
+            subOrDub: nextSubOrDub,
+            server: nextServer,
+            language: nextLang,
+          }),
+          shouldExtractDirect
+            ? extractDirectStreams({
+                type: content.type,
+                id: content.id,
+                season,
+                episode,
+                preferredLanguage: nextLang,
+                subOrDub: nextSubOrDub,
+              }).catch(() => ({ streams: [], subtitles: [] }))
+            : Promise.resolve({ streams: [], subtitles: [] }),
+        ]);
+
+        if (shouldExtractDirect && direct.streams.length > 0) {
+          setDirectStreams(direct.streams);
+          setActiveDirectStream(direct.streams[0]);
+          setDirectSubtitles(direct.subtitles);
+        } else {
+          setDirectStreams([]);
+          setActiveDirectStream(null);
+          setDirectSubtitles([]);
+        }
+
         setInfo(data);
         if (data?.server) {
           setServer(data.server);
@@ -137,6 +178,14 @@ export default function WatchClient({ content, season, episode }: Props) {
 
   const handleLanguageChange = (newLang: string) => {
     setLanguage(newLang);
+    if (directStreams.length > 0) {
+      const needle = newLang.toLowerCase();
+      const matched = directStreams.find(s => s.language.toLowerCase().includes(needle));
+      if (matched) {
+        setActiveDirectStream(matched);
+        return;
+      }
+    }
     load({ language: newLang });
   };
 
@@ -158,6 +207,63 @@ export default function WatchClient({ content, season, episode }: Props) {
           message={error}
           actionLabel="Try again"
           onRetry={() => load()}
+        />
+      </div>
+    );
+  }
+
+  if (activeDirectStream) {
+    const nativePlayback: PlaybackInfo = {
+      ...(info ?? {
+        providerId: server,
+        providerLabel: compatibleServers.find(s => s.id === server)?.name ?? 'Direct Stream',
+        status: 'ok' as const,
+        audioTracks: [{ label: activeDirectStream.language, selected: true }],
+        subtitles: [],
+        notice: 'Instant Direct Stream (0 Ads)',
+      }),
+      status: 'ok',
+      playback: {
+        kind: 'native',
+        streamType: activeDirectStream.streamType,
+        url: activeDirectStream.url,
+      },
+      subtitles: directSubtitles.length > 0 ? directSubtitles : (info?.subtitles ?? []),
+    };
+    return (
+      <div className="watch__stage">
+        <VideoPlayer
+          key={`direct-${content.id}-${season ?? 0}-${episode ?? 0}-${activeDirectStream.url}`}
+          playback={nativePlayback}
+          content={content}
+          season={season}
+          episode={episode}
+          mirrors={directStreams}
+          onSelectMirror={s => setActiveDirectStream(s)}
+          prevEpisodeHref={prevEpisodeHref}
+          nextEpisodeHref={nextEpisodeHref}
+          onFallbackToEmbed={() => setActiveDirectStream(null)}
+          onLanguageChange={handleLanguageChange}
+        />
+        <LuminaServerDeck
+          servers={compatibleServers}
+          activeServerId={server}
+          onSelectServer={handleServerChange}
+          mediaCategory={mediaCategory}
+          selectedAudioTrack={language === 'hindi' ? 'hindi' : isAnime ? subOrDub : language}
+          onSelectAudioTrack={track => {
+            if (track === 'hindi') {
+              handleLanguageChange('hindi');
+            } else if (isAnime) {
+              setLanguage(initialLang);
+              handleSubOrDubChange(track as 'sub' | 'dub');
+            } else {
+              handleLanguageChange(track);
+            }
+          }}
+          hasHindiDub={true}
+          autoSwitch={autoSwitch}
+          onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
         />
       </div>
     );
@@ -235,6 +341,8 @@ export default function WatchClient({ content, season, episode }: Props) {
         content={content}
         season={season}
         episode={episode}
+        prevEpisodeHref={prevEpisodeHref}
+        nextEpisodeHref={nextEpisodeHref}
         onLanguageChange={lang => load({ language: lang })}
       />
       <LuminaServerDeck

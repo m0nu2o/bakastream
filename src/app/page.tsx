@@ -112,6 +112,12 @@ async function HomeContent() {
         viewAllHref="/category/bollywood"
       />
       <CatalogSection
+        title="South Indian Cinema"
+        type="movie"
+        items={data.southIndianMovies}
+        viewAllHref="/category/south-indian"
+      />
+      <CatalogSection
         title="Popular Hindi Web Series"
         type="tv"
         items={data.hindiTV}
@@ -134,6 +140,12 @@ async function HomeContent() {
         type="tv"
         items={data.cdrama}
         viewAllHref="/category/cdrama"
+      />
+      <CatalogSection
+        title="Turkish Dramas"
+        type="tv"
+        items={data.turkishDramas}
+        viewAllHref="/category/turkish-dramas"
       />
       <CatalogSection
         title="Anime"
