@@ -1,8 +1,8 @@
 /**
  * Ultra-fast client-side direct HLS/MP4 stream & WebVTT subtitle extractor.
  * Fetches CORS-enabled APIs straight from the browser (0 worker bandwidth, ~300ms load,
- * 0 third-party iframe bloat, 0 ads), verifies every available dubbed language via live
- * stream probing, and feeds streams directly into <VideoPlayer>.
+ * 0 third-party iframe bloat, 0 ads), verifies every available dubbed language via
+ * lightweight header-chunk stream probing, and feeds streams directly into <VideoPlayer>.
  */
 
 import { normalizeLanguage } from '@/lib/languages';
@@ -129,14 +129,19 @@ function langMatchScore(
   if (pref && (langKey === pref || langKey.includes(pref))) return 100;
   if (subOrDub === 'dub' && langKey === 'english') return 95;
   if (subOrDub === 'sub' && (langKey === 'japanese' || langKey === 'original')) return 95;
-  if (langKey === 'hindi') return 60;
-  if (langKey === 'english') return 55;
+  if (langKey === 'hindi') return 65;
+  if (langKey === 'english') return 60;
+  if (['tamil', 'telugu', 'malayalam', 'kannada', 'bengali'].includes(langKey)) return 45;
   return 30;
 }
 
+/**
+ * Probes an HLS or MP4 stream safely without downloading full multi-hour playlists.
+ * Reads only the opening bytes (to verify `#EXTM3U`) and immediately cancels the stream.
+ */
 async function probeStream(url: string, streamType: 'hls' | 'mp4'): Promise<boolean> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 3200);
+  const timer = setTimeout(() => ctrl.abort(), 7000);
   try {
     const res = await fetch(url, {
       method: streamType === 'mp4' ? 'HEAD' : 'GET',
@@ -144,8 +149,26 @@ async function probeStream(url: string, streamType: 'hls' | 'mp4'): Promise<bool
     });
     if (!res.ok) return false;
     if (streamType === 'hls') {
-      const txt = await res.text();
-      return txt.includes('#EXTM3U');
+      const reader = res.body?.getReader();
+      if (!reader) {
+        const txt = await res.text();
+        return txt.includes('#EXTM3U');
+      }
+      try {
+        let head = '';
+        const decoder = new TextDecoder();
+        while (head.length < 512) {
+          const { value, done } = await reader.read();
+          if (done || !value) break;
+          head += decoder.decode(value, { stream: true });
+          if (head.includes('#EXTM3U')) {
+            return true;
+          }
+        }
+        return head.includes('#EXTM3U');
+      } finally {
+        reader.cancel().catch(() => {});
+      }
     }
     return true;
   } catch {
@@ -168,6 +191,33 @@ function normalizeSubtitleLang(label: string): string {
   return label.slice(0, 2).toLowerCase() || 'en';
 }
 
+async function fetchSubtitlesWithTimeout(path: string): Promise<SubtitleTrack[]> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2800);
+  try {
+    const res = await fetch(`https://sub.vdrk.site/v1/${path}`, { signal: ctrl.signal });
+    if (!res.ok) return [];
+    const rawSubs = (await res.json()) as Array<{ label?: string; file?: string }>;
+    if (!Array.isArray(rawSubs)) return [];
+    return rawSubs
+      .filter(s => Boolean(s?.file && s?.label))
+      .map(s => ({
+        label: s.label as string,
+        lang: normalizeSubtitleLang(s.label as string),
+        url: s.file as string,
+      }))
+      .sort((a, b) => {
+        const rank = (lbl: string) =>
+          lbl.toLowerCase().startsWith('english') ? 0 : lbl.toLowerCase().startsWith('hindi') ? 1 : 2;
+        return rank(a.label) - rank(b.label);
+      });
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function extractDirectStreams(params: {
   type: 'movie' | 'tv';
   id: number;
@@ -185,36 +235,18 @@ export async function extractDirectStreams(params: {
       ? `tv/${params.id}/${params.season ?? 1}/${params.episode ?? 1}`
       : `movie/${params.id}`;
 
-  const [apiRes, subRes] = await Promise.allSettled([
-    fetch(`https://vidrock.net/api/${path}`, { cache: 'no-store' }).then(r =>
-      r.ok ? r.json() : null
-    ),
-    fetch(`https://sub.vdrk.site/v1/${path}`).then(r => (r.ok ? r.json() : [])),
+  const [apiRes, subtitles] = await Promise.all([
+    fetch(`https://vidrock.net/api/${path}`, { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null),
+    fetchSubtitlesWithTimeout(path),
   ]);
 
-  const rawSubs =
-    subRes.status === 'fulfilled' && Array.isArray(subRes.value)
-      ? (subRes.value as Array<{ label?: string; file?: string }>)
-      : [];
-
-  const subtitles: SubtitleTrack[] = rawSubs
-    .filter(s => Boolean(s?.file && s?.label))
-    .map(s => ({
-      label: s.label as string,
-      lang: normalizeSubtitleLang(s.label as string),
-      url: s.file as string,
-    }))
-    .sort((a, b) => {
-      const rank = (lbl: string) =>
-        lbl.toLowerCase().startsWith('english') ? 0 : lbl.toLowerCase().startsWith('hindi') ? 1 : 2;
-      return rank(a.label) - rank(b.label);
-    });
-
-  if (apiRes.status !== 'fulfilled' || !apiRes.value || typeof apiRes.value !== 'object') {
+  if (!apiRes || typeof apiRes !== 'object') {
     return { streams: [], availableLanguages: [], subtitles };
   }
 
-  const rawSources = apiRes.value as Record<
+  const rawSources = apiRes as Record<
     string,
     { url?: string; language?: string; type?: string }
   >;
@@ -254,26 +286,25 @@ export async function extractDirectStreams(params: {
     return { streams: [], availableLanguages: [], subtitles };
   }
 
-  // Group candidates by canonical language so EVERY available dub is probed fairly
-  // (previously slice(0, 8) dropped minority dubs like Tamil/Telugu/Malayalam).
+  // Round-robin across ALL distinct languages so every dubbed language is guaranteed a probe slot
   const byLang = new Map<string, ScoredCandidate[]>();
   for (const cand of decrypted) {
     const bucket = byLang.get(cand.langKey) ?? [];
     bucket.push(cand);
     byLang.set(cand.langKey, bucket);
   }
-
-  const candidatesToProbe: ScoredCandidate[] = [];
-  for (const [key, bucket] of byLang.entries()) {
+  for (const bucket of byLang.values()) {
     bucket.sort((a, b) => b.cdnScore - a.cdnScore);
-    const isPref =
-      params.preferredLanguage &&
-      (key === params.preferredLanguage.toLowerCase() ||
-        key.includes(params.preferredLanguage.toLowerCase()));
-    candidatesToProbe.push(...bucket.slice(0, isPref ? 3 : 2));
   }
 
-  const probeBatch = candidatesToProbe.slice(0, 14);
+  const probeBatch: ScoredCandidate[] = [];
+  for (let round = 0; round < 3 && probeBatch.length < 18; round++) {
+    for (const bucket of byLang.values()) {
+      if (probeBatch.length >= 18) break;
+      if (bucket[round]) probeBatch.push(bucket[round]);
+    }
+  }
+
   const probeResults = await Promise.all(
     probeBatch.map(c => probeStream(c.url, c.streamType))
   );
@@ -298,7 +329,6 @@ export async function extractDirectStreams(params: {
     })
   );
 
-  // Build deduplicated list of genuinely verified playable languages
   const langGroup = new Map<string, DirectStreamOption[]>();
   for (const s of streams) {
     const arr = langGroup.get(s.langKey) ?? [];

@@ -168,7 +168,11 @@ export default function LuminaServerDeck({
                 </span>
               ) : (
                 <span className="lumina-lang-trigger__meta">
-                  {audioOptions.length > 1 ? `${audioOptions.length} Dubs` : activeOption.sourceNote}
+                  {audioOptions.length > 1
+                    ? audioOptions.some(o => o.key === 'hindi') && activeOption.key !== 'hindi'
+                      ? `Hindi +${audioOptions.length - 1} Dubs`
+                      : `${audioOptions.length} Dubs`
+                    : activeOption.sourceNote}
                 </span>
               )}
               <ChevronDown
