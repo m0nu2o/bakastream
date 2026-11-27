@@ -4,26 +4,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Loader2,
-  Volume2,
-  VolumeX,
   Zap,
-  Play,
-  Pause,
-  FastForward,
-  Rewind,
-  Maximize,
   Minimize,
   RotateCcw,
   Smartphone,
 } from 'lucide-react';
 import VideoPlayer from '@/components/player/VideoPlayer';
-import LuminaServerDeck from '@/components/player/LuminaServerDeck';
+import LuminaServerDeck, { type AudioLanguageOption } from '@/components/player/LuminaServerDeck';
 import StateView from '@/components/StateView';
 import { resolveStream } from '@/lib/tmdb/client';
 import {
   extractDirectStreams,
+  type DirectLanguageOption,
   type DirectStreamOption,
 } from '@/lib/player/directExtractor';
+import { normalizeLanguage } from '@/lib/languages';
 import {
   getLuminaServers,
   getNextFallbackServer,
@@ -44,6 +39,13 @@ interface Props {
 
 const DIRECT_PLAYER_SERVERS = new Set(['nova', 'nova-anime', 'vidrock', 'vidrock-anime']);
 
+interface DirectDiscoveryState {
+  streams: DirectStreamOption[];
+  availableLanguages: DirectLanguageOption[];
+  subtitles: SubtitleTrack[];
+  done: boolean;
+}
+
 export default function WatchClient({
   content,
   season,
@@ -51,20 +53,28 @@ export default function WatchClient({
   prevEpisodeHref,
   nextEpisodeHref,
 }: Props) {
+  const isAnimeGenre = Boolean(content.genreIds?.includes(16));
+  const initialLang = content.originalLanguage === 'hi' ? 'hindi' : 'english';
+
   const [info, setInfo] = useState<PlaybackInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const initialLang = content.originalLanguage === 'hi' ? 'hindi' : 'english';
   const [subOrDub, setSubOrDub] = useState<'sub' | 'dub'>('sub');
-  const isAnimeGenre = Boolean(content.genreIds?.includes(16));
   const [server, setServer] = useState<string>(isAnimeGenre ? 'nova-anime' : 'nova');
   const [language, setLanguage] = useState<string>(initialLang);
   const [autoSwitch, setAutoSwitch] = useState<boolean>(true);
-  const [directStreams, setDirectStreams] = useState<DirectStreamOption[]>([]);
+  const [switchBanner, setSwitchBanner] = useState<string | null>(null);
+
+  const [directDiscovery, setDirectDiscovery] = useState<DirectDiscoveryState>({
+    streams: [],
+    availableLanguages: [],
+    subtitles: [],
+    done: false,
+  });
   const [activeDirectStream, setActiveDirectStream] = useState<DirectStreamOption | null>(null);
-  const [directSubtitles, setDirectSubtitles] = useState<SubtitleTrack[]>([]);
 
   const requestedLang = useRef<string | undefined>(undefined);
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isAnime = Boolean(isAnimeGenre || info?.isAnime);
   const mediaCategory = isAnime ? 'anime' : (content.type as 'movie' | 'tv');
   const isHindiOriginal = content.originalLanguage === 'hi';
@@ -72,6 +82,20 @@ export default function WatchClient({
   const compatibleServers = useMemo(() => {
     return getLuminaServers(mediaCategory, isHindiOriginal);
   }, [mediaCategory, isHindiOriginal]);
+
+  const showSmartBanner = useCallback((msg: string) => {
+    if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    setSwitchBanner(msg);
+    bannerTimerRef.current = setTimeout(() => {
+      setSwitchBanner(null);
+    }, 4500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    };
+  }, []);
 
   // AdShield: Intercept rogue popups at parent window level
   useEffect(() => {
@@ -86,20 +110,49 @@ export default function WatchClient({
     };
   }, []);
 
+  const findBestDirectStream = useCallback(
+    (streams: DirectStreamOption[], langKey?: string, mode?: 'sub' | 'dub') => {
+      if (streams.length === 0) return null;
+      const needle = langKey?.trim().toLowerCase();
+      if (needle) {
+        const directMatch = streams.find(
+          s => s.langKey === needle || s.language.toLowerCase().includes(needle)
+        );
+        if (directMatch) return directMatch;
+      }
+      if (mode === 'dub') {
+        const dubMatch = streams.find(s => s.langKey === 'english');
+        if (dubMatch) return dubMatch;
+      }
+      if (mode === 'sub') {
+        const subMatch = streams.find(s => s.langKey === 'japanese');
+        if (subMatch) return subMatch;
+      }
+      return streams[0];
+    },
+    []
+  );
+
   const load = useCallback(
-    async (options?: { language?: string; subOrDub?: 'sub' | 'dub'; server?: string }) => {
+    async (options?: {
+      language?: string;
+      subOrDub?: 'sub' | 'dub';
+      server?: string;
+      skipDirectCheck?: boolean;
+      reuseDiscovery?: DirectDiscoveryState;
+    }) => {
       const nextLang =
         options?.language ??
         requestedLang.current ??
         (content.originalLanguage === 'hi' ? 'hindi' : undefined);
       const nextSubOrDub = options?.subOrDub ?? subOrDub;
-      const nextServer = options?.server ?? server;
-      const shouldExtractDirect = DIRECT_PLAYER_SERVERS.has(nextServer);
+      let nextServer = options?.server ?? server;
+      const runDirectDiscovery = !options?.skipDirectCheck && !options?.reuseDiscovery?.done;
 
       setLoading(true);
       setError(null);
       try {
-        const [data, direct] = await Promise.all([
+        const [initialInfo, discovered] = await Promise.all([
           resolveStream({
             type: content.type,
             id: content.id,
@@ -112,7 +165,7 @@ export default function WatchClient({
             server: nextServer,
             language: nextLang,
           }),
-          shouldExtractDirect
+          runDirectDiscovery
             ? extractDirectStreams({
                 type: content.type,
                 id: content.id,
@@ -120,24 +173,76 @@ export default function WatchClient({
                 episode,
                 preferredLanguage: nextLang,
                 subOrDub: nextSubOrDub,
-              }).catch(() => ({ streams: [], subtitles: [] }))
-            : Promise.resolve({ streams: [], subtitles: [] }),
+              })
+                .then(res => ({ ...res, done: true }))
+                .catch(() => ({
+                  streams: [],
+                  availableLanguages: [],
+                  subtitles: [],
+                  done: true,
+                }))
+            : Promise.resolve(options?.reuseDiscovery ?? directDiscovery),
         ]);
 
-        if (shouldExtractDirect && direct.streams.length > 0) {
-          setDirectStreams(direct.streams);
-          setActiveDirectStream(direct.streams[0]);
-          setDirectSubtitles(direct.subtitles);
-        } else {
-          setDirectStreams([]);
-          setActiveDirectStream(null);
-          setDirectSubtitles([]);
+        if (runDirectDiscovery) {
+          setDirectDiscovery(discovered);
         }
 
-        setInfo(data);
-        if (data?.server) {
-          setServer(data.server);
+        let finalInfo = initialInfo;
+        const hasDirect = discovered.streams.length > 0;
+        const isDirectSelected = DIRECT_PLAYER_SERVERS.has(nextServer);
+
+        if (hasDirect && !options?.skipDirectCheck) {
+          const picked = findBestDirectStream(discovered.streams, nextLang, nextSubOrDub);
+          if (picked) {
+            setActiveDirectStream(picked);
+            setLanguage(picked.langKey);
+            if (!isDirectSelected && autoSwitch && nextLang && picked.langKey === nextLang.toLowerCase()) {
+              const targetDirectId = isAnimeGenre ? 'nova-anime' : 'nova';
+              const targetName =
+                compatibleServers.find(s => s.id === targetDirectId)?.name ?? 'NovaAPI Pro';
+              nextServer = targetDirectId;
+              showSmartBanner(`⚡ Switched to ${targetName} — ${picked.language} audio verified`);
+            }
+          } else {
+            setActiveDirectStream(null);
+          }
+        } else if (!hasDirect && isDirectSelected && finalInfo?.playback?.kind !== 'native') {
+          setActiveDirectStream(null);
+          // Intelligent auto-switch: if direct server has zero playable streams for this title,
+          // advance cleanly to the first working backup server instead of mislabeling the deck.
+          if (autoSwitch && finalInfo) {
+            const fallbackServerId = isAnimeGenre ? 'vidlink-anime' : 'vidsrc-pm';
+            const fallbackObj = compatibleServers.find(s => s.id === fallbackServerId);
+            const fallbackInfo = await resolveStream({
+              type: content.type,
+              id: content.id,
+              imdbId: content.imdbId ?? undefined,
+              season,
+              episode,
+              title: content.title,
+              isAnime: content.genreIds?.includes(16),
+              subOrDub: nextSubOrDub,
+              server: fallbackServerId,
+              language: nextLang,
+            }).catch(() => null);
+
+            if (fallbackInfo && fallbackInfo.status === 'ok') {
+              finalInfo = fallbackInfo;
+              nextServer = fallbackServerId;
+              const prevName =
+                compatibleServers.find(s => s.id === (options?.server ?? server))?.name ?? 'Direct';
+              showSmartBanner(
+                `⚡ ${prevName} unavailable for this title — switched to ${fallbackObj?.name ?? fallbackServerId}`
+              );
+            }
+          }
+        } else if (!isDirectSelected) {
+          setActiveDirectStream(null);
         }
+
+        setInfo(finalInfo);
+        setServer(finalInfo?.server || nextServer);
         if (nextLang) {
           requestedLang.current = nextLang;
         }
@@ -158,42 +263,229 @@ export default function WatchClient({
       episode,
       subOrDub,
       server,
+      directDiscovery,
+      findBestDirectStream,
+      autoSwitch,
+      isAnimeGenre,
+      compatibleServers,
+      showSmartBanner,
     ]
   );
 
   useEffect(() => {
-    load();
+    setDirectDiscovery({ streams: [], availableLanguages: [], subtitles: [], done: false });
+    setActiveDirectStream(null);
+    load({
+      reuseDiscovery: undefined,
+      skipDirectCheck: false,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- resolve once per title/episode
   }, [content.id, content.type, season, episode]);
 
-  const handleSubOrDubChange = (newSubOrDub: 'sub' | 'dub') => {
-    setSubOrDub(newSubOrDub);
-    load({ subOrDub: newSubOrDub });
-  };
+  // Build ONLY verified playable audio options from live stream discovery & supported engines
+  const audioOptions: AudioLanguageOption[] = useMemo(() => {
+    const directServerId = DIRECT_PLAYER_SERVERS.has(server)
+      ? server
+      : isAnime
+        ? 'nova-anime'
+        : 'nova';
 
-  const handleServerChange = (newServer: string) => {
-    setServer(newServer);
-    load({ server: newServer });
-  };
+    const opts: AudioLanguageOption[] = directDiscovery.availableLanguages.map(lang => ({
+      key: lang.key,
+      label: lang.label,
+      nativeLabel: lang.nativeLabel,
+      flag: lang.flag,
+      sourceNote: `${lang.mirrorCount} HD ${lang.mirrorCount === 1 ? 'mirror' : 'mirrors'}`,
+      targetServerId: directServerId,
+      isDirectVerified: true,
+    }));
 
-  const handleLanguageChange = (newLang: string) => {
-    setLanguage(newLang);
-    if (directStreams.length > 0) {
-      const needle = newLang.toLowerCase();
-      const matched = directStreams.find(s => s.language.toLowerCase().includes(needle));
-      if (matched) {
-        setActiveDirectStream(matched);
-        return;
+    const hasKey = (k: string) => opts.some(o => o.key === k);
+
+    if (isAnime) {
+      if (!hasKey('japanese')) {
+        opts.push({
+          key: 'sub',
+          label: 'Japanese (SUB)',
+          nativeLabel: '日本語',
+          flag: '🇯🇵',
+          sourceNote: 'VidLink Anime',
+          targetServerId: 'vidlink-anime',
+        });
+      }
+      if (!hasKey('english')) {
+        opts.push({
+          key: 'dub',
+          label: 'English (DUB)',
+          nativeLabel: 'English',
+          flag: '🇺🇸',
+          sourceNote: 'VidLink Anime',
+          targetServerId: 'vidlink-anime',
+        });
+      }
+      return opts;
+    }
+
+    // If backend NovaAPI returned real audio tracks (when no direct VidRock stream existed)
+    if (opts.length === 0 && info?.providerId === 'nova' && info.audioTracks.length > 0) {
+      for (const track of info.audioTracks) {
+        const norm = normalizeLanguage(track.label);
+        const key = (norm?.label || track.label).toLowerCase();
+        if (!hasKey(key)) {
+          opts.push({
+            key,
+            label: norm?.label || track.label,
+            nativeLabel: norm?.nativeLabel,
+            flag: norm?.flag === '🌐' && norm.code === 'en' ? '🇺🇸' : (norm?.flag ?? '🌐'),
+            sourceNote: 'NovaAPI Track',
+            targetServerId: server,
+          });
+        }
       }
     }
-    load({ language: newLang });
-  };
+
+    // Honest single fallback: TMDB original language via embed player only when no direct stream verified it
+    if (opts.length === 0) {
+      const orig = normalizeLanguage(content.originalLanguage);
+      const fallbackFlag = orig?.flag === '🌐' && orig.code === 'en' ? '🇺🇸' : (orig?.flag ?? '🌐');
+      const activeName = compatibleServers.find(s => s.id === server)?.name ?? 'Embed Player';
+      opts.push({
+        key: 'original',
+        label: orig ? `${orig.label} (Original)` : 'Original / Multi-Audio',
+        nativeLabel: orig?.nativeLabel,
+        flag: fallbackFlag,
+        sourceNote: activeName,
+        targetServerId: server,
+      });
+    }
+
+    return opts;
+  }, [
+    directDiscovery.availableLanguages,
+    server,
+    isAnime,
+    info,
+    content.originalLanguage,
+    compatibleServers,
+  ]);
+
+  const effectiveSelectedAudioKey = useMemo(() => {
+    if (activeDirectStream) return activeDirectStream.langKey;
+    if (isAnime && subOrDub === 'dub' && audioOptions.some(o => o.key === 'dub')) return 'dub';
+    if (isAnime && subOrDub === 'sub' && audioOptions.some(o => o.key === 'sub')) return 'sub';
+    if (audioOptions.some(o => o.key === language)) return language;
+    return audioOptions[0]?.key ?? 'original';
+  }, [activeDirectStream, isAnime, subOrDub, audioOptions, language]);
+
+  const handleServerChange = useCallback(
+    (newServer: string) => {
+      setSwitchBanner(null);
+      setServer(newServer);
+
+      if (DIRECT_PLAYER_SERVERS.has(newServer) && directDiscovery.streams.length > 0) {
+        const matched = findBestDirectStream(directDiscovery.streams, language, subOrDub);
+        if (matched) {
+          setActiveDirectStream(matched);
+          setLanguage(matched.langKey);
+          return;
+        }
+      }
+
+      load({
+        server: newServer,
+        skipDirectCheck: !DIRECT_PLAYER_SERVERS.has(newServer),
+        reuseDiscovery: directDiscovery.done ? directDiscovery : undefined,
+      });
+    },
+    [directDiscovery, findBestDirectStream, language, load, subOrDub]
+  );
+
+  const handleSelectAudioOption = useCallback(
+    (option: AudioLanguageOption) => {
+      setLanguage(option.key);
+      requestedLang.current = option.key;
+
+      // 1. Verified direct stream available for this language -> play in fast cinema player,
+      // auto-switching server if currently on an embed-only server!
+      if (option.isDirectVerified && directDiscovery.streams.length > 0) {
+        const matched = findBestDirectStream(directDiscovery.streams, option.key, subOrDub);
+        if (matched) {
+          if (!DIRECT_PLAYER_SERVERS.has(server)) {
+            const targetId = option.targetServerId ?? (isAnime ? 'nova-anime' : 'nova');
+            const targetName = compatibleServers.find(s => s.id === targetId)?.name ?? 'NovaAPI Pro';
+            setServer(targetId);
+            showSmartBanner(`⚡ Switched to ${targetName} — ${option.label} audio verified`);
+          }
+          setActiveDirectStream(matched);
+          return;
+        }
+      }
+
+      // 2. Otherwise switch cleanly to the server capable of playing this track
+      const nextMode: 'sub' | 'dub' = option.key === 'dub' ? 'dub' : 'sub';
+      if (option.key === 'sub' || option.key === 'dub') {
+        setSubOrDub(nextMode);
+      }
+      setActiveDirectStream(null);
+
+      const targetServer =
+        option.targetServerId && option.targetServerId !== server
+          ? option.targetServerId
+          : DIRECT_PLAYER_SERVERS.has(server)
+            ? isAnime
+              ? 'vidlink-anime'
+              : 'vidsrc-pm'
+            : server;
+
+      if (targetServer !== server) {
+        const targetName = compatibleServers.find(s => s.id === targetServer)?.name ?? targetServer;
+        showSmartBanner(`⚡ Switched to ${targetName} for ${option.label}`);
+      }
+
+      setServer(targetServer);
+      load({
+        server: targetServer,
+        subOrDub: option.key === 'sub' || option.key === 'dub' ? nextMode : subOrDub,
+        language: option.key,
+        skipDirectCheck: true,
+        reuseDiscovery: directDiscovery,
+      });
+    },
+    [
+      compatibleServers,
+      directDiscovery,
+      findBestDirectStream,
+      isAnime,
+      load,
+      server,
+      showSmartBanner,
+      subOrDub,
+    ]
+  );
+
+  const handleFallbackFromDirectPlayer = useCallback(() => {
+    setActiveDirectStream(null);
+    const nextFallback = getNextFallbackServer(
+      server,
+      ['nova', 'nova-anime', 'vidrock', 'vidrock-anime'],
+      mediaCategory
+    );
+    const target = nextFallback ?? (isAnime ? 'vidlink-anime' : 'vidsrc-pm');
+    const targetName = compatibleServers.find(s => s.id === target)?.name ?? target;
+    setServer(target);
+    showSmartBanner(`⚡ Direct stream interrupted — switched to ${targetName}`);
+    load({
+      server: target,
+      skipDirectCheck: true,
+      reuseDiscovery: directDiscovery,
+    });
+  }, [compatibleServers, directDiscovery, isAnime, load, mediaCategory, server, showSmartBanner]);
 
   if (loading) {
     return (
       <div className="watch__stage watch__stage--loading">
         <Loader2 size={40} className="watch__spinner" />
-        <p>Finding streams…</p>
+        <p>Finding verified streams…</p>
       </div>
     );
   }
@@ -228,42 +520,40 @@ export default function WatchClient({
         streamType: activeDirectStream.streamType,
         url: activeDirectStream.url,
       },
-      subtitles: directSubtitles.length > 0 ? directSubtitles : (info?.subtitles ?? []),
+      subtitles:
+        directDiscovery.subtitles.length > 0 ? directDiscovery.subtitles : (info?.subtitles ?? []),
     };
     return (
       <div className="watch__stage">
         <VideoPlayer
-          key={`direct-${content.id}-${season ?? 0}-${episode ?? 0}-${activeDirectStream.url}`}
+          key={`direct-${content.id}-${season ?? 0}-${episode ?? 0}`}
           playback={nativePlayback}
           content={content}
           season={season}
           episode={episode}
-          mirrors={directStreams}
-          onSelectMirror={s => setActiveDirectStream(s)}
+          mirrors={directDiscovery.streams}
+          onSelectMirror={s => {
+            setActiveDirectStream(s);
+            setLanguage(s.langKey);
+          }}
+          audioOptions={audioOptions}
+          selectedAudioKey={effectiveSelectedAudioKey}
+          onSelectAudioOption={handleSelectAudioOption}
           prevEpisodeHref={prevEpisodeHref}
           nextEpisodeHref={nextEpisodeHref}
-          onFallbackToEmbed={() => setActiveDirectStream(null)}
-          onLanguageChange={handleLanguageChange}
+          onFallbackToEmbed={handleFallbackFromDirectPlayer}
         />
         <LuminaServerDeck
           servers={compatibleServers}
           activeServerId={server}
           onSelectServer={handleServerChange}
-          mediaCategory={mediaCategory}
-          selectedAudioTrack={language === 'hindi' ? 'hindi' : isAnime ? subOrDub : language}
-          onSelectAudioTrack={track => {
-            if (track === 'hindi') {
-              handleLanguageChange('hindi');
-            } else if (isAnime) {
-              setLanguage(initialLang);
-              handleSubOrDubChange(track as 'sub' | 'dub');
-            } else {
-              handleLanguageChange(track);
-            }
-          }}
-          hasHindiDub={true}
+          audioOptions={audioOptions}
+          selectedAudioKey={effectiveSelectedAudioKey}
+          onSelectAudioOption={handleSelectAudioOption}
+          discoveringAudio={!directDiscovery.done}
           autoSwitch={autoSwitch}
           onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
+          switchBanner={switchBanner}
         />
       </div>
     );
@@ -288,21 +578,13 @@ export default function WatchClient({
           servers={compatibleServers}
           activeServerId={server}
           onSelectServer={handleServerChange}
-          mediaCategory={mediaCategory}
-          selectedAudioTrack={language === 'hindi' ? 'hindi' : isAnime ? subOrDub : language}
-          onSelectAudioTrack={track => {
-            if (track === 'hindi') {
-              handleLanguageChange('hindi');
-            } else if (isAnime) {
-              setLanguage(initialLang);
-              handleSubOrDubChange(track as 'sub' | 'dub');
-            } else {
-              handleLanguageChange(track);
-            }
-          }}
-          hasHindiDub={true}
+          audioOptions={audioOptions}
+          selectedAudioKey={effectiveSelectedAudioKey}
+          onSelectAudioOption={handleSelectAudioOption}
+          discoveringAudio={!directDiscovery.done}
           autoSwitch={autoSwitch}
           onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
+          switchBanner={switchBanner}
         />
       </div>
     );
@@ -315,20 +597,19 @@ export default function WatchClient({
         embedUrl={info.playback.embedUrl}
         isPreview={info.isPreview ?? false}
         notice={info.notice}
-        audioTracks={info.audioTracks}
-        selectedLanguage={info.selectedLanguage}
         isAnime={isAnime}
         isHindiOriginal={content.originalLanguage === 'hi'}
-        activeSubOrDub={subOrDub}
         activeServer={server}
-        activeLanguage={language}
         compatibleServers={compatibleServers}
         mediaCategory={mediaCategory}
         autoSwitch={autoSwitch}
         onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
-        onSubOrDubChange={handleSubOrDubChange}
         onServerChange={handleServerChange}
-        onLanguageChange={handleLanguageChange}
+        audioOptions={audioOptions}
+        selectedAudioKey={effectiveSelectedAudioKey}
+        onSelectAudioOption={handleSelectAudioOption}
+        discoveringAudio={!directDiscovery.done}
+        switchBanner={switchBanner}
       />
     );
   }
@@ -341,77 +622,65 @@ export default function WatchClient({
         content={content}
         season={season}
         episode={episode}
+        audioOptions={audioOptions}
+        selectedAudioKey={effectiveSelectedAudioKey}
+        onSelectAudioOption={handleSelectAudioOption}
         prevEpisodeHref={prevEpisodeHref}
         nextEpisodeHref={nextEpisodeHref}
-        onLanguageChange={lang => load({ language: lang })}
       />
       <LuminaServerDeck
         servers={compatibleServers}
         activeServerId={server}
         onSelectServer={handleServerChange}
-        mediaCategory={mediaCategory}
-        selectedAudioTrack={language === 'hindi' ? 'hindi' : isAnime ? subOrDub : language}
-        onSelectAudioTrack={track => {
-          if (track === 'hindi') {
-            handleLanguageChange('hindi');
-          } else if (isAnime) {
-            setLanguage(initialLang);
-            handleSubOrDubChange(track as 'sub' | 'dub');
-          } else {
-            handleLanguageChange(track);
-          }
-        }}
-        hasHindiDub={true}
+        audioOptions={audioOptions}
+        selectedAudioKey={effectiveSelectedAudioKey}
+        onSelectAudioOption={handleSelectAudioOption}
+        discoveringAudio={!directDiscovery.done}
         autoSwitch={autoSwitch}
         onToggleAutoSwitch={() => setAutoSwitch(prev => !prev)}
+        switchBanner={switchBanner}
       />
     </div>
   );
 }
 
 /**
- * Embed-stage with:
- * - Enhanced Ad Shield (popup, navigation hijack, and event blocker)
- * - Auto-switch: on iframe error, auto-tries next verified server (if enabled)
- * - Auto-switch on/off toggle in the toolbar
- * - Premium toolbar layout
+ * Embed-stage with strict popup-blocking sandbox protection & intelligent server failover.
  */
 function EmbedStage({
   embedUrl,
   isPreview,
   notice,
-  audioTracks,
-  selectedLanguage,
   isAnime,
   isHindiOriginal,
-  activeSubOrDub,
   activeServer,
-  activeLanguage,
   compatibleServers,
   mediaCategory,
   autoSwitch,
   onToggleAutoSwitch,
-  onSubOrDubChange,
   onServerChange,
-  onLanguageChange,
+  audioOptions,
+  selectedAudioKey,
+  onSelectAudioOption,
+  discoveringAudio,
+  switchBanner,
 }: {
   embedUrl: string;
   isPreview: boolean;
   notice: string;
-  audioTracks: PlaybackInfo['audioTracks'];
-  selectedLanguage?: string;
   isAnime: boolean;
   isHindiOriginal?: boolean;
-  activeSubOrDub: 'sub' | 'dub';
   activeServer: string;
-  activeLanguage: string;
   compatibleServers: LuminaServerConfig[];
   mediaCategory: 'movie' | 'tv' | 'anime';
   autoSwitch: boolean;
   onToggleAutoSwitch: () => void;
-  onSubOrDubChange: (mode: 'sub' | 'dub') => void;
   onServerChange: (server: string) => void;
-  onLanguageChange: (lang: string) => void;
+  audioOptions: AudioLanguageOption[];
+  selectedAudioKey: string;
+  onSelectAudioOption: (option: AudioLanguageOption) => void;
+  discoveringAudio: boolean;
+  switchBanner: string | null;
 }) {
   const [failed, setFailed] = useState(false);
   const [autoSwitching, setAutoSwitching] = useState(false);
@@ -444,7 +713,7 @@ function EmbedStage({
     const handleFsChange = () => {
       const fs = Boolean(
         document.fullscreenElement ||
-        (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
+          (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
       );
       setIsFullscreen(fs);
       if (!fs && !isPseudoLandscape) {
@@ -471,8 +740,12 @@ function EmbedStage({
     if (currentlyActive) {
       if (document.fullscreenElement) {
         await document.exitFullscreen().catch(() => {});
-      } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
-        await (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+      } else if (
+        (document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen
+      ) {
+        await (document as unknown as { webkitExitFullscreen: () => Promise<void> })
+          .webkitExitFullscreen()
+          .catch(() => {});
       }
       try {
         if (screen.orientation && 'unlock' in screen.orientation) {
@@ -491,8 +764,13 @@ function EmbedStage({
         if (stage.requestFullscreen) {
           await stage.requestFullscreen();
           fsSuccess = true;
-        } else if ((stage as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
-          await (stage as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen();
+        } else if (
+          (stage as unknown as { webkitRequestFullscreen?: () => Promise<void> })
+            .webkitRequestFullscreen
+        ) {
+          await (
+            stage as unknown as { webkitRequestFullscreen: () => Promise<void> }
+          ).webkitRequestFullscreen();
           fsSuccess = true;
         }
       } catch (err) {
@@ -500,7 +778,9 @@ function EmbedStage({
       }
 
       try {
-        const orientation = screen.orientation as unknown as { lock?: (o: string) => Promise<void> };
+        const orientation = screen.orientation as unknown as {
+          lock?: (o: string) => Promise<void>;
+        };
         if (orientation && typeof orientation.lock === 'function') {
           await orientation.lock('landscape').catch(() => {});
         }
@@ -545,7 +825,6 @@ function EmbedStage({
     });
   }, []);
 
-  // ── Keyboard Controls & Hold to 2X Fast Forward ──────────────
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -553,7 +832,6 @@ function EmbedStage({
       if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
       const key = e.key.toLowerCase();
 
-      // If already holding this key, prevent duplicate timers & repeated actions
       if (isHoldingRef.current && holdKeyRef.current === key) {
         if (key === ' ' || key === 'arrowright') {
           e.preventDefault();
@@ -638,13 +916,11 @@ function EmbedStage({
 
       if (holdKeyRef.current === key) {
         if (isHoldingRef.current) {
-          // Revert holding 2X mode back to 1X
           isHoldingRef.current = false;
           broadcastToIframe('setSpeed', 1);
           broadcastToIframe('speed', 1);
           showHud('1X Speed', 800, false);
         } else {
-          // Short press (tap)
           if (key === ' ' || key === 'k') {
             broadcastToIframe('toggle');
             broadcastToIframe('play');
@@ -671,7 +947,6 @@ function EmbedStage({
     };
   }, [broadcastToIframe, showHud, toggleLandscapeFullscreen]);
 
-  // Reset tried servers when embedUrl changes (new server chosen manually)
   useEffect(() => {
     triedServersRef.current = [activeServer];
     setFailed(false);
@@ -679,19 +954,15 @@ function EmbedStage({
     setSwitchMessage(null);
   }, [embedUrl, activeServer]);
 
-  // ── Enhanced Ad Shield ──────────────────────────────────────
-  // Blocks: popup windows, top-level navigation hijacks, visibility-based popunders, and focus loss
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // 1. Block popup windows (the most common ad attack vector)
     const originalOpen = window.open;
     window.open = function (...args) {
       console.info('[BakaStream AdShield] Blocked popup:', args[0]);
       return null;
     };
 
-    // 2. Block top-level navigation hijack from within iframes
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (document.activeElement instanceof HTMLIFrameElement) {
         e.preventDefault();
@@ -699,7 +970,6 @@ function EmbedStage({
       }
     };
 
-    // 3. Keep focus locked to BakaStream if an iframe attempts an unfocus/new-tab deflection
     const handleBlur = () => {
       if (document.activeElement instanceof HTMLIFrameElement) {
         setTimeout(() => {
@@ -708,12 +978,6 @@ function EmbedStage({
       }
     };
 
-    // 4. Block visibility-based ad triggers (ads that trigger when tab becomes hidden)
-    const handleVisibility = () => {
-      // No-op override — prevents ad scripts that fire on visibility change
-    };
-
-    // 5. Block keyboard-triggered navigation
     const handleKeyBlock = (e: KeyboardEvent) => {
       if (document.activeElement instanceof HTMLIFrameElement) {
         if (e.key === 'F11') e.preventDefault();
@@ -722,19 +986,16 @@ function EmbedStage({
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('blur', handleBlur);
-    document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('keydown', handleKeyBlock);
 
     return () => {
       window.open = originalOpen;
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('blur', handleBlur);
-      document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('keydown', handleKeyBlock);
     };
   }, []);
 
-  // ── Auto-switch Logic ──────────────────────────────────────
   const handleIframeError = useCallback(() => {
     ProviderTelemetry.recordFailure(activeServer);
 
@@ -782,20 +1043,13 @@ function EmbedStage({
             setFailed(false);
             onServerChange(s);
           }}
-          mediaCategory={mediaCategory}
-          selectedAudioTrack={activeLanguage === 'hindi' ? 'hindi' : isAnime ? activeSubOrDub : activeLanguage}
-          onSelectAudioTrack={track => {
-            if (track === 'hindi') {
-              onLanguageChange('hindi');
-            } else if (isAnime) {
-              onSubOrDubChange(track as 'sub' | 'dub');
-            } else {
-              onLanguageChange(track);
-            }
-          }}
-          hasHindiDub={true}
+          audioOptions={audioOptions}
+          selectedAudioKey={selectedAudioKey}
+          onSelectAudioOption={onSelectAudioOption}
+          discoveringAudio={discoveringAudio}
           autoSwitch={autoSwitch}
           onToggleAutoSwitch={onToggleAutoSwitch}
+          switchBanner={switchBanner}
         />
       </div>
     );
@@ -806,7 +1060,6 @@ function EmbedStage({
       className={`watch__stage ${isFullscreen ? 'watch__stage--fullscreen' : ''} ${isPseudoLandscape ? 'watch__stage--pseudo-landscape' : ''}`}
       ref={stageRef}
     >
-      {/* Floating Exit Landscape / Fullscreen button for touch & mobile */}
       {(isFullscreen || isPseudoLandscape) && (
         <button
           type="button"
@@ -822,14 +1075,12 @@ function EmbedStage({
 
       {isPreview && <div className="watch__preview-banner">{notice}</div>}
 
-      {/* ── Apple-Grade Player HUD Toast ── */}
       {hud && (
         <div className={`player-hud-toast ${hud.holding ? 'player-hud-toast--holding' : ''}`}>
           <span>{hud.text}</span>
         </div>
       )}
 
-      {/* ── Auto-switch notification banner ── */}
       {(autoSwitching || switchMessage) && (
         <div className="watch__autoswitch-banner">
           <Zap size={14} className="watch__autoswitch-icon" />
@@ -837,7 +1088,6 @@ function EmbedStage({
         </div>
       )}
 
-      {/* ── Top Bar: Active Server Pill + Landscape / Fullscreen Toggle ── */}
       <div className="watch__toolbar">
         <div className="watch__active-server-pill">
           <span className="watch__server-dot" />
@@ -873,7 +1123,6 @@ function EmbedStage({
         </button>
       </div>
 
-      {/* ── Video Embed with Smart Sandbox & Ad Shield Protection ── */}
       <iframe
         ref={iframeRef}
         key={`${embedUrl}-${applySandbox ? 'sb' : 'nosb'}`}
@@ -891,7 +1140,6 @@ function EmbedStage({
         onError={handleIframeError}
       />
 
-      {/* ── Server Selection Deck ── */}
       <LuminaServerDeck
         servers={compatibleServers}
         activeServerId={activeServer}
@@ -900,44 +1148,22 @@ function EmbedStage({
           setFailed(false);
           onServerChange(s);
         }}
-        mediaCategory={mediaCategory}
-        selectedAudioTrack={activeLanguage === 'hindi' ? 'hindi' : isAnime ? activeSubOrDub : activeLanguage}
-        onSelectAudioTrack={track => {
-          if (track === 'hindi') {
-            onLanguageChange('hindi');
-          } else if (isAnime) {
-            onSubOrDubChange(track as 'sub' | 'dub');
-          } else {
-            onLanguageChange(track);
-          }
-        }}
-        hasHindiDub={true}
+        audioOptions={audioOptions}
+        selectedAudioKey={selectedAudioKey}
+        onSelectAudioOption={onSelectAudioOption}
+        discoveringAudio={discoveringAudio}
         autoSwitch={autoSwitch}
         onToggleAutoSwitch={onToggleAutoSwitch}
+        switchBanner={switchBanner}
       />
 
-      {/* ── Audio selector (secondary, for native audio track switching) ── */}
-      <div className="watch__under">
-        {audioTracks.length > 1 && !isAnime && (
-          <label className="watch__lang">
-            Audio
-            <select
-              defaultValue={selectedLanguage}
-              onChange={e => onLanguageChange(e.target.value)}
-              aria-label="Audio language selection"
-            >
-              {audioTracks.map(t => (
-                <option key={t.label} value={t.label}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        <p className="watch__notice">
-          <AlertTriangle size={13} /> {notice}
-        </p>
-      </div>
+      {notice && (
+        <div className="watch__under">
+          <p className="watch__notice">
+            <AlertTriangle size={13} /> {notice}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

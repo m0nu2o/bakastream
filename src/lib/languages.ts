@@ -85,6 +85,51 @@ const LANGUAGE_MAP: Record<
   ru: { code: 'ru', label: 'Russian', nativeLabel: 'Русский', flag: '🇷🇺' },
   rus: { code: 'ru', label: 'Russian', nativeLabel: 'Русский', flag: '🇷🇺' },
   russian: { code: 'ru', label: 'Russian', nativeLabel: 'Русский', flag: '🇷🇺' },
+
+  ml: { code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം', flag: '🇮🇳' },
+  mal: { code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം', flag: '🇮🇳' },
+  malayalam: { code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം', flag: '🇮🇳' },
+
+  kn: { code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ', flag: '🇮🇳' },
+  kan: { code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ', flag: '🇮🇳' },
+  kannada: { code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ', flag: '🇮🇳' },
+
+  mr: { code: 'mr', label: 'Marathi', nativeLabel: 'मराठी', flag: '🇮🇳' },
+  mar: { code: 'mr', label: 'Marathi', nativeLabel: 'मराठी', flag: '🇮🇳' },
+  marathi: { code: 'mr', label: 'Marathi', nativeLabel: 'मराठी', flag: '🇮🇳' },
+
+  pa: { code: 'pa', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+  pan: { code: 'pa', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+  punjabi: { code: 'pa', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+
+  tr: { code: 'tr', label: 'Turkish', nativeLabel: 'Türkçe', flag: '🇹🇷' },
+  tur: { code: 'tr', label: 'Turkish', nativeLabel: 'Türkçe', flag: '🇹🇷' },
+  turkish: { code: 'tr', label: 'Turkish', nativeLabel: 'Türkçe', flag: '🇹🇷' },
+
+  th: { code: 'th', label: 'Thai', nativeLabel: 'ไทย', flag: '🇹🇭' },
+  tha: { code: 'th', label: 'Thai', nativeLabel: 'ไทย', flag: '🇹🇭' },
+  thai: { code: 'th', label: 'Thai', nativeLabel: 'ไทย', flag: '🇹🇭' },
+
+  zh: { code: 'zh', label: 'Chinese', nativeLabel: '中文', flag: '🇨🇳' },
+  zho: { code: 'zh', label: 'Chinese', nativeLabel: '中文', flag: '🇨🇳' },
+  chinese: { code: 'zh', label: 'Chinese', nativeLabel: '中文', flag: '🇨🇳' },
+  mandarin: { code: 'zh', label: 'Chinese', nativeLabel: '中文', flag: '🇨🇳' },
+
+  ar: { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', flag: '🇸🇦' },
+  ara: { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', flag: '🇸🇦' },
+  arabic: { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', flag: '🇸🇦' },
+
+  ur: { code: 'ur', label: 'Urdu', nativeLabel: 'اردو', flag: '🇵🇰' },
+  urd: { code: 'ur', label: 'Urdu', nativeLabel: 'اردو', flag: '🇵🇰' },
+  urdu: { code: 'ur', label: 'Urdu', nativeLabel: 'اردو', flag: '🇵🇰' },
+
+  id: { code: 'id', label: 'Indonesian', nativeLabel: 'Bahasa Indonesia', flag: '🇮🇩' },
+  ind: { code: 'id', label: 'Indonesian', nativeLabel: 'Bahasa Indonesia', flag: '🇮🇩' },
+  indonesian: { code: 'id', label: 'Indonesian', nativeLabel: 'Bahasa Indonesia', flag: '🇮🇩' },
+
+  nl: { code: 'nl', label: 'Dutch', nativeLabel: 'Nederlands', flag: '🇳🇱' },
+  nld: { code: 'nl', label: 'Dutch', nativeLabel: 'Nederlands', flag: '🇳🇱' },
+  dutch: { code: 'nl', label: 'Dutch', nativeLabel: 'Nederlands', flag: '🇳🇱' },
 };
 
 /**

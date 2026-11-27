@@ -1,21 +1,36 @@
 /**
  * Ultra-fast client-side direct HLS/MP4 stream & WebVTT subtitle extractor.
- * Fetches CORS-enabled APIs straight from the browser (0 worker bandwidth, ~200ms load,
- * 0 third-party iframe bloat, 0 ads) and feeds streams directly into <VideoPlayer>.
+ * Fetches CORS-enabled APIs straight from the browser (0 worker bandwidth, ~300ms load,
+ * 0 third-party iframe bloat, 0 ads), verifies every available dubbed language via live
+ * stream probing, and feeds streams directly into <VideoPlayer>.
  */
 
+import { normalizeLanguage } from '@/lib/languages';
 import type { SubtitleTrack } from '@/lib/providers/types';
 
 export interface DirectStreamOption {
   id: string;
   label: string;
   language: string;
+  langKey: string;
+  flag: string;
+  nativeLabel: string;
   url: string;
   streamType: 'hls' | 'mp4';
 }
 
+export interface DirectLanguageOption {
+  key: string;
+  label: string;
+  nativeLabel: string;
+  flag: string;
+  mirrorCount: number;
+  bestStream: DirectStreamOption;
+}
+
 export interface DirectExtractionResult {
   streams: DirectStreamOption[];
+  availableLanguages: DirectLanguageOption[];
   subtitles: SubtitleTrack[];
 }
 
@@ -80,14 +95,43 @@ function cdnPriorityScore(url: string): number {
   return 6;
 }
 
-function langMatchScore(streamLang: string, preferred?: string, subOrDub?: 'sub' | 'dub'): number {
-  const s = streamLang.toLowerCase();
-  if (preferred === 'hindi' && s.includes('hindi')) return 100;
-  if (subOrDub === 'dub' && s.includes('english')) return 95;
-  if (subOrDub === 'sub' && (s.includes('japanese') || s.includes('original'))) return 95;
-  if (preferred && s.includes(preferred.toLowerCase())) return 90;
-  if (s.includes('hindi') || s.includes('english')) return 50;
-  return 20;
+function canonicalLangKey(rawLanguage?: string): {
+  key: string;
+  label: string;
+  nativeLabel: string;
+  flag: string;
+} {
+  const trimmed = rawLanguage?.trim() || 'Original';
+  const info = normalizeLanguage(trimmed);
+  if (info && info.isVerified) {
+    return {
+      key: info.label.toLowerCase(),
+      label: info.label,
+      nativeLabel: info.nativeLabel,
+      flag: info.flag === '🌐' && info.code === 'en' ? '🇺🇸' : info.flag,
+    };
+  }
+  const cleanLabel = trimmed.replace(/\s+/g, ' ');
+  return {
+    key: cleanLabel.toLowerCase(),
+    label: cleanLabel,
+    nativeLabel: cleanLabel,
+    flag: '🌐',
+  };
+}
+
+function langMatchScore(
+  langKey: string,
+  preferred?: string,
+  subOrDub?: 'sub' | 'dub'
+): number {
+  const pref = preferred?.trim().toLowerCase();
+  if (pref && (langKey === pref || langKey.includes(pref))) return 100;
+  if (subOrDub === 'dub' && langKey === 'english') return 95;
+  if (subOrDub === 'sub' && (langKey === 'japanese' || langKey === 'original')) return 95;
+  if (langKey === 'hindi') return 60;
+  if (langKey === 'english') return 55;
+  return 30;
 }
 
 async function probeStream(url: string, streamType: 'hls' | 'mp4'): Promise<boolean> {
@@ -133,7 +177,7 @@ export async function extractDirectStreams(params: {
   subOrDub?: 'sub' | 'dub';
 }): Promise<DirectExtractionResult> {
   if (typeof window === 'undefined' || !window.crypto?.subtle) {
-    return { streams: [], subtitles: [] };
+    return { streams: [], availableLanguages: [], subtitles: [] };
   }
 
   const path =
@@ -167,7 +211,7 @@ export async function extractDirectStreams(params: {
     });
 
   if (apiRes.status !== 'fulfilled' || !apiRes.value || typeof apiRes.value !== 'object') {
-    return { streams: [], subtitles };
+    return { streams: [], availableLanguages: [], subtitles };
   }
 
   const rawSources = apiRes.value as Record<
@@ -175,7 +219,9 @@ export async function extractDirectStreams(params: {
     { url?: string; language?: string; type?: string }
   >;
 
-  const decrypted: Array<DirectStreamOption & { score: number }> = [];
+  type ScoredCandidate = DirectStreamOption & { cdnScore: number; totalScore: number };
+  const decrypted: ScoredCandidate[] = [];
+
   await Promise.all(
     Object.entries(rawSources).map(async ([mirrorName, entry]) => {
       if (!entry?.url || entry.url.startsWith('http')) return;
@@ -183,17 +229,20 @@ export async function extractDirectStreams(params: {
         const url = await decryptStreamUrl(entry.url);
         if (!url.startsWith('http')) return;
         const streamType: 'hls' | 'mp4' = entry.type === 'mp4' ? 'mp4' : 'hls';
-        const language = entry.language?.trim() || 'Original';
-        const score =
-          langMatchScore(language, params.preferredLanguage, params.subOrDub) +
-          cdnPriorityScore(url);
+        const canon = canonicalLangKey(entry.language);
+        const cdn = cdnPriorityScore(url);
+        const total = langMatchScore(canon.key, params.preferredLanguage, params.subOrDub) + cdn;
         decrypted.push({
           id: mirrorName,
-          label: `${language} (${mirrorName})`,
-          language,
+          label: `${canon.label} (${mirrorName})`,
+          language: canon.label,
+          langKey: canon.key,
+          flag: canon.flag,
+          nativeLabel: canon.nativeLabel,
           url,
           streamType,
-          score,
+          cdnScore: cdn,
+          totalScore: total,
         });
       } catch {
         // skip invalid entry
@@ -202,31 +251,75 @@ export async function extractDirectStreams(params: {
   );
 
   if (decrypted.length === 0) {
-    return { streams: [], subtitles };
+    return { streams: [], availableLanguages: [], subtitles };
   }
 
-  // Sort by preference + reliable CDN
-  decrypted.sort((a, b) => b.score - a.score);
+  // Group candidates by canonical language so EVERY available dub is probed fairly
+  // (previously slice(0, 8) dropped minority dubs like Tamil/Telugu/Malayalam).
+  const byLang = new Map<string, ScoredCandidate[]>();
+  for (const cand of decrypted) {
+    const bucket = byLang.get(cand.langKey) ?? [];
+    bucket.push(cand);
+    byLang.set(cand.langKey, bucket);
+  }
 
-  // Probe up to top 8 distinct candidates in parallel so the player boots on a guaranteed 200 stream
-  const topCandidates = decrypted.slice(0, 8);
+  const candidatesToProbe: ScoredCandidate[] = [];
+  for (const [key, bucket] of byLang.entries()) {
+    bucket.sort((a, b) => b.cdnScore - a.cdnScore);
+    const isPref =
+      params.preferredLanguage &&
+      (key === params.preferredLanguage.toLowerCase() ||
+        key.includes(params.preferredLanguage.toLowerCase()));
+    candidatesToProbe.push(...bucket.slice(0, isPref ? 3 : 2));
+  }
+
+  const probeBatch = candidatesToProbe.slice(0, 14);
   const probeResults = await Promise.all(
-    topCandidates.map(c => probeStream(c.url, c.streamType))
+    probeBatch.map(c => probeStream(c.url, c.streamType))
   );
 
-  const verified = topCandidates.filter((_, i) => probeResults[i]);
+  const verified = probeBatch.filter((_, i) => probeResults[i]);
   if (verified.length === 0) {
-    return { streams: [], subtitles };
+    return { streams: [], availableLanguages: [], subtitles };
   }
 
-  return {
-    streams: verified.map(({ id, label, language, url, streamType }) => ({
+  verified.sort((a, b) => b.totalScore - a.totalScore);
+
+  const streams: DirectStreamOption[] = verified.map(
+    ({ id, label, language, langKey, flag, nativeLabel, url, streamType }) => ({
       id,
       label,
       language,
+      langKey,
+      flag,
+      nativeLabel,
       url,
       streamType,
-    })),
+    })
+  );
+
+  // Build deduplicated list of genuinely verified playable languages
+  const langGroup = new Map<string, DirectStreamOption[]>();
+  for (const s of streams) {
+    const arr = langGroup.get(s.langKey) ?? [];
+    arr.push(s);
+    langGroup.set(s.langKey, arr);
+  }
+
+  const availableLanguages: DirectLanguageOption[] = Array.from(langGroup.entries()).map(
+    ([key, list]) => ({
+      key,
+      label: list[0].language,
+      nativeLabel: list[0].nativeLabel,
+      flag: list[0].flag,
+      mirrorCount: list.length,
+      bestStream: list[0],
+    })
+  );
+
+  return {
+    streams,
+    availableLanguages,
     subtitles,
   };
 }

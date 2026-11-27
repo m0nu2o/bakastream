@@ -185,161 +185,299 @@
   flex-wrap: wrap;
 }
 
-/* ── Dedicated Multi-Audio Language Deck ── */
-.lumina-audio-deck {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding: 0.45rem 0.65rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 12px;
-  width: 100%;
-}
-
-:root[data-mode="light"] .lumina-audio-deck,
-:root[data-theme="light"] .lumina-audio-deck {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-}
-
-.lumina-audio-deck__label {
+/* ── Smart Server/Audio Switch Notice ── */
+.lumina-smart-toast {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: var(--text-tertiary, #94a3b8);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.lumina-audio-deck__buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.lumina-audio-dropdown-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.lumina-audio-select {
-  padding: 0.32rem 0.7rem;
+  gap: 0.45rem;
+  align-self: flex-start;
+  padding: 0.34rem 0.78rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-secondary, #cbd5e1);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.32);
+  color: #34d399;
   font-size: 0.74rem;
   font-weight: 600;
+  animation: luminaFadeIn 0.22s ease;
+}
+
+@keyframes luminaFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lumina-spin {
+  animation: luminaSpin 1s linear infinite;
+}
+
+@keyframes luminaSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Single Unified Dubbed Language Picklist ── */
+.lumina-lang-picker {
+  position: relative;
+  display: inline-flex;
+}
+
+.lumina-lang-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(247, 0, 99, 0.38);
+  background: linear-gradient(135deg, rgba(247, 0, 99, 0.14), rgba(20, 22, 34, 0.92));
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
-  outline: none;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
-:root[data-mode="light"] .lumina-audio-select,
-:root[data-theme="light"] .lumina-audio-select {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  color: #0f172a;
-}
-
-.lumina-audio-select:hover,
-.lumina-audio-select:focus {
+.lumina-lang-trigger:hover,
+.lumina-lang-trigger--open {
   border-color: var(--accent, #F70063);
-  color: #ffffff;
-  box-shadow: 0 0 10px rgba(247, 0, 99, 0.25);
+  background: linear-gradient(135deg, rgba(247, 0, 99, 0.26), rgba(24, 26, 40, 0.96));
+  box-shadow: 0 6px 20px rgba(247, 0, 99, 0.28);
+  transform: translateY(-1px);
 }
 
-.lumina-audio-select option {
-  background: #161622;
-  color: #ffffff;
-}
-
-:root[data-mode="light"] .lumina-audio-select option,
-:root[data-theme="light"] .lumina-audio-select option {
+:root[data-mode="light"] .lumina-lang-trigger,
+:root[data-theme="light"] .lumina-lang-trigger {
   background: #ffffff;
+  border-color: rgba(247, 0, 99, 0.45);
   color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
-.lumina-audio-deck__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.68rem;
+:root[data-mode="light"] .lumina-lang-trigger:hover,
+:root[data-mode="light"] .lumina-lang-trigger--open,
+:root[data-theme="light"] .lumina-lang-trigger:hover,
+:root[data-theme="light"] .lumina-lang-trigger--open {
+  background: #fff1f6;
+  border-color: var(--accent, #F70063);
+}
+
+.lumina-lang-trigger__icon {
+  color: var(--accent, #F70063);
+  flex-shrink: 0;
+}
+
+.lumina-lang-trigger__flag {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.lumina-lang-trigger__text {
   font-weight: 700;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
-  margin-left: auto;
 }
 
-/* SUB / DUB & Multi / Hindi Selector */
-.lumina-audio-selector {
+.lumina-lang-trigger__meta {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-  padding: 3px;
-  gap: 3px;
-}
-
-:root[data-mode="light"] .lumina-audio-selector,
-:root[data-theme="light"] .lumina-audio-selector {
-  background: #ffffff;
-  border-color: #cbd5e1;
-}
-
-.lumina-audio-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.32rem 0.75rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 0.74rem;
+  padding: 0.1rem 0.42rem;
+  border-radius: 999px;
+  font-size: 0.64rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--text-tertiary, #94a3b8);
-  cursor: pointer;
-  transition: all 0.16s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.84);
 }
 
-:root[data-mode="light"] .lumina-audio-btn,
-:root[data-theme="light"] .lumina-audio-btn {
-  background: #ffffff;
-  border-color: #cbd5e1;
+:root[data-mode="light"] .lumina-lang-trigger__meta,
+:root[data-theme="light"] .lumina-lang-trigger__meta {
+  background: rgba(247, 0, 99, 0.1);
+  color: #be1257;
+}
+
+.lumina-lang-trigger__chev {
+  color: rgba(255, 255, 255, 0.7);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.lumina-lang-trigger__chev.is-open {
+  transform: rotate(180deg);
+}
+
+:root[data-mode="light"] .lumina-lang-trigger__chev,
+:root[data-theme="light"] .lumina-lang-trigger__chev {
   color: #475569;
 }
 
-.lumina-audio-btn:hover {
+.lumina-lang-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 60;
+  width: min(320px, calc(100vw - 2rem));
+  background: rgba(14, 16, 26, 0.96);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 0.5rem;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(247, 0, 99, 0.12);
+  animation: luminaFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lumina-lang-menu--left {
+  left: 0;
+  right: auto;
+}
+
+:root[data-mode="light"] .lumina-lang-menu,
+:root[data-theme="light"] .lumina-lang-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: #cbd5e1;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+}
+
+.lumina-lang-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.38rem 0.6rem 0.48rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #94a3b8;
+}
+
+:root[data-mode="light"] .lumina-lang-menu__head,
+:root[data-theme="light"] .lumina-lang-menu__head {
+  border-bottom-color: #e2e8f0;
+  color: #64748b;
+}
+
+.lumina-lang-menu__count {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.lumina-lang-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  max-height: 270px;
+  overflow-y: auto;
+}
+
+.lumina-lang-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e2e8f0;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.14s ease;
+}
+
+.lumina-lang-option:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.09);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
 }
 
-.lumina-audio-btn--active {
-  background: var(--accent, #F70063) !important;
-  border-color: var(--accent-secondary, #FCE7F0) !important;
+.lumina-lang-option--active {
+  background: rgba(247, 0, 99, 0.16) !important;
+  border-color: rgba(247, 0, 99, 0.45) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(247, 0, 99, 0.45) !important;
 }
 
-:root[data-mode="light"] .lumina-audio-btn--active,
-:root[data-theme="light"] .lumina-audio-btn--active {
-  background: var(--accent, #F70063) !important;
+:root[data-mode="light"] .lumina-lang-option,
+:root[data-theme="light"] .lumina-lang-option {
+  color: #1e293b;
+}
+
+:root[data-mode="light"] .lumina-lang-option:hover,
+:root[data-theme="light"] .lumina-lang-option:hover {
+  background: #f1f5f9;
+}
+
+:root[data-mode="light"] .lumina-lang-option--active,
+:root[data-theme="light"] .lumina-lang-option--active {
+  background: #fff1f6 !important;
   border-color: var(--accent, #F70063) !important;
-  color: #ffffff !important;
+  color: #9d0240 !important;
+}
+
+.lumina-lang-option__left {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.lumina-lang-option__flag {
+  font-size: 1.05rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.lumina-lang-option__names {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lumina-lang-option__label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.lumina-lang-option__native {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+
+.lumina-lang-option__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.lumina-lang-option__tag {
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 0.14rem 0.45rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+.lumina-lang-option__tag.is-switch {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+:root[data-mode="light"] .lumina-lang-option__tag,
+:root[data-theme="light"] .lumina-lang-option__tag {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.lumina-lang-option__check {
+  color: var(--accent, #F70063);
+  flex-shrink: 0;
 }
 
 /* Auto-switch chip */
@@ -430,7 +568,7 @@
     padding: 0.55rem 0.65rem;
     gap: 0.5rem;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
   .lumina-bar__main {
     flex-direction: column;
@@ -472,5 +610,10 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.4rem;
+  }
+  .lumina-lang-menu {
+    left: 0;
+    right: auto;
+    bottom: calc(100% + 8px);
   }
 }

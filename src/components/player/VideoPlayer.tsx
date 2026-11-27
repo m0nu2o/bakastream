@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import type { PlaybackInfo } from '@/lib/providers/types';
 import type { DirectStreamOption } from '@/lib/player/directExtractor';
+import type { AudioLanguageOption } from '@/components/player/LuminaServerDeck';
 import { saveProgress, getProgress, clearProgress, recordWatch } from '@/lib/storage';
 import type { MediaSummary } from '@/types';
 import './VideoPlayer.css';
@@ -35,6 +36,9 @@ interface Props {
   episode?: number | null;
   mirrors?: DirectStreamOption[];
   onSelectMirror?: (stream: DirectStreamOption) => void;
+  audioOptions?: AudioLanguageOption[];
+  selectedAudioKey?: string;
+  onSelectAudioOption?: (opt: AudioLanguageOption) => void;
   prevEpisodeHref?: string | null;
   nextEpisodeHref?: string | null;
   onFallbackToEmbed?: () => void;
@@ -57,10 +61,12 @@ export default function VideoPlayer({
   episode,
   mirrors = [],
   onSelectMirror,
+  audioOptions = [],
+  selectedAudioKey,
+  onSelectAudioOption,
   prevEpisodeHref,
   nextEpisodeHref,
   onFallbackToEmbed,
-  onLanguageChange,
 }: Props) {
   const router = useRouter();
   const native = playback.playback?.kind === 'native' ? playback.playback : null;
@@ -71,6 +77,9 @@ export default function VideoPlayer({
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSaveRef = useRef(0);
   const triedMirrorUrlsRef = useRef<Set<string>>(new Set());
+  const currentTimeRef = useRef(0);
+  const mediaKeyRef = useRef(`${content.type}-${content.id}-${season ?? 0}-${episode ?? 0}`);
+  const pendingSeekRef = useRef<number | null>(null);
 
   const [buffering, setBuffering] = useState(true);
   const [playing, setPlaying] = useState(false);
@@ -128,7 +137,10 @@ export default function VideoPlayer({
       if (native?.url) {
         triedMirrorUrlsRef.current.add(native.url);
       }
-      const nextMirror = mirrors.find(m => !triedMirrorUrlsRef.current.has(m.url));
+      const sameLangMirror = mirrors.find(
+        m => !triedMirrorUrlsRef.current.has(m.url) && (!selectedAudioKey || m.langKey === selectedAudioKey)
+      );
+      const nextMirror = sameLangMirror ?? mirrors.find(m => !triedMirrorUrlsRef.current.has(m.url));
       if (nextMirror && onSelectMirror) {
         showHud(`⚡ Switching to ${nextMirror.label}…`, 1400);
         onSelectMirror(nextMirror);
@@ -142,13 +154,23 @@ export default function VideoPlayer({
       setBuffering(false);
       return false;
     },
-    [mirrors, native, onFallbackToEmbed, onSelectMirror, showHud]
+    [mirrors, native, onFallbackToEmbed, onSelectMirror, selectedAudioKey, showHud]
   );
 
   /* ── Source setup ──────────────────────────────────────────────────── */
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !native) return;
+
+    const currentMediaKey = `${content.type}-${content.id}-${season ?? 0}-${episode ?? 0}`;
+    if (mediaKeyRef.current === currentMediaKey && currentTimeRef.current > 2) {
+      pendingSeekRef.current = currentTimeRef.current;
+    } else if (mediaKeyRef.current !== currentMediaKey) {
+      mediaKeyRef.current = currentMediaKey;
+      currentTimeRef.current = 0;
+      pendingSeekRef.current = null;
+      triedMirrorUrlsRef.current.clear();
+    }
 
     setBuffering(true);
     setError(null);
@@ -293,9 +315,15 @@ export default function VideoPlayer({
     const video = videoRef.current;
     if (!video) return;
     setDuration(video.duration || 0);
-    const saved = getProgress(content.type, content.id, season, episode);
-    if (saved && video.duration && saved.seconds > 15 && saved.seconds < video.duration - 30) {
-      video.currentTime = saved.seconds;
+    const pending = pendingSeekRef.current;
+    pendingSeekRef.current = null;
+    if (pending && video.duration && pending > 1 && pending < video.duration - 2) {
+      video.currentTime = pending;
+    } else {
+      const saved = getProgress(content.type, content.id, season, episode);
+      if (saved && video.duration && saved.seconds > 15 && saved.seconds < video.duration - 30) {
+        video.currentTime = saved.seconds;
+      }
     }
     setBuffering(false);
   }, [content.type, content.id, season, episode]);
@@ -303,6 +331,7 @@ export default function VideoPlayer({
   const onTimeUpdate = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+    currentTimeRef.current = video.currentTime;
     setCurrent(video.currentTime);
     if (video.buffered.length > 0) {
       setBufferedEnd(video.buffered.end(video.buffered.length - 1));
@@ -740,30 +769,6 @@ export default function VideoPlayer({
               : ''}
           </h2>
         </div>
-
-        {/* Fast Mirror / Audio switcher inside player */}
-        {mirrors.length > 1 && onSelectMirror && (
-          <div className="videoplayer__mirrors">
-            <select
-              className="videoplayer__select"
-              value={native.url}
-              onChange={e => {
-                const chosen = mirrors.find(m => m.url === e.target.value);
-                if (chosen) {
-                  showHud(`⚡ ${chosen.label}`);
-                  onSelectMirror(chosen);
-                }
-              }}
-              aria-label="Audio track and stream mirror"
-            >
-              {mirrors.map(m => (
-                <option key={m.id} value={m.url}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
       </div>
 
       {/* Player HUD Toast */}
@@ -936,21 +941,6 @@ export default function VideoPlayer({
 
           <span className="videoplayer__spacer" />
 
-          {playback.audioTracks.length > 1 && onLanguageChange && mirrors.length <= 1 && (
-            <select
-              className="videoplayer__select"
-              defaultValue={playback.selectedLanguage}
-              onChange={e => onLanguageChange(e.target.value)}
-              aria-label="Audio language"
-            >
-              {playback.audioTracks.map(t => (
-                <option key={t.label} value={t.label}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          )}
-
           {hasSubtitles && (
             <button
               type="button"
@@ -1002,7 +992,7 @@ export default function VideoPlayer({
                         </span>
                       </button>
                     )}
-                    {embeddedAudio.length > 1 && (
+                    {(audioOptions.length > 1 || embeddedAudio.length > 1) && (
                       <button
                         type="button"
                         className="videoplayer__menu-item videoplayer__menu-row"
@@ -1010,7 +1000,10 @@ export default function VideoPlayer({
                       >
                         <span>Audio</span>
                         <span className="videoplayer__menu-val">
-                          {embeddedAudio.find(a => a.id === activeAudioTrack)?.name ?? 'Auto'}
+                          {audioOptions.length > 1
+                            ? audioOptions.find(o => o.key === selectedAudioKey)?.label ??
+                              audioOptions[0].label
+                            : embeddedAudio.find(a => a.id === activeAudioTrack)?.name ?? 'Auto'}
                         </span>
                       </button>
                     )}
@@ -1081,20 +1074,37 @@ export default function VideoPlayer({
                         ))}
                       </>
                     )}
-                    {settingsTab === 'audio' &&
-                      embeddedAudio.map(t => (
-                        <button
-                          type="button"
-                          key={t.id}
-                          className={`videoplayer__menu-item ${activeAudioTrack === t.id ? 'is-active' : ''}`}
-                          onClick={() => {
-                            changeEmbeddedAudio(t.id);
-                            setSettingsOpen(false);
-                          }}
-                        >
-                          {t.name}
-                        </button>
-                      ))}
+                    {settingsTab === 'audio' && (
+                      <>
+                        {audioOptions.map(opt => (
+                          <button
+                            type="button"
+                            key={opt.key}
+                            className={`videoplayer__menu-item ${selectedAudioKey === opt.key ? 'is-active' : ''}`}
+                            onClick={() => {
+                              onSelectAudioOption?.(opt);
+                              showHud(`${opt.flag} ${opt.label}`);
+                              setSettingsOpen(false);
+                            }}
+                          >
+                            {opt.flag} {opt.label}
+                          </button>
+                        ))}
+                        {embeddedAudio.map(t => (
+                          <button
+                            type="button"
+                            key={t.id}
+                            className={`videoplayer__menu-item ${activeAudioTrack === t.id ? 'is-active' : ''}`}
+                            onClick={() => {
+                              changeEmbeddedAudio(t.id);
+                              setSettingsOpen(false);
+                            }}
+                          >
+                            {t.name}
+                          </button>
+                        ))}
+                      </>
+                    )}
                     {settingsTab === 'subs' && (
                       <>
                         <button
