@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle,
   Loader2,
   Zap,
   Minimize,
@@ -1156,14 +1155,6 @@ function EmbedStage({
         onToggleAutoSwitch={onToggleAutoSwitch}
         switchBanner={switchBanner}
       />
-
-      {notice && (
-        <div className="watch__under">
-          <p className="watch__notice">
-            <AlertTriangle size={13} /> {notice}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
