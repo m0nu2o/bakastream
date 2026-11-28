@@ -15,6 +15,7 @@ export interface DirectStreamOption {
   langKey: string;
   flag: string;
   nativeLabel: string;
+  quality?: string;
   url: string;
   streamType: 'hls' | 'mp4';
 }
@@ -93,6 +94,18 @@ function cdnPriorityScore(url: string): number {
   if (lower.includes('cdn.ngcloud.app')) return 8;
   if (lower.includes('hscow.com') || lower.includes('fcxmb.com')) return 10;
   return 6;
+}
+
+function extractQualityFromUrl(url: string): { label?: string; bonus: number } {
+  const m = url.match(/(?:_|\/|-)(2160|1440|1080|720|480|360)[pP]?(?:\/|_|\.|&|$)/);
+  if (!m) return { bonus: 0 };
+  const q = m[1];
+  if (q === '2160') return { label: '4K', bonus: 8 };
+  if (q === '1440') return { label: '1440p', bonus: 7 };
+  if (q === '1080') return { label: '1080p', bonus: 6 };
+  if (q === '720') return { label: '720p', bonus: 4 };
+  if (q === '480') return { label: '480p', bonus: 1 };
+  return { label: `${q}p`, bonus: 0 };
 }
 
 function canonicalLangKey(rawLanguage?: string): {
@@ -263,7 +276,11 @@ export async function extractDirectStreams(params: {
         const streamType: 'hls' | 'mp4' = entry.type === 'mp4' ? 'mp4' : 'hls';
         const canon = canonicalLangKey(entry.language);
         const cdn = cdnPriorityScore(url);
-        const total = langMatchScore(canon.key, params.preferredLanguage, params.subOrDub) + cdn;
+        const qual = extractQualityFromUrl(url);
+        const total =
+          langMatchScore(canon.key, params.preferredLanguage, params.subOrDub) +
+          cdn +
+          qual.bonus;
         decrypted.push({
           id: mirrorName,
           label: `${canon.label} (${mirrorName})`,
@@ -271,9 +288,10 @@ export async function extractDirectStreams(params: {
           langKey: canon.key,
           flag: canon.flag,
           nativeLabel: canon.nativeLabel,
+          quality: qual.label,
           url,
           streamType,
-          cdnScore: cdn,
+          cdnScore: cdn + qual.bonus,
           totalScore: total,
         });
       } catch {
@@ -317,13 +335,14 @@ export async function extractDirectStreams(params: {
   verified.sort((a, b) => b.totalScore - a.totalScore);
 
   const streams: DirectStreamOption[] = verified.map(
-    ({ id, label, language, langKey, flag, nativeLabel, url, streamType }) => ({
+    ({ id, label, language, langKey, flag, nativeLabel, quality, url, streamType }) => ({
       id,
       label,
       language,
       langKey,
       flag,
       nativeLabel,
+      quality,
       url,
       streamType,
     })

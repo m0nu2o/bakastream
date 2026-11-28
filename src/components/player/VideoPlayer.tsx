@@ -118,6 +118,7 @@ export default function VideoPlayer({
   // Quality levels
   const [levels, setLevels] = useState<Array<{ height: number; index: number }>>([]);
   const [activeLevel, setActiveLevel] = useState(-1);
+  const [detectedHeight, setDetectedHeight] = useState(0);
 
   // Embedded HLS audio & subtitle tracks
   const [embeddedAudio, setEmbeddedAudio] = useState<EmbeddedTrack[]>([]);
@@ -131,6 +132,30 @@ export default function VideoPlayer({
 
   const hasSubtitles = embeddedSubtitles.length > 0 || sidecarSubtitles.length > 0;
   const isSubtitleActive = activeHlsSubtitle !== -1 || activeSidecarSubtitle !== -1;
+
+  const activeMirror = useMemo(
+    () => (native?.url ? mirrors.find(m => m.url === native.url) : undefined),
+    [mirrors, native]
+  );
+
+  const sameLangMirrors = useMemo(() => {
+    const targetLang = selectedAudioKey || activeMirror?.langKey;
+    if (!targetLang) return mirrors;
+    const filtered = mirrors.filter(m => m.langKey === targetLang);
+    return filtered.length > 0 ? filtered : mirrors;
+  }, [mirrors, selectedAudioKey, activeMirror?.langKey]);
+
+  const currentQualityLabel = useMemo(() => {
+    if (levels.length > 1 && activeLevel !== -1) {
+      const h = levels.find(l => l.index === activeLevel)?.height;
+      if (h) return `${h}p`;
+    }
+    if (activeMirror?.quality) return activeMirror.quality;
+    if (detectedHeight > 0) {
+      return levels.length > 1 ? `Auto (${detectedHeight}p)` : `${detectedHeight}p`;
+    }
+    return 'Auto';
+  }, [levels, activeLevel, activeMirror?.quality, detectedHeight]);
 
   const tryFailoverOrError = useCallback(
     (msg: string) => {
@@ -176,6 +201,7 @@ export default function VideoPlayer({
     setError(null);
     setDismissUpNext(false);
     setLevels([]);
+    setDetectedHeight(0);
     setEmbeddedAudio([]);
     setEmbeddedSubtitles([]);
     setActiveLevel(-1);
@@ -315,6 +341,9 @@ export default function VideoPlayer({
     const video = videoRef.current;
     if (!video) return;
     setDuration(video.duration || 0);
+    if (video.videoHeight > 0) {
+      setDetectedHeight(video.videoHeight);
+    }
     const pending = pendingSeekRef.current;
     pendingSeekRef.current = null;
     if (pending && video.duration && pending > 1 && pending < video.duration - 2) {
@@ -978,20 +1007,14 @@ export default function VideoPlayer({
                       <span>Speed</span>
                       <span className="videoplayer__menu-val">{speed}×</span>
                     </button>
-                    {levels.length > 1 && (
-                      <button
-                        type="button"
-                        className="videoplayer__menu-item videoplayer__menu-row"
-                        onClick={() => setSettingsTab('quality')}
-                      >
-                        <span>Quality</span>
-                        <span className="videoplayer__menu-val">
-                          {activeLevel === -1
-                            ? 'Auto'
-                            : `${levels.find(l => l.index === activeLevel)?.height ?? ''}p`}
-                        </span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className="videoplayer__menu-item videoplayer__menu-row"
+                      onClick={() => setSettingsTab('quality')}
+                    >
+                      <span>Quality</span>
+                      <span className="videoplayer__menu-val">{currentQualityLabel}</span>
+                    </button>
                     {(audioOptions.length > 1 || embeddedAudio.length > 1) && (
                       <button
                         type="button"
@@ -1049,29 +1072,57 @@ export default function VideoPlayer({
                       ))}
                     {settingsTab === 'quality' && (
                       <>
-                        <button
-                          type="button"
-                          className={`videoplayer__menu-item ${activeLevel === -1 ? 'is-active' : ''}`}
-                          onClick={() => {
-                            changeQuality(-1);
-                            setSettingsOpen(false);
-                          }}
-                        >
-                          Auto
-                        </button>
-                        {levels.map(l => (
+                        {levels.length > 1 ? (
+                          <>
+                            <button
+                              type="button"
+                              className={`videoplayer__menu-item ${activeLevel === -1 ? 'is-active' : ''}`}
+                              onClick={() => {
+                                changeQuality(-1);
+                                setSettingsOpen(false);
+                              }}
+                            >
+                              Auto{detectedHeight > 0 ? ` (${detectedHeight}p)` : ''}
+                            </button>
+                            {levels.map(l => (
+                              <button
+                                type="button"
+                                key={l.index}
+                                className={`videoplayer__menu-item ${activeLevel === l.index ? 'is-active' : ''}`}
+                                onClick={() => {
+                                  changeQuality(l.index);
+                                  setSettingsOpen(false);
+                                }}
+                              >
+                                {l.height}p
+                              </button>
+                            ))}
+                          </>
+                        ) : sameLangMirrors.length > 1 && onSelectMirror ? (
+                          sameLangMirrors.map(m => (
+                            <button
+                              type="button"
+                              key={m.id}
+                              className={`videoplayer__menu-item ${native?.url === m.url ? 'is-active' : ''}`}
+                              onClick={() => {
+                                showHud(`⚡ ${m.quality ?? 'HD'} · ${m.id}`);
+                                onSelectMirror(m);
+                                setSettingsOpen(false);
+                              }}
+                            >
+                              {m.quality ?? (detectedHeight > 0 ? `${detectedHeight}p` : 'HD')} ·{' '}
+                              {m.id}
+                            </button>
+                          ))
+                        ) : (
                           <button
                             type="button"
-                            key={l.index}
-                            className={`videoplayer__menu-item ${activeLevel === l.index ? 'is-active' : ''}`}
-                            onClick={() => {
-                              changeQuality(l.index);
-                              setSettingsOpen(false);
-                            }}
+                            className="videoplayer__menu-item is-active"
+                            onClick={() => setSettingsOpen(false)}
                           >
-                            {l.height}p
+                            {currentQualityLabel}
                           </button>
-                        ))}
+                        )}
                       </>
                     )}
                     {settingsTab === 'audio' && (
